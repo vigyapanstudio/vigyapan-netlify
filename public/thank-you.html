@@ -29,6 +29,7 @@
 <div class="card next">
   <h2 style="margin-top:0">What happens next</h2>
   <ol>
+    <li id="mailLine" hidden style="list-style:disc">Your <b>payment receipt and invoice</b> are being emailed to <b id="mailTo"></b>. Check your spam folder if you do not see it in a few minutes.</li>
     <li><b>Tap the green button below</b> to send us your payment details on WhatsApp. This lets us start straight away and chat with you.</li>
     <li>We study your page and your competitors and build your plan.</li>
     <li>You get your report, calendar and video walkthrough within <b>48 hours</b>, on WhatsApp and email.</li>
@@ -52,6 +53,7 @@
       document.getElementById("tyEyebrow").textContent="Payment received";
       document.getElementById("tyLede").textContent="Your payment went through. We are confirming it on our side. If you do not hear from us on WhatsApp within a few hours, message us with your payment ID below.";
     }
+    if(d.email){ document.getElementById("mailTo").textContent=d.email; document.getElementById("mailLine").hidden=false; }
     var rows=[["Payment ID",d.paymentId],["Amount paid",inr(d.amount)],["Instagram","@"+d.ig],["Business",d.biz]];
     if(d.bump) rows.push(["Add-on","10 reel scripts"]);
     var r=document.getElementById("receipt"); r.hidden=false;

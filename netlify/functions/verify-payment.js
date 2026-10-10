@@ -1,5 +1,6 @@
 // Netlify Function: checks that a payment really came from Razorpay.
 const crypto = require('crypto');
+const { sendReceipt } = require('../lib/receipt');
 const reply = (statusCode, obj, extra) => ({
   statusCode,
   headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, extra || {}),
@@ -22,5 +23,9 @@ exports.handler = async (event) => {
   const a = Buffer.from(expected);
   const c = Buffer.from(signature);
   const ok = a.length === c.length && crypto.timingSafeEqual(a, c);
+  if (ok) {
+    // Send the receipt + invoice email now (wait at most 6 seconds so the customer is never kept waiting).
+    await Promise.race([sendReceipt(paymentId), new Promise((res) => setTimeout(res, 6000))]);
+  }
   return reply(ok ? 200 : 400, { verified: ok });
 };

@@ -383,8 +383,8 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
         <form id="form" class="panel show" novalidate>
           <div class="fields">
             <div class="f"><label for="name">Your name</label><input id="name" autocomplete="name" placeholder="e.g. Riya Sharma"><div class="msg"></div></div>
-            <div class="f"><label for="phone">WhatsApp number</label><input id="phone" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" maxlength="14"><div class="msg"></div></div>
-            <div class="f"><label for="email">Email <small>(report is sent here)</small></label><input id="email" type="email" autocomplete="email" placeholder="you@business.com"><div class="msg"></div></div>
+            <div class="f"><label for="phone">WhatsApp number <small>(order updates come here)</small></label><input id="phone" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" maxlength="14"><div class="msg"></div></div>
+            <div class="f"><label for="email">Email <small>(payment receipt, invoice and report are sent here)</small></label><input id="email" type="email" autocomplete="email" placeholder="you@business.com"><div class="msg"></div></div>
             <div class="f"><label for="ig">Your Instagram handle</label><div class="at"><span>@</span><input id="ig" autocapitalize="none" autocorrect="off" placeholder="yourbusiness"></div><div class="msg"></div></div>
             <div class="f"><label for="biz">Business name</label><input id="biz" placeholder="e.g. Glow Salon"><div class="msg"></div></div>
             <div class="f"><label for="type">Business type</label>
@@ -601,7 +601,7 @@ function onPaid(resp){
     .then(function(j){ verified=!!(j&&j.verified); })
     .catch(function(){ verified=false; })
     .then(function(){
-      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump,
+      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, email:order.email, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump,
         orderId:session.orderId, paymentId:resp.razorpay_payment_id, verified:verified })); }catch(e){}
       location.href="/thank-you";
     });

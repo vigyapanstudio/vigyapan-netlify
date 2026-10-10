@@ -13,6 +13,11 @@
   force = true
 
 [[redirects]]
+  from = "/api/razorpay-webhook"
+  to = "/.netlify/functions/razorpay-webhook"
+  status = 200
+  force = true
+[[redirects]]
   from = "/api/verify-payment"
   to = "/.netlify/functions/verify-payment"
   status = 200
