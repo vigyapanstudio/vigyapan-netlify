@@ -32,6 +32,10 @@
   to = "/refund.html"
   status = 200
 [[redirects]]
+  from = "/shipping"
+  to = "/shipping.html"
+  status = 200
+[[redirects]]
   from = "/contact"
   to = "/contact.html"
   status = 200
