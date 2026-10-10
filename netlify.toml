@@ -1,0 +1,48 @@
+# Tells Netlify where the website files and the payment functions live.
+[build]
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+
+# The website calls /api/..., Netlify sends it to the right function.
+[[redirects]]
+  from = "/api/create-order"
+  to = "/.netlify/functions/create-order"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/verify-payment"
+  to = "/.netlify/functions/verify-payment"
+  status = 200
+  force = true
+
+# Clean page addresses (yourdomain.com/terms instead of /terms.html)
+[[redirects]]
+  from = "/terms"
+  to = "/terms.html"
+  status = 200
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+[[redirects]]
+  from = "/refund"
+  to = "/refund.html"
+  status = 200
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+[[redirects]]
+  from = "/thank-you"
+  to = "/thank-you.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"

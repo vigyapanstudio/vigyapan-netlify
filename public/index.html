@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#06201F">
+<meta property="og:title" content="Instagram Growth Report + 30-Day Plan | Vigyapan Studio">
+<meta property="og:description" content="We study your Instagram page and your competitors, then hand you a 30-day content plan in 48 hours.">
+<meta property="og:type" content="website">
+<script src="/assets/config.js"></script>
+<script src="/assets/site.js" defer></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Get your Instagram growth report and 30-day content calendar in 48 hours. Made for small businesses by Vigyapan Studio.">
+<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<title>Instagram Growth Report + 30-Day Plan | Vigyapan Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#06201F; --bg2:#0B2E2C; --panel:#0E3634; --line:#1E5551;
+  --ink:#F3F7F2; --mute:#9DBFB9; --gold:#FFB72B; --gold-ink:#2A1A00;
+  --coral:#FF5A45; --mint:#5EE6B8; --err:#FF8A7A;
+  --display:'Bricolage Grotesque','Arial Black',system-ui,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'DM Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--body);
+  font-size:16px; line-height:1.55; padding-inline:16px; padding-block:0 96px; overflow-x:hidden;
+}
+a{color:inherit}
+.wrap{max-width:1080px; margin-inline:auto}
+
+/* ambient background */
+.aura{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden}
+.aura i{position:absolute; border-radius:50%; filter:blur(70px); opacity:.35; animation:drift 18s ease-in-out infinite alternate}
+.aura i:nth-child(1){width:420px;height:420px;background:#0F8C7E;top:-120px;left:-100px}
+.aura i:nth-child(2){width:360px;height:360px;background:#FF5A45;opacity:.18;top:35%;right:-140px;animation-duration:22s}
+.aura i:nth-child(3){width:320px;height:320px;background:#FFB72B;opacity:.14;bottom:-120px;left:20%;animation-duration:26s}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.15)}}
+main,header,footer{position:relative; z-index:1}
+
+/* top bar */
+.top{display:flex; align-items:center; justify-content:space-between; padding-block:18px; gap:12px}
+.logo{font-family:var(--display); font-weight:800; font-size:1.15rem; letter-spacing:-.01em; display:flex; align-items:center; gap:10px}
+.logo{white-space:nowrap; text-decoration:none}
+.logo img{width:42px; height:42px; border-radius:12px; display:block; box-shadow:0 0 0 2px var(--line)}
+.ig{display:inline-flex; align-items:center; gap:8px; text-decoration:none; font-family:var(--mono); font-size:.78rem; color:var(--ink); border:1px solid var(--line); border-radius:99px; padding:8px 14px; background:rgba(255,255,255,.03); transition:border-color .15s, transform .15s; white-space:nowrap}
+.ig:hover{border-color:var(--gold); transform:translateY(-2px)}
+.ig svg{width:16px; height:16px; flex:none}
+.brandfoot{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+.brandfoot img{width:150px; max-width:40vw; border-radius:16px; display:block}
+.brandfoot .links{display:grid; gap:10px; justify-items:start}
+.hero .pill{margin-bottom:18px}
+.pill{font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--mint); border:1px solid var(--line); padding:6px 12px; border-radius:99px; display:inline-flex; gap:8px; align-items:center}
+.pill::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--mint); animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+/* hero */
+.hero{display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; padding-block:28px 56px}
+.eyebrow{font-family:var(--mono); font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gold)}
+h1{font-family:var(--display); font-weight:800; font-size:clamp(2.4rem,6.4vw,4.6rem); line-height:.98; letter-spacing:-.03em; margin:14px 0 18px; text-wrap:balance}
+h1 em{font-style:normal; color:var(--gold); position:relative; white-space:nowrap}
+h1 em svg{position:absolute; left:0; bottom:-.14em; width:100%; height:.32em; overflow:visible}
+h1 em path{stroke:var(--coral); stroke-width:5; fill:none; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; animation:draw 1.2s .5s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.lede{color:var(--mute); font-size:1.12rem; max-width:34em; margin:0 0 26px}
+.cta-row{display:flex; flex-wrap:wrap; gap:14px; align-items:center}
+.btn{
+  font-family:var(--display); font-weight:800; font-size:1.05rem; letter-spacing:-.01em;
+  background:var(--gold); color:var(--gold-ink); border:0; border-radius:14px; padding:16px 26px;
+  cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  box-shadow:0 6px 0 #B57A00, 0 14px 30px rgba(255,183,43,.25); transition:transform .12s, box-shadow .12s;
+  position:relative; overflow:hidden
+}
+.btn::after{content:""; position:absolute; top:0; left:-60%; width:40%; height:100%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent); transform:skewX(-20deg); animation:shine 3.2s infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.btn:hover{transform:translateY(2px); box-shadow:0 4px 0 #B57A00, 0 10px 24px rgba(255,183,43,.25)}
+.btn:active{transform:translateY(6px); box-shadow:0 0 0 #B57A00}
+.btn.alt{background:transparent; color:var(--ink); box-shadow:none; border:1.5px solid var(--line)}
+.btn.alt::after{display:none}
+.btn.alt:hover{border-color:var(--gold); transform:none}
+.btn.upi{background:var(--mint); color:#032A1E; box-shadow:0 6px 0 #2BA37C, 0 14px 30px rgba(94,230,184,.2)}
+.btn.upi:hover{box-shadow:0 4px 0 #2BA37C}
+.btn[disabled]{opacity:.55; cursor:not-allowed}
+:focus-visible{outline:3px solid var(--gold); outline-offset:3px; border-radius:8px}
+.price-tag{font-family:var(--mono); color:var(--mute); font-size:.9rem}
+.price-tag s{color:var(--coral)}
+.price-tag strong{color:var(--ink); font-size:1.5rem; font-family:var(--display)}
+.trust{display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:26px; color:var(--mute); font-size:.9rem}
+.trust span::before{content:"✓ "; color:var(--mint); font-weight:700}
+
+/* phone mockup */
+.stage{position:relative; display:grid; place-items:center; min-height:470px}
+.phone{
+  width:min(290px,78vw); border-radius:38px; background:#031817; border:2px solid var(--line);
+  padding:14px 14px 20px; box-shadow:0 30px 70px rgba(0,0,0,.5), 0 0 0 8px rgba(255,255,255,.03);
+  transform:rotate(-4deg); animation:float 6s ease-in-out infinite;
+}
+@keyframes float{50%{transform:rotate(-2deg) translateY(-12px)}}
+.notch{width:70px; height:6px; background:var(--line); border-radius:9px; margin:0 auto 12px}
+.ph-head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+.ph-av{width:34px; height:34px; border-radius:50%; background:conic-gradient(var(--gold),var(--coral),var(--mint),var(--gold)); padding:2px}
+.ph-av::after{content:""; display:block; width:100%; height:100%; border-radius:50%; background:var(--bg2)}
+.ph-name{font-size:.82rem; font-weight:700; line-height:1.2}
+.ph-name small{display:block; color:var(--mute); font-weight:400; font-family:var(--mono); font-size:.66rem}
+.ph-title{font-family:var(--mono); font-size:.68rem; color:var(--gold); letter-spacing:.1em; text-transform:uppercase; margin:12px 0 8px; display:flex; justify-content:space-between}
+.cal{display:grid; grid-template-columns:repeat(6,1fr); gap:5px}
+.cal span{
+  aspect-ratio:1; border-radius:7px; background:var(--panel); position:relative; font-family:var(--mono); font-size:.55rem; color:var(--mute);
+  display:grid; place-items:center; animation:pulse 5s infinite; animation-delay:calc(var(--i)*.11s)
+}
+.cal span.r{background:rgba(255,90,69,.28); color:#FFB3A8}
+.cal span.p{background:rgba(255,183,43,.24); color:#FFD98A}
+.cal span.s{background:rgba(94,230,184,.2); color:#A5F3D6}
+@keyframes pulse{0%,72%,100%{transform:scale(1); filter:none}8%{transform:scale(1.18); filter:brightness(1.6)}16%{transform:scale(1)}}
+.legend{display:flex; gap:12px; margin-top:12px; font-family:var(--mono); font-size:.58rem; color:var(--mute)}
+.legend i{display:inline-block; width:8px; height:8px; border-radius:3px; margin-right:5px}
+.bars{display:flex; align-items:flex-end; gap:5px; height:46px; margin-top:12px}
+.bars b{flex:1; background:linear-gradient(var(--mint),#1F8F71); border-radius:4px 4px 0 0; height:var(--h); transform-origin:bottom; animation:grow 3s ease-in-out infinite alternate; animation-delay:calc(var(--k)*.12s)}
+@keyframes grow{from{transform:scaleY(.55)}to{transform:scaleY(1)}}
+.chip{
+  position:absolute; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:10px 14px;
+  font-size:.8rem; box-shadow:0 14px 30px rgba(0,0,0,.35); animation:bob 5s ease-in-out infinite; white-space:nowrap
+}
+.chip small{display:block; color:var(--mute); font-family:var(--mono); font-size:.62rem; letter-spacing:.06em; text-transform:uppercase}
+.chip strong{font-family:var(--display); font-size:1.05rem}
+.c1{top:34px; right:-2px; animation-delay:-1s}
+.c2{bottom:70px; left:-8px; animation-delay:-2.5s}
+.c3{bottom:8px; right:12px; animation-delay:-4s}
+@keyframes bob{50%{transform:translateY(-10px)}}
+
+/* ticker */
+.ticker{border-block:1px solid var(--line); overflow:hidden; white-space:nowrap; margin-block:8px 0; padding-block:12px; font-family:var(--mono); font-size:.8rem; color:var(--mute); text-transform:uppercase; letter-spacing:.1em}
+.ticker div{display:inline-block; animation:tick 30s linear infinite}
+.ticker span{margin-inline:22px}
+.ticker span::before{content:"✦"; color:var(--gold); margin-right:22px}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* sections */
+section{padding-block:60px 10px}
+h2{font-family:var(--display); font-weight:800; font-size:clamp(1.8rem,4.2vw,2.8rem); line-height:1.05; letter-spacing:-.025em; margin:10px 0 28px; text-wrap:balance}
+.get{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px}
+.get article{background:var(--bg2); border:1px solid var(--line); border-radius:20px; padding:22px; transition:transform .2s, border-color .2s}
+.get article:hover{transform:translateY(-6px) rotate(-.6deg); border-color:var(--gold)}
+.get svg{width:44px; height:44px; margin-bottom:14px}
+.get h3{font-family:var(--display); font-size:1.2rem; margin:0 0 6px; letter-spacing:-.01em}
+.get p{margin:0; color:var(--mute); font-size:.95rem}
+
+/* form card */
+.form-shell{display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start}
+.card{background:var(--bg2); border:1px solid var(--line); border-radius:26px; padding:clamp(20px,4vw,34px)}
+.steps{display:flex; align-items:center; gap:10px; margin-bottom:26px; font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--mute); flex-wrap:wrap}
+.steps .s{display:flex; align-items:center; gap:8px}
+.steps .n{width:26px; height:26px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; transition:.3s}
+.steps .s.on{color:var(--ink)}
+.steps .s.on .n{background:var(--gold); border-color:var(--gold); color:var(--gold-ink); font-weight:700}
+.steps .s.done .n{background:var(--mint); border-color:var(--mint); color:#032A1E}
+.steps .bar{flex:1; min-width:16px; height:2px; background:var(--line)}
+.fields{display:grid; grid-template-columns:1fr 1fr; gap:18px 16px}
+.f{display:flex; flex-direction:column; gap:6px; min-width:0}
+.f.full{grid-column:1/-1}
+label{font-size:.85rem; font-weight:700}
+label small{font-weight:400; color:var(--mute)}
+input,select,textarea{
+  font:inherit; color:var(--ink); background:var(--bg); border:1.5px solid var(--line); border-radius:12px; padding:13px 14px; width:100%;
+  transition:border-color .15s, box-shadow .15s
+}
+input::placeholder,textarea::placeholder{color:#5F8781}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(255,183,43,.16)}
+textarea{min-height:88px; resize:vertical}
+select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%); background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%; background-size:6px 6px; background-repeat:no-repeat; padding-right:38px}
+.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--err)}
+.msg{font-size:.78rem; color:var(--err); min-height:0; display:none}
+.f.bad .msg{display:block}
+.at{position:relative}
+.at span{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--mute)}
+.at input{padding-left:32px}
+.bump{display:flex; gap:14px; align-items:flex-start; border:1.5px dashed var(--gold); border-radius:16px; padding:16px; cursor:pointer; background:rgba(255,183,43,.06); grid-column:1/-1}
+.bump input{width:22px; height:22px; margin-top:2px; accent-color:var(--gold); flex:none}
+.bump b{font-family:var(--display)}
+.bump span{color:var(--mute); font-size:.9rem; display:block}
+.consent{display:flex; gap:12px; align-items:flex-start; font-size:.88rem; color:var(--mute); grid-column:1/-1}
+.consent input{width:20px; height:20px; flex:none; margin-top:2px; accent-color:var(--gold)}
+.actions{grid-column:1/-1; display:flex; flex-direction:column; gap:10px}
+.actions .btn{width:100%}
+.fine{font-size:.78rem; color:var(--mute); text-align:center; margin:0}
+
+/* summary */
+.sum{position:sticky; top:16px}
+.sum h3{font-family:var(--display); margin:0 0 14px; font-size:1.15rem}
+.row{display:flex; justify-content:space-between; gap:12px; padding-block:9px; border-bottom:1px dashed var(--line); font-size:.92rem}
+.row span:last-child{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.row.total{border-bottom:0; font-family:var(--display); font-size:1.4rem; padding-top:14px}
+.row.total span:last-child{font-family:var(--display); color:var(--gold)}
+.sum ul{list-style:none; padding:0; margin:14px 0 0; display:grid; gap:8px; font-size:.88rem; color:var(--mute)}
+.sum li::before{content:"✓ "; color:var(--mint)}
+
+/* pay & done panels */
+.panel{display:none}
+.panel.show{display:block; animation:rise .45s ease-out}
+@keyframes rise{from{transform:translateY(16px); opacity:0}}
+.pay-total{font-family:var(--display); font-weight:800; font-size:3.4rem; letter-spacing:-.03em; color:var(--gold); margin:4px 0 2px}
+.pay-grid{display:grid; gap:12px; margin-block:22px}
+.recap{background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:14px 16px; font-size:.88rem; color:var(--mute); display:grid; gap:4px; word-break:break-word}
+.recap b{color:var(--ink)}
+.note{font-size:.85rem; color:var(--mute); margin-top:14px}
+.check{width:96px; height:96px; margin-bottom:10px}
+.check circle{fill:none; stroke:var(--mint); stroke-width:5; stroke-dasharray:290; stroke-dashoffset:290; animation:draw2 .8s ease-out forwards}
+.check path{fill:none; stroke:var(--mint); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:70; stroke-dashoffset:70; animation:draw2 .5s .7s ease-out forwards}
+@keyframes draw2{to{stroke-dashoffset:0}}
+#confetti{position:fixed; inset:0; pointer-events:none; z-index:50}
+
+/* faq */
+details{border-bottom:1px solid var(--line); padding-block:16px}
+summary{cursor:pointer; font-family:var(--display); font-weight:600; font-size:1.1rem; list-style:none; display:flex; justify-content:space-between; gap:14px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; color:var(--gold); font-size:1.5rem; line-height:1; transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--mute); margin:10px 0 0; max-width:60ch}
+footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px}
+
+/* sticky cta (mobile) */
+.sticky{position:fixed; left:0; right:0; bottom:0; z-index:20; display:none; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:rgba(6,32,31,.92); backdrop-filter:blur(10px); border-top:1px solid var(--line); align-items:center; justify-content:space-between; gap:14px}
+.sticky .btn{padding:12px 20px; font-size:.95rem; box-shadow:none}
+.sticky strong{font-family:var(--display); font-size:1.3rem}
+.sticky small{display:block; color:var(--mute); font-size:.72rem; font-family:var(--mono)}
+
+/* toast */
+.toast{position:fixed; left:50%; bottom:90px; transform:translate(-50%,30px); background:var(--ink); color:var(--bg); padding:12px 18px; border-radius:12px; font-weight:700; font-size:.9rem; opacity:0; pointer-events:none; transition:.3s; z-index:60; max-width:calc(100vw - 32px); text-align:center}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+
+@media (max-width:480px){
+  .top{gap:8px}
+  .logo{font-size:1rem; gap:8px}
+  .logo img{width:38px; height:38px}
+  header .ig{font-size:.66rem; padding:7px 10px; gap:6px}
+  header .ig svg{width:14px; height:14px}
+}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr; gap:10px}
+  .stage{min-height:440px}
+  .form-shell{grid-template-columns:1fr}
+  .sum{position:static; order:-1}
+  .sticky{display:flex}
+}
+@media (max-width:560px){
+  .fields{grid-template-columns:1fr}
+  .c1{right:-6px} .c2{left:-6px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important; animation-iteration-count:1!important; transition-duration:.001s!important}
+  html{scroll-behavior:auto}
+}
+
+.sample{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:clamp(20px,4vw,32px)}
+.sample h3{font-family:var(--display);font-size:1.5rem;margin:0 0 8px;letter-spacing:-.01em}
+.sample p{margin:0;color:var(--mute);max-width:46ch}
+.about{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+.about img{width:130px;height:auto;border-radius:26px;box-shadow:0 0 0 3px var(--line);display:block}
+.about p{color:var(--mute);margin:0 0 14px;max-width:60ch}
+.legal{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.85rem;align-items:center}
+.legal a{color:var(--mute);text-decoration:none}.legal a:hover{color:var(--gold)}
+.consent a{color:var(--gold)}
+.pay-status{min-height:1.4em}
+.pay-status.err{color:var(--err)}
+@media (max-width:700px){.sample{grid-template-columns:1fr}.about{grid-template-columns:1fr}.about img{width:96px}}
+</style>
+
+</head>
+<body>
+<div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<div class="wrap">
+<header class="top" id="top">
+  <a class="logo" href="#top"><img alt="Vigyapan Studio logo" width="42" height="42" src="/assets/logo-icon.jpg"> Vigyapan Studio</a>
+  <a class="ig" href="https://www.instagram.com/vigyapan_studio/" target="_blank" rel="noopener" aria-label="Vigyapan Studio on Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB72B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="#FFB72B"/></svg>@vigyapan_studio</a>
+</header>
+
+<main>
+  <div class="hero">
+    <div>
+      <span class="pill">Reports open · 48 hr delivery</span>
+      <div class="eyebrow">Instagram growth report + content calendar</div>
+      <h1>Stop guessing what to post. Get a <em>30-day plan<svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M3 8 C 40 2, 90 12, 130 6 S 185 4, 197 7"/></svg></em> in 48 hours.</h1>
+      <p class="lede">We study your Instagram page and your top competitors, then hand you a ready-to-follow plan: what to fix, what to post, and when to post it.</p>
+      <div class="cta-row">
+        <a class="btn" href="#order">Get my plan <span aria-hidden="true">→</span></a>
+        <span class="price-tag"><s>₹1,499</s> &nbsp;<strong>₹999</strong> &nbsp;one-time</span>
+      </div>
+      <div class="trust">
+        <span>Ready in 48 hours</span><span>Made for small businesses</span><span>7-day refund</span>
+      </div>
+    </div>
+
+    <div class="stage" aria-hidden="true">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="ph-head"><div class="ph-av"></div><div class="ph-name">@yourbusiness<small>30-day content calendar</small></div></div>
+        <div class="ph-title"><span>Your month</span><span>Day 1-30</span></div>
+        <div class="cal" id="cal"></div>
+        <div class="legend"><span><i style="background:#FF5A45"></i>Reel</span><span><i style="background:#FFB72B"></i>Post</span><span><i style="background:#5EE6B8"></i>Story</span></div>
+        <div class="ph-title" style="margin-top:14px"><span>Reach</span><span>↑ growing</span></div>
+        <div class="bars" id="bars"></div>
+      </div>
+      <div class="chip c1"><small>Best time to post</small><strong>7:30 PM</strong></div>
+      <div class="chip c2"><small>Competitors checked</small><strong>3 of 3</strong></div>
+      <div class="chip c3"><small>Ideas included</small><strong>30 posts + captions</strong></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<div class="ticker" aria-hidden="true"><div id="tick"></div></div>
+
+<div class="wrap">
+<main>
+  <section>
+    <div class="eyebrow">What's inside</div>
+    <h2>Everything you need to post with a plan, not a guess.</h2>
+    <div class="get">
+      <article>
+        <svg viewBox="0 0 44 44" fill="none"><rect x="4" y="4" width="36" height="36" rx="10" stroke="#FFB72B" stroke-width="3"/><path d="M12 30 L19 22 L25 27 L33 15" stroke="#5EE6B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Page growth report</h3><p>What's working, what's hurting your reach, and the first three things to fix.</p>
+      </article>
+      <article>
+        <svg viewBox="0 0 44 44" fill="none"><circle cx="16" cy="18" r="8" stroke="#FF5A45" stroke-width="3"/><circle cx="29" cy="24" r="8" stroke="#FFB72B" stroke-width="3"/></svg>
+        <h3>Competitor check</h3><p>We study 3 rivals and show you what they do better and where you can win.</p>
+      </article>
+      <article>
+        <svg viewBox="0 0 44 44" fill="none"><rect x="5" y="9" width="34" height="30" rx="7" stroke="#FFB72B" stroke-width="3"/><path d="M5 18 H39 M14 4 V13 M30 4 V13" stroke="#FFB72B" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="27" r="2.5" fill="#5EE6B8"/><circle cx="28" cy="27" r="2.5" fill="#FF5A45"/></svg>
+        <h3>30-day calendar</h3><p>A post, reel or story idea for every day, with captions and hashtags ready to paste.</p>
+      </article>
+      <article>
+        <svg viewBox="0 0 44 44" fill="none"><rect x="6" y="10" width="26" height="24" rx="6" stroke="#5EE6B8" stroke-width="3"/><path d="M32 18 L40 13 V31 L32 26" stroke="#5EE6B8" stroke-width="3" stroke-linejoin="round"/></svg>
+        <h3>5-minute video walkthrough</h3><p>We explain your report on video so you know exactly what to do next.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">See it first</div>
+    <h2>Want to see what you'll get?</h2>
+    <div class="sample">
+      <div>
+        <h3>Download a sample report</h3>
+        <p>A 9-page example for a salon: Instagram snapshot, competitor table, best posting times, a content calendar and ready-to-paste captions. Yours is built from your own page.</p>
+      </div>
+      <a class="btn" href="/assets/Vigyapan-Studio-Sample-Instagram-Report.pdf" target="_blank" rel="noopener">View sample (PDF)</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Who's behind it</div>
+    <h2>Vigyapan Studio</h2>
+    <div class="about">
+      <img alt="Vigyapan Studio logo" src="/assets/logo-full.jpg">
+      <div>
+        <p>We make Instagram content for small and mid-size businesses in India and abroad: Reels, carousels and posts, planned and made with AI so you don't need expensive shoots. This report is how we start every project, and now you can buy it on its own.</p>
+        <a class="ig" href="https://www.instagram.com/vigyapan_studio/" target="_blank" rel="noopener">Follow @vigyapan_studio</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="order">
+    <div class="eyebrow">Order in 2 minutes</div>
+    <h2>Tell us about your business. We'll do the rest.</h2>
+
+    <div class="form-shell">
+      <div class="card">
+        <div class="steps" id="steps">
+          <div class="s on" data-s="1"><span class="n">1</span>Your details</div><div class="bar"></div>
+          <div class="s" data-s="2"><span class="n">2</span>Pay</div><div class="bar"></div>
+          <div class="s" data-s="3"><span class="n">3</span>Done</div>
+        </div>
+
+        <!-- STEP 1 -->
+        <form id="form" class="panel show" novalidate>
+          <div class="fields">
+            <div class="f"><label for="name">Your name</label><input id="name" autocomplete="name" placeholder="e.g. Riya Sharma"><div class="msg"></div></div>
+            <div class="f"><label for="phone">WhatsApp number</label><input id="phone" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" maxlength="14"><div class="msg"></div></div>
+            <div class="f"><label for="email">Email <small>(report is sent here)</small></label><input id="email" type="email" autocomplete="email" placeholder="you@business.com"><div class="msg"></div></div>
+            <div class="f"><label for="ig">Your Instagram handle</label><div class="at"><span>@</span><input id="ig" autocapitalize="none" autocorrect="off" placeholder="yourbusiness"></div><div class="msg"></div></div>
+            <div class="f"><label for="biz">Business name</label><input id="biz" placeholder="e.g. Glow Salon"><div class="msg"></div></div>
+            <div class="f"><label for="type">Business type</label>
+              <select id="type"><option value="">Choose one</option><option>Salon / Beauty</option><option>Cafe / Restaurant / Food</option><option>Clothing / Boutique</option><option>Gym / Fitness</option><option>Clinic / Health</option><option>Education / Coaching</option><option>Real estate</option><option>Jewellery</option><option>Home decor / Furniture</option><option>Services / Agency</option><option>Other</option></select><div class="msg"></div></div>
+            <div class="f"><label for="city">City</label><input id="city" autocomplete="address-level2" placeholder="e.g. Ludhiana"><div class="msg"></div></div>
+            <div class="f"><label for="followers">Followers right now</label>
+              <select id="followers"><option value="">Choose one</option><option>Under 500</option><option>500 - 2,000</option><option>2,000 - 10,000</option><option>10,000 - 50,000</option><option>50,000+</option></select><div class="msg"></div></div>
+            <div class="f full"><label for="goal">Main goal on Instagram</label>
+              <select id="goal"><option value="">Choose one</option><option>Get more customers / enquiries</option><option>Get more followers</option><option>Sell products online</option><option>Build my brand</option><option>Get more walk-ins</option></select><div class="msg"></div></div>
+            <div class="f full"><label for="comp">3 competitor Instagram handles <small>(pages you compare yourself with)</small></label><textarea id="comp" placeholder="@competitor1, @competitor2, @competitor3"></textarea><div class="msg"></div></div>
+            <div class="f full"><label for="about">What do you sell, and who buys from you? <small>(optional but helps a lot)</small></label><textarea id="about" placeholder="e.g. Bridal makeup and hair. Customers are women aged 22-35 in Ludhiana."></textarea></div>
+
+            <label class="bump" for="bump">
+              <input type="checkbox" id="bump">
+              <div><b>Add 10 ready-to-shoot reel scripts for just ₹299 more</b><span>Word-for-word scripts in Hinglish or English. Most customers add this.</span></div>
+            </label>
+
+            <label class="consent" for="agree"><input type="checkbox" id="agree"><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a>, <a href="/refund" target="_blank" rel="noopener">Refund Policy</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive my report on the WhatsApp number and email above. I understand this is a planning report, not a promise of followers or sales.</span></label>
+            <div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+            <div class="actions">
+              <button class="btn" type="submit" id="go">Continue to payment <span aria-hidden="true">→</span></button>
+              <p class="fine">Pay securely with UPI, card or netbanking. 7-day refund if the report isn't useful.</p>
+            </div>
+          </div>
+        </form>
+
+        <!-- STEP 2 -->
+        <div id="pay" class="panel" aria-live="polite">
+          <div class="eyebrow">Secure payment</div>
+          <div class="pay-total" id="payTotal">₹999</div>
+          <div class="price-tag" id="payLine">Growth report + 30-day calendar</div>
+          <div class="recap" id="recap" style="margin-block:20px"></div>
+          <div class="pay-grid">
+            <button class="btn upi" type="button" id="payBtn">Pay securely <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="note pay-status" id="payStatus">Opening secure payment…</p>
+          <p class="note">Pay with UPI, cards, netbanking or wallets. Payments are processed by Razorpay, so we never see or store your card or UPI details.</p>
+          <div class="cta-row" style="margin-top:14px">
+            <button class="btn alt" type="button" id="back">← Edit details</button>
+            <a class="btn alt" id="waBtn" href="#" target="_blank" rel="noopener">Prefer WhatsApp? Message us</a>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card sum">
+        <h3>Your order</h3>
+        <div class="row"><span>Growth report + 30-day calendar</span><span>₹999</span></div>
+        <div class="row" id="bumpRow" hidden><span>10 reel scripts</span><span>₹299</span></div>
+        <div class="row total"><span>Total</span><span id="total">₹999</span></div>
+        <ul><li>Delivered in 48 hours</li><li>Page report + 3 competitors</li><li>Captions and hashtags included</li><li>5-minute video walkthrough</li><li>7-day refund</li></ul>
+      </aside>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Questions</div>
+    <h2>Quick answers.</h2>
+    <details><summary>What exactly will I receive?</summary><p>A PDF report on your Instagram page, a look at three competitors, a 30-day calendar with a post, reel or story idea for each day (with captions and hashtags), and a short video explaining it all.</p></details>
+    <details><summary>Will this get me followers or sales?</summary><p>The plan shows you what to post and when, based on what works in your market. Results depend on how consistently you follow it, so we don't promise a number of followers.</p></details>
+    <details><summary>Do you need my Instagram password?</summary><p>Never. We only look at your public page, so we only need your handle.</p></details>
+    <details><summary>When do I get it?</summary><p>Within 48 hours of your payment being confirmed.</p></details>
+    <details><summary>How do I pay?</summary><p>Fill the form, then pay on the next step with UPI, card, netbanking or wallet. Payment is handled securely by Razorpay.</p></details>
+    <details><summary>What if I don't like it?</summary><p>Message us within 7 days of delivery and we'll refund you. Read the full <a href="/refund" style="color:var(--gold)">refund policy</a>.</p></details>
+  </section>
+</main>
+
+<footer>
+  <div class="brandfoot">
+    <img alt="Vigyapan Studio" src="/assets/logo-full.jpg">
+    <div class="links">
+      <strong style="font-family:var(--display); font-size:1.15rem; color:var(--ink)">Vigyapan Studio</strong>
+      <span>Made for small businesses that want to post with a plan.</span>
+      <a class="ig" href="https://www.instagram.com/vigyapan_studio/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB72B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="#FFB72B"/></svg>Follow @vigyapan_studio</a>
+    </div>
+  </div>
+  <div class="legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/contact">Contact</a><span>© 2026 Vigyapan Studio</span></div>
+</footer>
+</div>
+
+<div class="sticky" id="sticky"><div><strong id="stickyTotal">₹999</strong><small>Ready in 48 hours</small></div><a class="btn" href="#order">Get my plan</a></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+var CFG = window.VS_CONFIG || {};
+var BASE = CFG.PRICE_BASE || 999, BUMP = CFG.PRICE_BUMP || 299;
+var $ = function(id){ return document.getElementById(id); };
+function inr(n){ return "₹" + n.toLocaleString("en-IN"); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function toast(t){ var e=$("toast"); e.textContent=t; e.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(function(){e.classList.remove("on")},3200); }
+
+/* --- decorative build --- */
+(function(){
+  var pat=["r","p","s","p","r","p","s","r","p","s","p","s","r","p","r","p","s","p","r","s","r","p","s","p","r","p","s","r","p","s"];
+  var h=""; for(var i=0;i<30;i++){ h+='<span class="'+pat[i]+'" style="--i:'+i+'">'+(i+1)+'</span>'; }
+  $("cal").innerHTML=h;
+  var hs=[35,48,42,60,55,72,66,84,78,95], b="";
+  for(var k=0;k<hs.length;k++){ b+='<b style="--h:'+hs[k]+'%;--k:'+k+'"></b>'; }
+  $("bars").innerHTML=b;
+  var words=["Reels that get seen","30 days planned","Captions ready to paste","Competitors studied","Best posting times","No more guessing","Hashtags included","Ready in 48 hours"], t="";
+  for(var r=0;r<2;r++) for(var w=0;w<words.length;w++) t+="<span>"+words[w]+"</span>";
+  $("tick").innerHTML=t;
+})();
+
+/* --- price sync --- */
+function total(){ return BASE + ($("bump").checked ? BUMP : 0); }
+function syncPrice(){
+  var t=total();
+  $("total").textContent=inr(t); $("stickyTotal").textContent=inr(t);
+  $("bumpRow").hidden=!$("bump").checked;
+}
+$("bump").addEventListener("change", syncPrice);
+
+/* --- validation --- */
+function setErr(id,m){ var f=$(id).closest(".f"); if(m){ f.classList.add("bad"); f.querySelector(".msg").textContent=m; } else { f.classList.remove("bad"); } return !m; }
+function cleanPhone(v){ var d=v.replace(/\D/g,""); if(d.length===12&&d.indexOf("91")===0) d=d.slice(2); if(d.length===11&&d.charAt(0)==="0") d=d.slice(1); return d; }
+function cleanIg(v){ return v.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i,"").replace(/[\/?].*$/,"").replace(/^@/,""); }
+function validate(){
+  var ok=true, v=function(id){return $(id).value.trim();};
+  ok=setErr("name", v("name").length<2 ? "Please enter your name." : "") && ok;
+  ok=setErr("phone", /^[6-9]\d{9}$/.test(cleanPhone(v("phone"))) ? "" : "Enter a valid 10-digit Indian mobile number.") && ok;
+  ok=setErr("email", /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email")) ? "" : "Enter a valid email so we can send your report.") && ok;
+  ok=setErr("ig", /^[A-Za-z0-9._]{1,30}$/.test(cleanIg(v("ig"))) ? "" : "Enter your handle without spaces, like yourbusiness.") && ok;
+  ok=setErr("biz", v("biz").length<2 ? "Enter your business name." : "") && ok;
+  ok=setErr("type", v("type") ? "" : "Choose your business type.") && ok;
+  ok=setErr("city", v("city").length<2 ? "Enter your city." : "") && ok;
+  ok=setErr("followers", v("followers") ? "" : "Choose your follower range.") && ok;
+  ok=setErr("goal", v("goal") ? "" : "Choose your main goal.") && ok;
+  ok=setErr("comp", v("comp").length<3 ? "Add at least one competitor handle." : "") && ok;
+  if(!$("agree").checked){ toast("Please tick the agreement box to continue."); ok=false; }
+  return ok;
+}
+["name","phone","email","ig","biz","type","city","followers","goal","comp"].forEach(function(id){
+  $(id).addEventListener("input", function(){ $(id).closest(".f").classList.remove("bad"); });
+});
+
+/* --- steps --- */
+var order=null, session=null, busy=false;
+function showStep(n){
+  ["form","pay"].forEach(function(id,i){ $(id).classList.toggle("show", i===n-1); });
+  document.querySelectorAll("#steps .s").forEach(function(s){
+    var k=+s.dataset.s; s.classList.toggle("on",k===n); s.classList.toggle("done",k<n);
+  });
+  $("order").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function setStatus(t, isErr){ var e=$("payStatus"); e.textContent=t; e.classList.toggle("err", !!isErr); }
+function waText(o){
+  return ["Hi Vigyapan Studio! I'd like to order the Instagram Growth Report + 30-Day Calendar.",
+    "Name: "+o.name, "WhatsApp: "+o.phone, "Email: "+o.email, "Instagram: @"+o.ig, "Business: "+o.biz+" ("+o.type+", "+o.city+")",
+    "Followers: "+o.followers, "Goal: "+o.goal, "Competitors: "+o.comp, o.about?("About: "+o.about):"",
+    "Add-on: "+(o.bump?"10 reel scripts (+"+inr(BUMP)+")":"No"), "Amount: "+inr(o.amount)].filter(Boolean).join("\n");
+}
+
+$("form").addEventListener("submit", function(e){
+  e.preventDefault();
+  if(!validate()){ var b=document.querySelector(".f.bad"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+  var v=function(id){return $(id).value.trim();};
+  order={ name:v("name"), phone:cleanPhone(v("phone")), email:v("email"), ig:cleanIg(v("ig")), biz:v("biz"), type:v("type"), city:v("city"),
+    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, amount:total() };
+  session=null;
+  $("payTotal").textContent=inr(order.amount);
+  $("payLine").textContent="Growth report + 30-day calendar"+(order.bump?" + 10 reel scripts":"");
+  $("payBtn").innerHTML="Pay "+inr(order.amount)+" securely <span aria-hidden=\"true\">→</span>";
+  $("recap").innerHTML="<div><b>"+esc(order.name)+"</b> · "+esc(order.phone)+"</div><div>@"+esc(order.ig)+" · "+esc(order.biz)+"</div><div>"+esc(order.email)+"</div>";
+  $("waBtn").href="https://wa.me/"+(CFG.WHATSAPP||"917009884880")+"?text="+encodeURIComponent(waText(order));
+  if(window.vsTrack) window.vsTrack("InitiateCheckout",{value:order.amount,currency:"INR"});
+  showStep(2);
+  startPayment();
+});
+$("back").addEventListener("click", function(){ session=null; showStep(1); });
+$("payBtn").addEventListener("click", function(){ startPayment(); });
+
+function startPayment(){
+  if(busy || !order) return;
+  if(session){ openCheckout(); return; }
+  busy=true; $("payBtn").disabled=true; setStatus("Opening secure payment…");
+  var body=JSON.parse(JSON.stringify(order)); body.website=$("website").value;
+  fetch("/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(function(r){ return r.json().catch(function(){return {};}).then(function(j){ return {ok:r.ok,j:j}; }); })
+    .then(function(x){
+      if(!x.ok || !x.j.orderId) throw new Error((x.j&&x.j.error)||"Could not start the payment.");
+      session=x.j; busy=false; $("payBtn").disabled=false; openCheckout();
+    })
+    .catch(function(err){
+      busy=false; $("payBtn").disabled=false;
+      setStatus((err&&err.message?err.message:"Could not start the payment.")+" Tap Pay to try again, or message us on WhatsApp.", true);
+    });
+}
+
+function openCheckout(){
+  if(!window.Razorpay){ setStatus("The payment window is still loading. Please tap Pay again in a moment.", true); return; }
+  var rzp=new Razorpay({
+    key:session.key, amount:session.amount, currency:"INR", order_id:session.orderId,
+    name:"Vigyapan Studio", description:"Instagram Growth Report + 30-Day Calendar",
+    image:location.origin+"/assets/logo-icon.jpg",
+    prefill:{ name:order.name, email:order.email, contact:"+91"+order.phone },
+    theme:{ color:"#FFB72B" },
+    modal:{ ondismiss:function(){ setStatus("Payment not completed. Tap Pay when you are ready.", false); } },
+    handler:function(resp){ onPaid(resp); }
+  });
+  rzp.on("payment.failed", function(r){
+    var m=(r&&r.error&&r.error.description)||"The payment did not go through.";
+    setStatus(m+" You have not been charged for a failed payment. Tap Pay to try again.", true);
+  });
+  setStatus("Complete your payment in the secure window. Closed it by mistake? Tap Pay again.");
+  rzp.open();
+}
+
+function onPaid(resp){
+  $("payBtn").disabled=true; setStatus("Payment received. Confirming…");
+  var verified=false;
+  fetch("/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({orderId:session.orderId,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature})})
+    .then(function(r){ return r.json(); })
+    .then(function(j){ verified=!!(j&&j.verified); })
+    .catch(function(){ verified=false; })
+    .then(function(){
+      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump,
+        orderId:session.orderId, paymentId:resp.razorpay_payment_id, verified:verified })); }catch(e){}
+      location.href="/thank-you";
+    });
+}
+
+/* hide sticky bar when the form is on screen */
+if("IntersectionObserver" in window){
+  new IntersectionObserver(function(en){ $("sticky").style.visibility = en[0].isIntersecting ? "hidden" : "visible"; },{threshold:.15}).observe($("order"));
+}
+syncPrice();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thank You | Vigyapan Studio</title><meta name="description" content="Your order is placed."><meta name="theme-color" content="#06201F">
+<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/config.js"></script><script src="/assets/site.js" defer></script><style>
+.ty{text-align:center;padding-block:30px 10px}
+.check{width:104px;height:104px;margin:0 auto 8px;display:block}
+.check circle{fill:none;stroke:var(--mint);stroke-width:5;stroke-dasharray:290;stroke-dashoffset:290;animation:d .8s ease-out forwards}
+.check path{fill:none;stroke:var(--mint);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:70;stroke-dashoffset:70;animation:d .5s .7s ease-out forwards}
+@keyframes d{to{stroke-dashoffset:0}}
+.receipt{text-align:left;margin-top:26px;display:grid;gap:0}
+.receipt .r{display:flex;justify-content:space-between;gap:16px;padding-block:10px;border-bottom:1px dashed var(--line);font-size:.95rem}
+.receipt .r:last-child{border-bottom:0}
+.receipt .r span:first-child{color:var(--mute);font-family:var(--mono);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.receipt .r span:last-child{font-weight:700;text-align:right;word-break:break-all}
+.next{text-align:left;margin-top:26px}
+.next ol{padding-left:1.2em;display:grid;gap:10px}
+.cta{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important}}
+</style><meta name="robots" content="noindex"></head><body><div class="wrap"><header class="top"><a class="logo" href="/"><img alt="Vigyapan Studio logo" width="40" height="40" src="/assets/logo-icon.jpg"> Vigyapan Studio</a><a class="back" href="/">← Back to home</a></header><main>
+<div class="ty">
+  <svg class="check" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46"/><path d="M30 52 L45 66 L71 36"/></svg>
+  <div class="eyebrow" id="tyEyebrow">Payment received</div>
+  <h1 id="tyTitle">Thank you!</h1>
+  <p id="tyLede">Your order is placed. Your Instagram growth report and 30-day calendar will reach you within 48 hours.</p>
+</div>
+<div class="card receipt" id="receipt" hidden></div>
+<div class="card next">
+  <h2 style="margin-top:0">What happens next</h2>
+  <ol>
+    <li><b>Tap the green button below</b> to send us your payment details on WhatsApp. This lets us start straight away and chat with you.</li>
+    <li>We study your page and your competitors and build your plan.</li>
+    <li>You get your report, calendar and video walkthrough within <b>48 hours</b>, on WhatsApp and email.</li>
+  </ol>
+</div>
+<div class="cta">
+  <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Send details on WhatsApp</a>
+  <a class="btn alt" href="/">Back to home</a>
+</div>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/contact">Contact</a></nav></footer></div><script>
+(function(){
+  var cfg=window.VS_CONFIG||{};
+  var d=null; try{ d=JSON.parse(sessionStorage.getItem("vs_order")||"null"); }catch(e){}
+  function inr(n){return "₹"+Number(n).toLocaleString("en-IN");}
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  var msg="Hi Vigyapan Studio! I just placed an order for the Instagram Growth Report.";
+  if(d && d.paymentId){
+    var first=(d.name||"").split(" ")[0]||"friend";
+    document.getElementById("tyTitle").textContent="Thank you, "+first+"!";
+    if(!d.verified){
+      document.getElementById("tyEyebrow").textContent="Payment received";
+      document.getElementById("tyLede").textContent="Your payment went through. We are confirming it on our side. If you do not hear from us on WhatsApp within a few hours, message us with your payment ID below.";
+    }
+    var rows=[["Payment ID",d.paymentId],["Amount paid",inr(d.amount)],["Instagram","@"+d.ig],["Business",d.biz]];
+    if(d.bump) rows.push(["Add-on","10 reel scripts"]);
+    var r=document.getElementById("receipt"); r.hidden=false;
+    r.innerHTML=rows.map(function(x){return '<div class="r"><span>'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div>';}).join("");
+    msg+="\nName: "+d.name+"\nInstagram: @"+d.ig+"\nBusiness: "+d.biz+"\nAmount paid: "+inr(d.amount)+(d.bump?" (with reel scripts add-on)":"")+"\nPayment ID: "+d.paymentId+"\nOrder ID: "+d.orderId;
+    var done=false; try{ done=sessionStorage.getItem("vs_tracked")===d.paymentId; }catch(e){}
+    if(!done){ if(window.vsTrack) window.vsTrack("Purchase",{value:d.amount,currency:"INR"}); try{ sessionStorage.setItem("vs_tracked",d.paymentId); }catch(e){} }
+  } else {
+    document.getElementById("tyEyebrow").textContent="Order page";
+    document.getElementById("tyLede").textContent="If you have just paid, your order is safe. Message us on WhatsApp with your payment screenshot and we will take it from there.";
+  }
+  document.getElementById("waBtn").href="https://wa.me/"+(cfg.WHATSAPP||"917009884880")+"?text="+encodeURIComponent(msg);
+})();
+</script></body></html>
