@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Dashboard | Vigyapan Studio</title><meta name="description" content="Your Vigyapan Studio dashboard."><meta name="robots" content="noindex"><meta name="theme-color" content="#06201F">
+<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/app.css">
+<script src="/assets/config.js"></script><script src="/assets/site.js" defer></script></head><body><div class="wrap"><header class="top"><a class="logo" href="/"><img alt="Vigyapan Studio logo" width="40" height="40" src="/assets/logo-icon.jpg"> Vigyapan Studio</a><button class="back" id="logoutBtn" type="button" style="cursor:pointer;background:none">Log out</button></header><main>
+<div id="app"><p class="empty">Loading your dashboard…</p></div>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function inr(n){return "₹"+Number(n).toLocaleString("en-IN");}
+function dt(ms){return new Date(ms).toLocaleDateString("en-IN",{timeZone:"Asia/Kolkata",day:"numeric",month:"short",year:"numeric"});}
+function kb(n){return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";}
+function api(a,d){return fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:a},d||{}))}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,status:r.status,j:j};});});}
+var S=null, flash=null, busy=false;
+var TYPES=["Salon / Beauty","Cafe / Restaurant / Food","Clothing / Boutique","Gym / Fitness","Clinic / Health","Education / Coaching","Real estate","Jewellery","Home decor / Furniture","Services / Agency","Other"];
+var FOLL=["Under 500","500 - 2,000","2,000 - 10,000","10,000 - 50,000","50,000+"];
+var GOALS=["Get more customers / enquiries","Get more followers","Sell products online","Build my brand","Get more walk-ins"];
+function opts(list,cur){var l=list.slice();if(cur&&l.indexOf(cur)<0)l.push(cur);return '<option value="">Choose one</option>'+l.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+esc(o)+'</option>';}).join("");}
+function logout(){api("logout").then(function(){location.replace("/login");});}
+document.addEventListener("click",function(e){if(e.target&&e.target.id==="logoutBtn")logout();});
+
+function load(){return api("me").then(function(x){
+  if(x.status===401){location.replace("/login");return;}
+  if(!x.ok){$("app").innerHTML='<div class="banner bad">'+esc((x.j&&x.j.error)||"Could not load your dashboard.")+' <button class="linkbtn" onclick="location.reload()">Try again</button></div>';return;}
+  S=x.j;render();
+}).catch(function(){$("app").innerHTML='<div class="banner bad">No connection. <button class="linkbtn" onclick="location.reload()">Try again</button></div>';});}
+
+function planCard(){
+  var m=S.membership;
+  if(!m) return '<div class="card"><h2>Your plan</h2><p class="empty">We could not find an active plan on this email.</p></div>';
+  var label={active:"Active",ending:"Ending soon",expired:"Ended"}[m.status];
+  var used=Math.min(100,Math.max(0,(Date.now()-m.periodStart)/(m.periodEnd-m.periodStart)*100));
+  var left=m.status==="expired"?0:100-used;
+  var big=m.status==="expired"?'Month ended <small>on '+dt(m.expiresAt)+'</small>':m.daysLeft+' <small>day'+(m.daysLeft===1?'':'s')+' left &middot; ends '+dt(m.expiresAt)+'</small>';
+  var note=m.status==="ending"?'<div class="banner warn">Your month ends soon. Renew now to get next month’s calendar without a gap.</div>':
+           m.status==="expired"?'<div class="banner bad">Your month has ended. Renew to get a fresh 30-day calendar and an updated report.</div>':"";
+  return '<div class="card"><div class="top2"><h2 style="margin:0">Your plan</h2><span class="chip '+m.status+'">'+label+'</span></div>'+
+    '<div class="big">'+big+'</div><div class="bar" role="img" aria-label="Time left in this month"><i style="width:'+left.toFixed(1)+'%"></i></div>'+note+
+    '<label class="check" for="bump"><input type="checkbox" id="bump"><div><b>Add 10 reel scripts for '+inr(S.prices.bump)+' more</b><span>Word-for-word scripts for your next month.</span></div></label>'+
+    '<button class="btn full" id="renewBtn" type="button">Renew for '+inr(S.prices.renew)+'</button>'+
+    '<p class="fine">No automatic charge, you only pay when you tap Renew. Renewing early never wastes days: your new 30 days start when this month ends.</p>'+
+    '<div class="msgline" id="renewMsg" role="status" aria-live="polite"></div></div>';
+}
+function reportsCard(){
+  var rows=S.deliveries.length?S.deliveries.map(function(d){
+    return '<div class="row"><div><div class="t">'+esc(d.title)+'</div><div class="s">'+(d.month?esc(d.month)+' &middot; ':'')+kb(d.size)+' &middot; added '+dt(d.uploadedAt)+'</div></div><a class="btn sm" href="/api/download?id='+encodeURIComponent(d.id)+'">Download</a></div>';
+  }).join(""):'<p class="empty">Your first report and calendar are being prepared. They will appear here, and we will also send them on WhatsApp or email, within 48 hours of payment.</p>';
+  return '<div class="card"><h2>Your reports and calendars</h2><p class="sub">Every month’s report stays saved here.</p>'+rows+'</div>';
+}
+function focusCard(){
+  return '<div class="card"><h2>What should we focus on next month?</h2><p class="sub">New offer, festival, product launch, a type of reel you want more of. We read this when we prepare your next calendar.</p>'+
+    '<div class="f"><label class="sr" for="nextNote" style="position:absolute;left:-9999px">Next month focus</label><textarea id="nextNote" maxlength="600" placeholder="e.g. Diwali offer starts 20 Oct. Please include more reels showing before and after.">'+esc(S.customer.nextNote)+'</textarea></div>'+
+    '<button class="btn alt sm" id="saveNote" type="button" style="margin-top:12px">Save note</button><div class="msgline" id="noteMsg" role="status" aria-live="polite"></div></div>';
+}
+function detailsCard(){
+  var c=S.customer;
+  return '<div class="card"><h2>Your details</h2><p class="sub">We use these to prepare your reports. Keep them up to date.</p>'+
+   '<form id="detForm" novalidate><div class="grid2">'+
+   '<div class="f"><label for="d_name">Your name</label><input id="d_name" value="'+esc(c.name)+'" autocomplete="name"></div>'+
+   '<div class="f"><label for="d_ig">Instagram handle</label><div class="at"><span>@</span><input id="d_ig" value="'+esc(c.ig)+'" autocapitalize="none"></div></div>'+
+   '<div class="f"><label for="d_biz">Business name</label><input id="d_biz" value="'+esc(c.biz)+'"></div>'+
+   '<div class="f"><label for="d_type">Business type</label><select id="d_type">'+opts(TYPES,c.type)+'</select></div>'+
+   '<div class="f"><label for="d_city">City</label><input id="d_city" value="'+esc(c.city)+'"></div>'+
+   '<div class="f"><label for="d_foll">Followers right now</label><select id="d_foll">'+opts(FOLL,c.followers)+'</select></div>'+
+   '<div class="f full"><label for="d_goal">Main goal on Instagram</label><select id="d_goal">'+opts(GOALS,c.goal)+'</select></div>'+
+   '<div class="f full"><label for="d_comp">3 competitor handles</label><textarea id="d_comp" placeholder="@competitor1, @competitor2, @competitor3">'+esc(c.comp)+'</textarea></div>'+
+   '<div class="f full"><label for="d_about">What do you sell, and who buys from you?</label><textarea id="d_about">'+esc(c.about)+'</textarea></div>'+
+   '</div><p class="fine">Login email: '+esc(c.email)+' &middot; WhatsApp: +91 '+esc(c.phone)+' (to change these, message us)</p>'+
+   '<button class="btn alt sm" id="saveDet" type="submit" style="margin-top:12px">Save details</button><div class="msgline" id="detMsg" role="status" aria-live="polite"></div></form></div>';
+}
+function payCard(){
+  var rows=S.payments.map(function(p){
+    return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?' &middot; renewal':' &middot; first order')+(p.bump?' &middot; with reel scripts':'')+'</div></div><a class="btn alt sm" href="/api/invoice?pid='+encodeURIComponent(p.paymentId)+'" target="_blank" rel="noopener">View invoice</a></div>';
+  }).join("")||'<p class="empty">No payments yet.</p>';
+  return '<div class="card"><h2>Payments and invoices</h2><p class="sub">Open an invoice to print it or save it as a PDF.</p>'+rows+'</div>';
+}
+function helpCard(){
+  var msg="Hi Vigyapan Studio, I need help with my account ("+S.customer.email+").";
+  return '<div class="card"><h2>Need help?</h2><p class="sub">Questions about your report or calendar? Message us any time.</p><a class="btn wa sm" href="https://wa.me/'+esc(S.whatsapp)+'?text='+encodeURIComponent(msg)+'" target="_blank" rel="noopener">Chat on WhatsApp</a></div>';
+}
+function render(){
+  var first=(S.customer.name||"").split(" ")[0]||"there";
+  var fl=flash?'<div class="banner '+flash.kind+'" role="status">'+esc(flash.text)+'</div>':"";
+  $("app").innerHTML='<div class="eyebrow">Your dashboard</div><h1>Hi '+esc(first)+'</h1><p style="margin:0">'+(S.customer.biz?esc(S.customer.biz)+' &middot; ':'')+'@'+esc(S.customer.ig)+'</p>'+fl+
+    '<div class="stack">'+planCard()+reportsCard()+focusCard()+detailsCard()+payCard()+helpCard()+'</div>';
+  wire();
+}
+function setMsg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"+(c?" "+c:"");}}
+function wire(){
+  var bump=$("bump"),rb=$("renewBtn");
+  if(bump)bump.addEventListener("change",function(){rb.textContent="Renew for "+inr(S.prices.renew+(bump.checked?S.prices.bump:0));});
+  if(rb)rb.addEventListener("click",renew);
+  $("saveNote").addEventListener("click",function(){
+    setMsg("noteMsg","Saving…");
+    api("update",{nextNote:$("nextNote").value}).then(function(x){if(x.ok){S.customer.nextNote=$("nextNote").value;setMsg("noteMsg","Saved. Thank you!","good");}else setMsg("noteMsg",x.j.error||"Could not save.","bad");});
+  });
+  $("detForm").addEventListener("submit",function(e){
+    e.preventDefault();setMsg("detMsg","Saving…");
+    var p={name:$("d_name").value,ig:$("d_ig").value,biz:$("d_biz").value,type:$("d_type").value,city:$("d_city").value,followers:$("d_foll").value,goal:$("d_goal").value,comp:$("d_comp").value,about:$("d_about").value};
+    api("update",{profile:p}).then(function(x){
+      if(x.ok){setMsg("detMsg","Saved. Thank you!","good");}else setMsg("detMsg",x.j.error||"Could not save.","bad");
+    });
+  });
+}
+var rzLoaded=null;
+function loadRz(){
+  if(window.Razorpay)return Promise.resolve();
+  if(rzLoaded)return rzLoaded;
+  rzLoaded=new Promise(function(res,rej){var s=document.createElement("script");s.src="https://checkout.razorpay.com/v1/checkout.js";s.onload=res;s.onerror=function(){rzLoaded=null;rej();};document.head.appendChild(s);});
+  return rzLoaded;
+}
+function renew(){
+  if(busy)return;busy=true;var rb=$("renewBtn");rb.disabled=true;setMsg("renewMsg","Opening secure payment…");
+  var bump=$("bump").checked;
+  Promise.all([api("renew",{bump:bump}),loadRz()]).then(function(r){
+    var x=r[0];
+    if(!x.ok){throw new Error((x.j&&x.j.error)||"Could not start the payment.");}
+    var o=x.j;
+    var rz=new Razorpay({key:o.key,amount:o.amount,currency:"INR",order_id:o.orderId,name:"Vigyapan Studio",description:"Monthly renewal"+(bump?" + reel scripts":""),
+      image:location.origin+"/assets/logo-icon.jpg",prefill:o.prefill,theme:{color:"#FFB72B"},
+      modal:{ondismiss:function(){busy=false;rb.disabled=false;setMsg("renewMsg","Payment not completed. Tap Renew when you are ready.");}},
+      handler:function(resp){paid(resp,o);}});
+    rz.on("payment.failed",function(f){busy=false;rb.disabled=false;setMsg("renewMsg",((f&&f.error&&f.error.description)||"The payment did not go through.")+" Please try again.","bad");});
+    setMsg("renewMsg","Complete your payment in the secure window.");
+    rz.open();
+  }).catch(function(err){busy=false;rb.disabled=false;setMsg("renewMsg",(err&&err.message)||"Could not open the payment window. Please try again.","bad");});
+}
+function paid(resp,o){
+  setMsg("renewMsg","Payment received. Updating your plan…");
+  var before=S.payments.length;
+  fetch("/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:o.orderId,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature})})
+    .then(function(r){return r.json();}).catch(function(){return {};})
+    .then(function(){
+      var tries=0;
+      (function poll(){
+        api("me").then(function(x){
+          if(x.ok&&x.j.payments.length>before){S=x.j;busy=false;flash={kind:"good",text:"Renewal received. Your plan now runs until "+dt(S.membership.expiresAt)+". Your invoice has been emailed to you."};render();window.scrollTo({top:0,behavior:"smooth"});}
+          else if(++tries<6){setTimeout(poll,2500);}
+          else{busy=false;flash={kind:"good",text:"Payment received. Your plan will update within a few minutes. Refresh this page shortly."};render();}
+        });
+      })();
+    });
+}
+load();
+})();
+</script></body></html>

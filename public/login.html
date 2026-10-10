@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Log in | Vigyapan Studio</title><meta name="description" content="Log in to your Vigyapan Studio dashboard."><meta name="robots" content="noindex"><meta name="theme-color" content="#06201F">
+<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/app.css">
+<script src="/assets/config.js"></script><script src="/assets/site.js" defer></script></head><body><div class="wrap"><header class="top"><a class="logo" href="/"><img alt="Vigyapan Studio logo" width="40" height="40" src="/assets/logo-icon.jpg"> Vigyapan Studio</a><a class="back" href="/">← Back to home</a></header><main>
+<div class="eyebrow">Customer dashboard</div><h1>Log in</h1>
+<p>Use the email address you gave us when you ordered. We will email you a 6-digit code, so there is no password to remember.</p>
+<div class="card" style="margin-top:22px">
+  <form id="f1" novalidate>
+    <div class="f"><label for="email">Your email</label><input id="email" type="email" autocomplete="email" inputmode="email" placeholder="you@business.com" required></div>
+    <button class="btn full" id="b1" type="submit">Email me a code</button>
+  </form>
+  <form id="f2" class="hide" novalidate>
+    <p id="sentTo" style="margin-top:0"></p>
+    <div class="f"><label for="code">6-digit code</label><input id="code" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required></div>
+    <button class="btn full" id="b2" type="submit">Log in</button>
+    <p class="fine"><button class="linkbtn" type="button" id="resend" disabled>Send a new code</button> &nbsp;·&nbsp; <button class="linkbtn" type="button" id="change">Use a different email</button></p>
+  </form>
+  <div class="msgline" id="msg" role="status" aria-live="polite"></div>
+</div>
+<p class="fine">Only people who have bought a plan can log in. New here? <a href="/#order">Get your Instagram growth report</a>. Codes can take a minute to arrive, so please check your spam folder too.</p>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function api(a,d){return fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:a},d||{}))}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,status:r.status,j:j};});});}
+function say(t,c){var m=$("msg");m.textContent=t||"";m.className="msgline"+(c?" "+c:"");}
+var email="",timer=null;
+api("me").then(function(x){ if(x.ok) location.replace("/dashboard"); else if(x.status===503) say("The dashboard is not switched on yet. Please check back soon.","bad"); });
+function countdown(){var s=45,b=$("resend");b.disabled=true;clearInterval(timer);timer=setInterval(function(){s--;b.textContent=s>0?"Send a new code ("+s+")":"Send a new code";if(s<=0){clearInterval(timer);b.disabled=false;}},1000);b.textContent="Send a new code (45)";}
+function send(){
+  say("Sending…");$("b1").disabled=true;
+  return api("request-code",{email:email}).then(function(x){
+    $("b1").disabled=false;
+    if(!x.ok){say(x.j.error||"Could not send the code.","bad");return false;}
+    $("f1").classList.add("hide");$("f2").classList.remove("hide");
+    $("sentTo").textContent="If "+email+" has a plan with us, a code is on its way. It works for 10 minutes.";
+    say("");countdown();$("code").focus();return true;
+  }).catch(function(){$("b1").disabled=false;say("No connection. Please try again.","bad");});
+}
+$("f1").addEventListener("submit",function(e){e.preventDefault();email=$("email").value.trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){say("Please enter a valid email address.","bad");return;}send();});
+$("resend").addEventListener("click",function(){send();});
+$("change").addEventListener("click",function(){$("f2").classList.add("hide");$("f1").classList.remove("hide");$("code").value="";say("");$("email").focus();});
+$("code").addEventListener("input",function(){this.value=this.value.replace(/\D/g,"").slice(0,6);});
+$("f2").addEventListener("submit",function(e){
+  e.preventDefault();var c=$("code").value.trim();
+  if(!/^\d{6}$/.test(c)){say("Enter the 6-digit code from your email.","bad");return;}
+  $("b2").disabled=true;say("Checking…");
+  api("verify-code",{email:email,code:c}).then(function(x){
+    if(x.ok){say("Welcome back!","good");location.replace("/dashboard");}
+    else{$("b2").disabled=false;say(x.j.error||"That code is not right.","bad");}
+  }).catch(function(){$("b2").disabled=false;say("No connection. Please try again.","bad");});
+});
+})();
+</script></body></html>

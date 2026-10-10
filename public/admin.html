@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin | Vigyapan Studio</title><meta name="description" content="Owner area."><meta name="robots" content="noindex"><meta name="theme-color" content="#06201F">
+<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/app.css">
+<script src="/assets/config.js"></script><script src="/assets/site.js" defer></script></head><body><div class="wrap wide"><header class="top"><a class="logo" href="/"><img alt="Vigyapan Studio logo" width="40" height="40" src="/assets/logo-icon.jpg"> Vigyapan Studio</a><a class="back" href="/">← Back to home</a></header><main>
+<div id="login" class="hide">
+  <div class="eyebrow">Owner area</div><h1>Admin login</h1>
+  <div class="card" style="margin-top:22px;max-width:420px">
+    <form id="lf" novalidate><div class="f"><label for="pw">Admin password</label><input id="pw" type="password" autocomplete="current-password"></div>
+    <button class="btn full" type="submit">Log in</button><div class="msgline" id="lmsg" role="status" aria-live="polite"></div></form>
+  </div>
+</div>
+<div id="panel" class="hide">
+  <div class="eyebrow">Owner area</div><h1>Customers</h1>
+  <div class="stats" id="stats"></div>
+  <div class="filters" id="filters"></div>
+  <div class="tablewrap"><table class="t"><thead><tr><th>Customer</th><th>Status</th><th>Ends</th><th>Left</th><th>Reports</th><th>Paid</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div id="detail" class="stack"></div>
+  <div class="card" style="margin-top:22px"><h2>Add an earlier payment</h2>
+    <p class="sub">Paid before the dashboard existed? Paste the payment ID from Razorpay (Transactions, Payments, it looks like pay_AbCd1234). The customer is added and can log in.</p>
+    <form id="af" class="grid2" novalidate><div class="f"><label for="pid">Payment ID</label><input id="pid" placeholder="pay_..." autocapitalize="none"></div>
+    <div class="f" style="justify-content:flex-end"><label class="check" style="margin-top:0"><input type="checkbox" id="asend"><div><b>Also email the invoice</b></div></label></div>
+    <div><button class="btn alt sm" type="submit">Add payment</button></div></form><div class="msgline" id="amsg" role="status" aria-live="polite"></div></div>
+</div>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function inr(n){return "₹"+Number(n).toLocaleString("en-IN");}
+function dt(ms){return ms?new Date(ms).toLocaleDateString("en-IN",{timeZone:"Asia/Kolkata",day:"numeric",month:"short",year:"numeric"}):"-";}
+function kb(n){return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";}
+function api(a,d){return fetch("/api/admin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:a},d||{}))}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,status:r.status,j:j};});});}
+function msg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"+(c?" "+c:"");}}
+var LABEL={active:"Active",ending:"Ending soon",expired:"Ended",none:"-"};
+var DATA=null, filter="all", query="", sel=null, FLASH="";
+
+function showLogin(note){$("panel").classList.add("hide");$("login").classList.remove("hide");if(note)msg("lmsg",note,"bad");}
+function showPanel(){$("login").classList.add("hide");$("panel").classList.remove("hide");}
+function logoutBtn(){
+  var b=document.querySelector(".top .back");
+  if(b){b.textContent="Log out";b.setAttribute("href","#");b.addEventListener("click",function(e){e.preventDefault();api("logout").then(function(){location.reload();});});}
+}
+logoutBtn();
+$("lf").addEventListener("submit",function(e){
+  e.preventDefault();msg("lmsg","Checking…");
+  api("login",{password:$("pw").value}).then(function(x){
+    if(x.ok){$("pw").value="";msg("lmsg","");load();}else msg("lmsg",x.j.error||"Could not log in.","bad");
+  });
+});
+function load(){
+  return api("list").then(function(x){
+    if(x.status===401){showLogin();return;}
+    if(x.status===503){showLogin(x.j.error);return;}
+    if(!x.ok){showLogin(x.j.error||"Something went wrong.");return;}
+    DATA=x.j;showPanel();render();
+  });
+}
+function render(){
+  var s=DATA.stats;
+  $("stats").innerHTML=[["Customers",s.total],["Active",s.active],["Ending in 5 days",s.ending],["Ended",s.expired],["Paid, last 30 days",inr(s.revenue30)],["Paid, all time",inr(s.revenue)]].map(function(a){return '<div class="stat"><b>'+a[1]+'</b><span>'+a[0]+'</span></div>';}).join("");
+  var fl=[["all","All"],["ending","Ending soon"],["expired","Ended"],["active","Active"]];
+  $("filters").innerHTML=fl.map(function(f){return '<button type="button" data-f="'+f[0]+'" class="'+(filter===f[0]?"on":"")+'">'+f[1]+'</button>';}).join("")+'<input id="q" placeholder="Search name, email or @handle" value="'+esc(query)+'" aria-label="Search customers">';
+  $("filters").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){filter=b.getAttribute("data-f");render();});});
+  $("q").addEventListener("input",function(){query=this.value;drawRows();});
+  drawRows();
+}
+function drawRows(){
+  var q=query.trim().toLowerCase().replace(/^@/,"");
+  var list=DATA.customers.filter(function(c){
+    if(filter!=="all"&&c.status!==filter)return false;
+    return !q||[c.name,c.email,c.ig,c.biz,c.phone].join(" ").toLowerCase().indexOf(q)>=0;
+  });
+  $("rows").innerHTML=list.length?list.map(function(c){
+    return '<tr class="click'+(sel===c.cid?" sel":"")+'" data-cid="'+esc(c.cid)+'" tabindex="0"><td><b>'+esc(c.name)+'</b><br><span style="color:var(--mute)">@'+esc(c.ig)+(c.biz?" &middot; "+esc(c.biz):"")+'</span></td>'+
+      '<td><span class="chip '+c.status+'">'+LABEL[c.status]+'</span>'+(c.hasNote?' <span title="Wrote a note for next month" aria-label="Has a note">&#9998;</span>':'')+'</td><td>'+dt(c.expiresAt)+'</td><td>'+(c.status==="expired"?"-":c.daysLeft+" d")+'</td><td>'+c.deliveries+'</td><td>'+inr(c.totalPaid)+' <span style="color:var(--mute)">('+c.payments+')</span></td></tr>';
+  }).join(""):'<tr><td colspan="6" class="empty" style="padding:18px">No customers here yet.</td></tr>';
+  $("rows").querySelectorAll("tr.click").forEach(function(tr){
+    function open(){openCustomer(tr.getAttribute("data-cid"));}
+    tr.addEventListener("click",open);tr.addEventListener("keydown",function(e){if(e.key==="Enter")open();});
+  });
+}
+function openCustomer(cid){
+  sel=cid;drawRows();$("detail").innerHTML='<div class="card"><p class="empty">Loading…</p></div>';
+  api("customer",{cid:cid}).then(function(x){
+    if(!x.ok){$("detail").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    drawDetail(x.j);$("detail").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+function monthNow(){return new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata",month:"short",year:"numeric"});}
+function drawDetail(d){
+  var c=d.customer,m=d.membership;
+  var kv=[["Email",c.email],["WhatsApp","+91 "+c.phone],["Business",c.biz],["Type",c.type],["City",c.city],["Followers",c.followers],["Goal",c.goal],["Competitors",c.comp],["About",c.about]].filter(function(a){return a[1];}).map(function(a){return '<dt>'+a[0]+'</dt><dd>'+esc(a[1])+'</dd>';}).join("");
+  var note=c.nextNote?'<div class="banner warn"><b>Their note for next month:</b><br>'+esc(c.nextNote).replace(/\n/g,"<br>")+'</div>':"";
+  var dels=d.deliveries.length?d.deliveries.map(function(f){return '<div class="row"><div><div class="t">'+esc(f.title)+'</div><div class="s">'+(f.month?esc(f.month)+' &middot; ':'')+kb(f.size)+' &middot; '+dt(f.uploadedAt)+'</div></div><button class="btn alt sm" type="button" data-del="'+esc(f.id)+'">Delete</button></div>';}).join(""):'<p class="empty">Nothing uploaded yet.</p>';
+  var pays=d.payments.map(function(p){return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?" &middot; renewal":" &middot; first order")+(p.bump?" &middot; with reel scripts":"")+' &middot; '+esc(p.paymentId)+'</div></div></div>';}).join("");
+  $("detail").innerHTML='<div class="card"><div class="top2"><h2 style="margin:0">'+esc(c.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(c.ig)+'</span></h2>'+(m?'<span class="chip '+m.status+'">'+LABEL[m.status]+(m.status==="expired"?"":" &middot; ends "+dt(m.expiresAt))+'</span>':'')+'</div>'+
+    '<p style="margin:12px 0"><a class="btn wa sm" target="_blank" rel="noopener" href="https://wa.me/91'+esc(c.phone)+'">Chat on WhatsApp</a></p>'+note+'<dl class="kv" style="margin-top:14px">'+kv+'</dl></div>'+
+    '<div class="card"><h2>Upload a report or calendar</h2><p class="sub">PDF, PNG or JPG, up to 3.8 MB. It appears in their dashboard right away.</p>'+
+    '<form id="uf" novalidate><div class="grid2"><div class="f"><label for="u_title">Title</label><input id="u_title" value="Instagram Growth Report + 30-Day Calendar"></div>'+
+    '<div class="f"><label for="u_month">Month</label><input id="u_month" value="'+esc(monthNow())+'"></div>'+
+    '<div class="f full"><label for="u_file">File</label><input id="u_file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"></div></div>'+
+    '<label class="check" for="u_notify"><input type="checkbox" id="u_notify" checked><div><b>Email them that it is ready</b></div></label>'+
+    '<button class="btn full" type="submit" id="u_btn">Upload</button><div class="msgline" id="umsg" role="status" aria-live="polite"></div></form></div>'+
+    '<div class="card"><h2>Uploaded files</h2>'+dels+'</div><div class="card"><h2>Payments</h2>'+pays+'</div>';
+  if(FLASH){msg("umsg",FLASH,"good");FLASH="";}
+  $("uf").addEventListener("submit",function(e){e.preventDefault();upload(c.cid);});
+  $("detail").querySelectorAll("[data-del]").forEach(function(b){b.addEventListener("click",function(){
+    if(!confirm("Delete this file? The customer will no longer see it."))return;
+    api("delete-delivery",{cid:c.cid,id:b.getAttribute("data-del")}).then(function(x){if(x.ok){openCustomer(c.cid);load();}else alert(x.j.error||"Could not delete.");});
+  });});
+}
+function upload(cid){
+  var f=$("u_file").files[0];
+  if(!f){msg("umsg","Choose a file first.","bad");return;}
+  if(f.size>3800000){msg("umsg","That file is "+kb(f.size)+". Please compress it to under 3.8 MB.","bad");return;}
+  $("u_btn").disabled=true;msg("umsg","Uploading…");
+  var fr=new FileReader();
+  fr.onload=function(){
+    var data=String(fr.result).split(",")[1]||"";
+    api("upload",{cid:cid,title:$("u_title").value,month:$("u_month").value,filename:f.name,data:data,notify:$("u_notify").checked}).then(function(x){
+      $("u_btn").disabled=false;
+      if(x.ok){FLASH="Uploaded."+(x.j.emailed?" They have been emailed.":"");openCustomer(cid);load();}
+      else msg("umsg",x.j.error||"Upload failed.","bad");
+    }).catch(function(){$("u_btn").disabled=false;msg("umsg","Upload failed. Please try again.","bad");});
+  };
+  fr.onerror=function(){$("u_btn").disabled=false;msg("umsg","Could not read that file.","bad");};
+  fr.readAsDataURL(f);
+}
+$("af").addEventListener("submit",function(e){
+  e.preventDefault();msg("amsg","Adding…");
+  api("add-payment",{paymentId:$("pid").value,sendEmails:$("asend").checked}).then(function(x){
+    if(x.ok){msg("amsg","Added. The customer can now log in with that email.","good");$("pid").value="";load();}else msg("amsg",x.j.error||"Could not add.","bad");
+  });
+});
+load();
+})();
+</script></body></html>

@@ -12,17 +12,6 @@
   status = 200
   force = true
 
-[[redirects]]
-  from = "/api/razorpay-webhook"
-  to = "/.netlify/functions/razorpay-webhook"
-  status = 200
-  force = true
-[[redirects]]
-  from = "/api/verify-payment"
-  to = "/.netlify/functions/verify-payment"
-  status = 200
-  force = true
-
 # Clean page addresses (yourdomain.com/terms instead of /terms.html)
 [[redirects]]
   from = "/terms"
@@ -39,6 +28,18 @@
 [[redirects]]
   from = "/shipping"
   to = "/shipping.html"
+  status = 200
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard.html"
+  status = 200
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
   status = 200
 [[redirects]]
   from = "/contact"
