@@ -23,8 +23,8 @@
   status = 200
 [[redirects]]
   from = "/refund"
-  to = "/refund.html"
-  status = 200
+  to = "/terms"
+  status = 301
 [[redirects]]
   from = "/shipping"
   to = "/shipping.html"

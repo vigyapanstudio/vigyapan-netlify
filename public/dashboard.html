@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/app.css">
 <script src="/assets/config.js"></script><script src="/assets/site.js" defer></script></head><body><div class="wrap"><header class="top"><a class="logo" href="/"><img alt="Vigyapan Studio logo" width="40" height="40" src="/assets/logo-icon.jpg"> Vigyapan Studio</a><button class="back" id="logoutBtn" type="button" style="cursor:pointer;background:none">Log out</button></header><main>
 <div id="app"><p class="empty">Loading your dashboard…</p></div>
-</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
 
 <script>
 (function(){
@@ -67,8 +67,8 @@ function detailsCard(){
    '<div class="f"><label for="d_city">City</label><input id="d_city" value="'+esc(c.city)+'"></div>'+
    '<div class="f"><label for="d_foll">Followers right now</label><select id="d_foll">'+opts(FOLL,c.followers)+'</select></div>'+
    '<div class="f full"><label for="d_goal">Main goal on Instagram</label><select id="d_goal">'+opts(GOALS,c.goal)+'</select></div>'+
-   '<div class="f full"><label for="d_comp">3 competitor handles</label><textarea id="d_comp" placeholder="@competitor1, @competitor2, @competitor3">'+esc(c.comp)+'</textarea></div>'+
-   '<div class="f full"><label for="d_about">What do you sell, and who buys from you?</label><textarea id="d_about">'+esc(c.about)+'</textarea></div>'+
+   '<div class="f full"><label for="d_comp">Competitor handles <small>(optional)</small></label><textarea id="d_comp" placeholder="@competitor1, @competitor2, @competitor3">'+esc(c.comp)+'</textarea></div>'+
+   '<div class="f full"><label for="d_about">What product do you sell or what services do you offer?</label><textarea id="d_about">'+esc(c.about)+'</textarea></div>'+
    '</div><p class="fine">Login email: '+esc(c.email)+' &middot; WhatsApp: +91 '+esc(c.phone)+' (to change these, message us)</p>'+
    '<button class="btn alt sm" id="saveDet" type="submit" style="margin-top:12px">Save details</button><div class="msgline" id="detMsg" role="status" aria-live="polite"></div></form></div>';
 }

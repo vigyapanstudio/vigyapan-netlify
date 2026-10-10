@@ -32,6 +32,7 @@ exports.handler = async (event) => {
   if (!/^[6-9]\d{9}$/.test(phone)) problems.push('WhatsApp number');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) problems.push('email');
   if (!/^[A-Za-z0-9._]{1,30}$/.test(ig)) problems.push('Instagram handle');
+  if (clean(b.about, 250).length < 3) problems.push('product or service details');
   if (problems.length) return reply(400, { error: 'Please check your ' + problems.join(', ') + '.' });
 
   const bump = b.bump === true || b.bump === 'true';

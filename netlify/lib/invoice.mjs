@@ -65,8 +65,7 @@ rows +
 '<tr><td style="color:#7a948f">Status</td><td style="color:#0b7a5a;font-weight:700">Paid</td></tr></table></td></tr>' +
 dash +
 '<tr><td style="padding:16px 28px 0"><div style="background:#fff7e0;border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.55;color:#5a4300"><b>Questions?</b> Reply to this email or WhatsApp ' + esc(SELLER.phone) + '. If we need anything (for example, your Instagram account is private), we will message you on WhatsApp.</div></td></tr>' +
-'<tr><td style="padding:22px 28px 28px;font-size:12px;line-height:1.6;color:#7a948f">This is a computer-generated receipt and invoice, so no signature is needed. Refunds follow our ' +
-(site ? '<a href="' + esc(site) + '/refund" style="color:#0b7a5a">Refund Policy</a>' : 'Refund Policy') + '. Please keep this email for your records.</td></tr>' +
+'<tr><td style="padding:22px 28px 28px;font-size:12px;line-height:1.6;color:#7a948f">This is a computer-generated receipt and invoice, so no signature is needed. Please keep this email for your records.</td></tr>' +
 '</table></td></tr></table></body></html>';
 
   const text = [

@@ -32,7 +32,7 @@
     <button class="btn alt sm" type="submit" style="margin-top:12px">Check this email</button></form>
     <div class="msgline" id="lkmsg" role="status" aria-live="polite"></div></div>
 </div>
-</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
 
 <script>
 (function(){
@@ -101,7 +101,7 @@ function openCustomer(cid){
 function monthNow(){return new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata",month:"short",year:"numeric"});}
 function drawDetail(d){
   var c=d.customer,m=d.membership;
-  var kv=[["Email",c.email],["WhatsApp","+91 "+c.phone],["Business",c.biz],["Type",c.type],["City",c.city],["Followers",c.followers],["Goal",c.goal],["Competitors",c.comp],["About",c.about]].filter(function(a){return a[1];}).map(function(a){return '<dt>'+a[0]+'</dt><dd>'+esc(a[1])+'</dd>';}).join("");
+  var kv=[["Email",c.email],["WhatsApp","+91 "+c.phone],["Business",c.biz],["Type",c.type],["City",c.city],["Followers",c.followers],["Goal",c.goal],["Competitors",c.comp],["Sells / offers",c.about]].filter(function(a){return a[1];}).map(function(a){return '<dt>'+a[0]+'</dt><dd>'+esc(a[1])+'</dd>';}).join("");
   var note=c.nextNote?'<div class="banner warn"><b>Their note for next month:</b><br>'+esc(c.nextNote).replace(/\n/g,"<br>")+'</div>':"";
   var dels=d.deliveries.length?d.deliveries.map(function(f){return '<div class="row"><div><div class="t">'+esc(f.title)+'</div><div class="s">'+(f.month?esc(f.month)+' &middot; ':'')+kb(f.size)+' &middot; '+dt(f.uploadedAt)+'</div></div><button class="btn alt sm" type="button" data-del="'+esc(f.id)+'">Delete</button></div>';}).join(""):'<p class="empty">Nothing uploaded yet.</p>';
   var pays=d.payments.map(function(p){return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?" &middot; renewal":" &middot; first order")+(p.bump?" &middot; with reel scripts":"")+' &middot; '+esc(p.paymentId)+'</div></div></div>';}).join("");
