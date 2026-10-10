@@ -1,13 +1,13 @@
 // Your private admin API: see customers, upload their reports, restore a payment.
 import { json, readJson } from '../lib/http.mjs';
 import { authReady, isAdmin, adminCookie, clearCookie, checkAdminPassword } from '../lib/auth.mjs';
-import { listCustomers, getCustomer, getPayments, computeMembership, getDeliveries } from '../lib/members.mjs';
+import { listCustomers, getCustomer, getPayments, computeMembership, getDeliveries, cidOf, normEmail } from '../lib/members.mjs';
 import { invoiceNumber } from '../lib/invoice.mjs';
 import { processPaidPayment } from '../lib/receipt.mjs';
 import { sendMail, shell, mailReady } from '../lib/mail.mjs';
 import * as db from '../lib/db.mjs';
 import { STORES as S } from '../lib/db.mjs';
-import { siteUrl, esc, cleanText, WHATSAPP } from '../lib/config.mjs';
+import { siteUrl, esc, cleanText, WHATSAPP, SELLER } from '../lib/config.mjs';
 
 export const config = { path: '/api/admin' };
 const MAX_FILE = 3800000; // bytes (the host allows about 6 MB per request, and base64 adds a third)
@@ -118,6 +118,43 @@ export default async (req, context) => {
       await db.put(S.deliveries, cid, list.filter((x) => x.id !== id));
       await db.del(S.files, cid + '/' + id);
       return json(200, { ok: true });
+    }
+
+    if (action === 'diagnose') {
+      const has = (k) => !!process.env[k];
+      const kid = process.env.RAZORPAY_KEY_ID || '';
+      const checks = [
+        { key: 'SESSION_SECRET', ok: authReady(), hint: 'Needed for login. At least 32 characters.' },
+        { key: 'ADMIN_PASSWORD', ok: has('ADMIN_PASSWORD'), hint: 'Your admin page password.' },
+        { key: 'RESEND_API_KEY', ok: has('RESEND_API_KEY'), hint: 'From resend.com. Needed for every email.' },
+        { key: 'MAIL_FROM', ok: has('MAIL_FROM'), value: process.env.MAIL_FROM || '', hint: 'Looks like: Vigyapan Studio <hello@yourdomain.com>' },
+        { key: 'SITE_URL', ok: !!siteUrl(), value: siteUrl(), hint: 'Looks like: https://yourdomain.com' },
+        { key: 'RAZORPAY_KEY_ID', ok: has('RAZORPAY_KEY_ID'), value: kid ? (kid.startsWith('rzp_live_') ? 'LIVE mode keys' : kid.startsWith('rzp_test_') ? 'TEST mode keys' : 'unrecognised key') : '', hint: 'Payments.' },
+        { key: 'RAZORPAY_KEY_SECRET', ok: has('RAZORPAY_KEY_SECRET'), hint: 'Payments.' },
+        { key: 'RAZORPAY_WEBHOOK_SECRET', ok: has('RAZORPAY_WEBHOOK_SECRET'), hint: 'The Razorpay backup notification.' }
+      ];
+      const out = { checks };
+      if (b.sendTest) {
+        const to = process.env.OWNER_EMAIL || SELLER.email;
+        if (!mailReady()) out.test = { ok: false, to, error: 'RESEND_API_KEY or MAIL_FROM is missing, so no email can be sent.' };
+        else {
+          try {
+            await sendMail({ to, subject: 'Test email from your Vigyapan Studio website', html: shell({ preheader: 'Test email', heading: 'Your email setup works', bodyHtml: '<p style="margin:0">If you can read this, login codes, invoices and reminders can reach your customers.</p>' }), text: 'Your email setup works.' });
+            out.test = { ok: true, to };
+          } catch (e) { out.test = { ok: false, to, error: String((e && e.message) || e).slice(0, 400) }; }
+        }
+      }
+      return json(200, out);
+    }
+
+    if (action === 'lookup') {
+      const email = normEmail(b.email);
+      if (!email) return json(400, { error: 'Type an email address.' });
+      const c = await getCustomer(cidOf(email));
+      if (!c) return json(200, { found: false });
+      const pays = await getPayments(c.cid);
+      const m = computeMembership(pays, Date.now());
+      return json(200, { found: true, name: c.name, payments: pays.length, status: m ? m.status : 'none', expiresAt: m ? m.expiresAt : 0 });
     }
 
     if (action === 'add-payment') {

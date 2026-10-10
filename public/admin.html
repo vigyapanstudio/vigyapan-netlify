@@ -22,6 +22,15 @@
     <form id="af" class="grid2" novalidate><div class="f"><label for="pid">Payment ID</label><input id="pid" placeholder="pay_..." autocapitalize="none"></div>
     <div class="f" style="justify-content:flex-end"><label class="check" style="margin-top:0"><input type="checkbox" id="asend"><div><b>Also email the invoice</b></div></label></div>
     <div><button class="btn alt sm" type="submit">Add payment</button></div></form><div class="msgline" id="amsg" role="status" aria-live="polite"></div></div>
+  <div class="card" style="margin-top:22px"><h2>Setup check</h2>
+    <p class="sub">Shows which settings your website can see, and sends a test email to you. Use it if login codes or invoices are not arriving.</p>
+    <div id="chk"></div>
+    <p style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0"><button class="btn alt sm" id="chkBtn" type="button">Check my settings</button><button class="btn alt sm" id="chkMail" type="button">Send me a test email</button></p>
+    <div class="msgline" id="chkmsg" role="status" aria-live="polite"></div>
+    <hr style="border:0;border-top:1px dashed var(--line);margin:16px 0">
+    <form id="lkf" novalidate><div class="f"><label for="lkemail">Can this email log in to the dashboard?</label><input id="lkemail" type="email" placeholder="customer@email.com"></div>
+    <button class="btn alt sm" type="submit" style="margin-top:12px">Check this email</button></form>
+    <div class="msgline" id="lkmsg" role="status" aria-live="polite"></div></div>
 </div>
 </main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refund policy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
 
@@ -133,6 +142,25 @@ $("af").addEventListener("submit",function(e){
   e.preventDefault();msg("amsg","Adding…");
   api("add-payment",{paymentId:$("pid").value,sendEmails:$("asend").checked}).then(function(x){
     if(x.ok){msg("amsg","Added. The customer can now log in with that email.","good");$("pid").value="";load();}else msg("amsg",x.j.error||"Could not add.","bad");
+  });
+});
+function runCheck(send){
+  msg("chkmsg","Checking…");
+  api("diagnose",{sendTest:!!send}).then(function(x){
+    if(!x.ok){msg("chkmsg",x.j.error||"Could not check.","bad");return;}
+    $("chk").innerHTML=x.j.checks.map(function(c){return '<div class="row"><div><div class="t">'+esc(c.key)+'</div><div class="s">'+(c.value?esc(c.value)+' &middot; ':'')+esc(c.hint)+'</div></div><span class="chip '+(c.ok?"active":"expired")+'">'+(c.ok?"Found":"Missing")+'</span></div>';}).join("");
+    if(x.j.test){ if(x.j.test.ok)msg("chkmsg","Test email sent to "+x.j.test.to+". Check your inbox and your spam folder.","good"); else msg("chkmsg","The email could not be sent: "+x.j.test.error,"bad"); }
+    else msg("chkmsg","");
+  });
+}
+$("chkBtn").addEventListener("click",function(){runCheck(false);});
+$("chkMail").addEventListener("click",function(){runCheck(true);});
+$("lkf").addEventListener("submit",function(e){
+  e.preventDefault();msg("lkmsg","Checking…");
+  api("lookup",{email:$("lkemail").value}).then(function(x){
+    if(!x.ok){msg("lkmsg",x.j.error||"Could not check.","bad");return;}
+    if(!x.j.found)msg("lkmsg","Not a customer yet, so no code will be sent. Use \u201cAdd an earlier payment\u201d above with that person\u2019s Razorpay payment ID.","bad");
+    else msg("lkmsg","Yes. "+x.j.name+" has "+x.j.payments+" payment"+(x.j.payments===1?"":"s")+" and the plan is "+({active:"active",ending:"ending soon",expired:"ended",none:"unknown"}[x.j.status])+". They can log in.","good");
   });
 });
 load();

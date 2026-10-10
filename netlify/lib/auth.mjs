@@ -44,13 +44,14 @@ export async function requestCode(email) {
   email = normEmail(email);
   const cid = cidOf(email);
   const cust = await getCustomer(cid);
-  if (!cust || !mailReady()) return;
+  if (!cust) { console.log('LOGIN CODE NOT SENT: ' + email + ' is not a customer yet. Customers are added when a payment is processed, or with Admin > Add an earlier payment.'); return; }
+  if (!mailReady()) { console.log('LOGIN CODE NOT SENT: RESEND_API_KEY or MAIL_FROM is missing in Netlify (or the site was not redeployed after adding them).'); return; }
   const now = Date.now();
   const rec = (await db.get(S.otp, cid)) || {};
-  if (rec.sentAt && now - rec.sentAt < 45000) return;
+  if (rec.sentAt && now - rec.sentAt < 45000) { console.log('LOGIN CODE NOT SENT: asked again within 45 seconds for ' + email); return; }
   let count = rec.count || 0, winStart = rec.winStart || now;
   if (now - winStart > 3600000) { count = 0; winStart = now; }
-  if (count >= 6) return;
+  if (count >= 6) { console.log('LOGIN CODE NOT SENT: too many codes in the last hour for ' + email); return; }
   const code = String(randomInt(100000, 1000000));
   await db.put(S.otp, cid, { h: codeHash(email, code), exp: now + 600000, tries: 0, sentAt: now, count: count + 1, winStart });
   const html = shell({
@@ -62,6 +63,7 @@ export async function requestCode(email) {
     small: ''
   });
   await sendMail({ to: email, subject: 'Your Vigyapan Studio login code: ' + code, html, text: 'Your Vigyapan Studio login code is ' + code + '. It works for 10 minutes.' });
+  console.log('LOGIN CODE SENT to ' + email);
 }
 
 export async function verifyCode(email, code) {
