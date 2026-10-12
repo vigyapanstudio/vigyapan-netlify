@@ -62,3 +62,24 @@ table.t tr.sel td{background:rgba(255,183,43,.08)}
 .kv{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:.9rem}.kv dt{color:var(--mute)}.kv dd{margin:0;word-break:break-word}
 @media(max-width:520px){.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
 @media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+
+/* renewal choice, posting tracker, referral, review */
+.packs2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.pk{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;background:var(--bg);font-weight:400}
+.pk input{width:18px;height:18px;accent-color:var(--gold);flex:none;margin-top:2px}
+.pk b{font-family:var(--display);display:block}.pk span{color:var(--mute);font-size:.85rem}.pk i{font-style:normal;color:var(--mint);font-size:.78rem;display:block}
+.pk.on{border-color:var(--gold);background:rgba(255,183,43,.07)}
+@media(max-width:420px){.packs2{grid-template-columns:1fr}}
+.crows{display:grid;gap:8px;margin-top:14px}
+.crow{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;background:var(--bg);font-weight:400}
+.crow input{width:22px;height:22px;accent-color:var(--mint);flex:none;margin-top:1px}
+.crow .cd{display:block;min-width:0}.crow .cd b{font-family:var(--display)}.crow .cd small{color:var(--mute);font-size:.82rem;margin-left:4px}
+.crow .cd em{font-style:normal;font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-ink);background:var(--gold);border-radius:99px;padding:2px 8px;margin-left:4px}
+.crow .idea{display:block;color:var(--ink);font-size:.92rem;margin-top:3px;word-break:break-word}
+.crow.done{border-color:var(--mint);background:rgba(94,230,184,.08)}.crow.done .idea{color:var(--mute);text-decoration:line-through}
+.crow.today{border-color:var(--gold)}
+.refbox{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.refbox code{font-family:var(--mono);font-size:1.4rem;letter-spacing:.12em;color:var(--gold);background:var(--bg);border:1.5px dashed var(--gold);border-radius:12px;padding:10px 16px}
+.stars{display:flex;gap:4px}
+.star{background:none;border:0;font-size:2rem;line-height:1;color:var(--line);cursor:pointer;padding:2px 4px}
+.star.on{color:var(--gold)}

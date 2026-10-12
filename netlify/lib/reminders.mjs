@@ -1,8 +1,8 @@
 // Daily job: email customers whose month is ending (5 days before, 1 day before) or has just ended.
 import * as db from './db.mjs';
 import { STORES as S } from './db.mjs';
-import { DAY, BASE_PRICE, BUMP_PRICE, SELLER, esc, inr, istDate, siteUrl } from './config.mjs';
-import { listCustomers, getPayments, computeMembership } from './members.mjs';
+import { DAY, BASE_PRICE, BUMP_PRICE, WINBACK_OFF, WINBACK_AFTER_DAYS, WINBACK_VALID_DAYS, REVIEW_AFTER_DAYS, REFERRAL_PCT, SELLER, esc, inr, istDate, siteUrl } from './config.mjs';
+import { listCustomers, getPayments, computeMembership, getDeliveries, updateCustomer } from './members.mjs';
 import { sendMail, shell, mailReady } from './mail.mjs';
 
 const ORDER = { soon5: 1, soon1: 2, expired: 3 };
@@ -29,6 +29,7 @@ export function reminderEmail(type, cust, m, now) {
     heading = 'Your month ends in ' + days + ' days';
     body = '<p style="margin:0 0 12px">Hi ' + esc(first) + ', your current growth report and 30-day calendar run until <b>' + esc(endDate) + '</b>.</p>' +
       '<p style="margin:0 0 12px">To get your <b>next month’s calendar</b> and a refreshed look at your page and competitors without a gap, renew from your dashboard. It takes under a minute (' + inr(BASE_PRICE) + ', or ' + inr(BASE_PRICE + BUMP_PRICE) + ' with 10 reel scripts).</p>' +
+      (cust.credits > 0 ? '<p style="margin:0 0 12px"><b>Good news:</b> you have a ' + REFERRAL_PCT + '% referral credit waiting. It is applied automatically when you renew.</p>' : '') +
       '<p style="margin:0;color:#7a948f;font-size:13px">Renewing early does not waste any days. Your new 30 days start the day this month ends.</p>';
   } else if (type === 'soon1') {
     subject = 'Last day tomorrow: renew your Vigyapan Studio plan';
@@ -88,4 +89,67 @@ export async function runReminders(now) {
   }
   console.log('REMINDERS DONE: checked ' + result.checked + ', sent ' + result.sent.length + ', failed ' + result.failed);
   return result;
+}
+
+
+// ---- Win-back: two weeks after a plan ended, offer a small discount for 7 days ----
+export async function runWinback(now) {
+  now = now == null ? Date.now() : now;
+  const out = [];
+  if (!mailReady()) return out;
+  const site = siteUrl();
+  for (const c of await listCustomers()) {
+    if (out.length >= 30) break;
+    const m = computeMembership(await getPayments(c.cid), now);
+    if (!m || m.status !== 'expired') continue;
+    const since = now - m.expiresAt;
+    if (since < WINBACK_AFTER_DAYS * DAY || since > 45 * DAY) continue;
+    if (c.winback && c.winback.forExpiry === m.expiresAt) continue;
+    const until = now + WINBACK_VALID_DAYS * DAY;
+    const first = String(c.name || 'there').split(' ')[0];
+    const price = BASE_PRICE - WINBACK_OFF;
+    try {
+      await sendMail({ to: c.email, subject: 'A small thank-you: ' + inr(WINBACK_OFF) + ' off your next calendar',
+        html: shell({ preheader: inr(WINBACK_OFF) + ' off until ' + istDate(until), heading: 'We saved a ' + inr(WINBACK_OFF) + ' discount for you',
+          bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(first) + ', it has been a couple of weeks since your last plan ended. If you would like a fresh 30-day calendar and an updated look at your page, renew this week for <b>' + inr(price) + '</b> instead of ' + inr(BASE_PRICE) + '.</p>' +
+            '<p style="margin:0;color:#7a948f;font-size:13px">Log in with this email and the discount is already applied. It is valid until <b>' + esc(istDate(until)) + '</b>. There is no automatic payment.</p>',
+          button: site ? { text: 'Renew with ' + inr(WINBACK_OFF) + ' off', url: site + '/login' } : null,
+          small: 'You are getting this because you bought a plan from ' + SELLER.name + '.' }),
+        text: 'Renew this week for ' + inr(price) + ' instead of ' + inr(BASE_PRICE) + '. Log in: ' + (site ? site + '/login' : ''), idemKey: 'vs-win-' + c.cid + '-' + m.expiresAt });
+      await updateCustomer(c.cid, { winback: { forExpiry: m.expiresAt, sentAt: now, until, used: false } });
+      out.push({ email: c.email, name: c.name });
+    } catch (e) { console.error('WINBACK FAILED for ' + c.email, String(e)); }
+  }
+  console.log('WINBACK DONE: sent ' + out.length);
+  return out;
+}
+
+// ---- Review request: a week after the first report is delivered ----
+export async function runReviewAsks(now) {
+  now = now == null ? Date.now() : now;
+  const out = [];
+  if (!mailReady()) return out;
+  const site = siteUrl();
+  for (const c of await listCustomers()) {
+    if (out.length >= 30) break;
+    if (c.reviewAskedAt) continue;
+    const dl = await getDeliveries(c.cid);
+    if (!dl.length) continue;
+    const firstAt = dl.reduce((mn, d) => Math.min(mn, d.uploadedAt), Infinity);
+    if (now - firstAt < REVIEW_AFTER_DAYS * DAY) continue;
+    if (await db.get(S.reviews, c.cid)) { await updateCustomer(c.cid, { reviewAskedAt: now }); continue; }
+    const first = String(c.name || 'there').split(' ')[0];
+    try {
+      await sendMail({ to: c.email, subject: 'How is your plan going, ' + first + '?',
+        html: shell({ preheader: 'Two minutes to tell us how it went', heading: 'How is your plan going?',
+          bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(first) + ', it has been a week since your report was ready. If you have a minute, we would love to hear how it is going. A few honest lines help us improve, and help other small businesses decide.</p>' +
+            '<p style="margin:0;color:#7a948f;font-size:13px">Log in, scroll to <b>Share your feedback</b>, pick your stars and write a sentence or two. You choose whether we may show it on our website.</p>',
+          button: site ? { text: 'Share my feedback', url: site + '/login' } : null }),
+        text: 'How is your plan going? Share your feedback after logging in: ' + (site ? site + '/login' : ''), idemKey: 'vs-rev-' + c.cid });
+      await updateCustomer(c.cid, { reviewAskedAt: now });
+      out.push({ email: c.email, name: c.name });
+    } catch (e) { console.error('REVIEW ASK FAILED for ' + c.email, String(e)); }
+  }
+  console.log('REVIEW REQUESTS DONE: sent ' + out.length);
+  return out;
 }

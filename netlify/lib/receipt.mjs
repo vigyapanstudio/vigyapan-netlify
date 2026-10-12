@@ -44,7 +44,7 @@ export async function processPaidPayment(paymentId, opts) {
     const ownerHtml = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#10211f"><h2 style="margin:0 0 8px">' + (inv.renewal ? 'Renewal' : 'New paid order') + ': ' + inr(inv.total) + '</h2><table>' +
       line('Name', n.name) + line('WhatsApp', '+91 ' + inv.phone) + line('Email', inv.email) + line('Instagram', n.instagram) + line('Business', n.business) +
       line('Type', n.business_type) + line('City', n.city) + line('Followers', n.followers) + line('Goal', n.goal) + line('Competitors', n.competitors) +
-      line('Sells / offers', n.about) + line('Reel scripts add-on', n.addon_reel_scripts) + line('Invoice', inv.invNo) + line('Payment ID', payment.id) + line('Order ID', payment.order_id) +
+      line('Sells / offers', n.about) + line('Plan', n.plan) + line('Discount used', n.promo) + line('Reel scripts add-on', n.addon_reel_scripts) + line('Invoice', inv.invNo) + line('Payment ID', payment.id) + line('Order ID', payment.order_id) +
       '</table><p>Upload their report in your admin page, then it appears in their dashboard.</p><p><a href="https://wa.me/91' + esc(inv.phone) + '">Open WhatsApp chat with customer</a></p></div>';
     try {
       await sendMail({

@@ -12,7 +12,9 @@
   </div>
 </div>
 <div id="panel" class="hide">
-  <div class="eyebrow">Owner area</div><h1>Customers</h1>
+  <div class="eyebrow">Owner area</div><h1>Dashboard</h1>
+  <div class="filters" id="tabs" role="tablist" style="margin-top:14px"></div>
+  <div id="tab_c">
   <div class="stats" id="stats"></div>
   <div class="filters" id="filters"></div>
   <div class="tablewrap"><table class="t"><thead><tr><th>Customer</th><th>Status</th><th>Ends</th><th>Left</th><th>Reports</th><th>Paid</th></tr></thead><tbody id="rows"></tbody></table></div>
@@ -22,7 +24,10 @@
     <form id="af" class="grid2" novalidate><div class="f"><label for="pid">Payment ID</label><input id="pid" placeholder="pay_..." autocapitalize="none"></div>
     <div class="f" style="justify-content:flex-end"><label class="check" style="margin-top:0"><input type="checkbox" id="asend"><div><b>Also email the invoice</b></div></label></div>
     <div><button class="btn alt sm" type="submit">Add payment</button></div></form><div class="msgline" id="amsg" role="status" aria-live="polite"></div></div>
-  <div class="card" style="margin-top:22px"><h2>Setup check</h2>
+  </div>
+  <div id="tab_l" class="hide"><h2 style="margin-top:22px">Free audit requests</h2><p class="sub">People who asked for 3 free tips. Message them on WhatsApp, then tap Done.</p><div id="leads" class="stack"></div></div>
+  <div id="tab_r" class="hide"><h2 style="margin-top:22px">Client reviews</h2><p class="sub">Only reviews you approve here (and that the client allowed) show on your home page.</p><div id="reviews" class="stack"></div></div>
+  <div id="tab_s" class="hide"><div class="card" style="margin-top:22px"><h2>Setup check</h2>
     <p class="sub">Shows which settings your website can see, and sends a test email to you. Use it if login codes or invoices are not arriving.</p>
     <div id="chk"></div>
     <p style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0"><button class="btn alt sm" id="chkBtn" type="button">Check my settings</button><button class="btn alt sm" id="chkMail" type="button">Send me a test email</button></p>
@@ -30,9 +35,9 @@
     <hr style="border:0;border-top:1px dashed var(--line);margin:16px 0">
     <form id="lkf" novalidate><div class="f"><label for="lkemail">Can this email log in to the dashboard?</label><input id="lkemail" type="email" placeholder="customer@email.com"></div>
     <button class="btn alt sm" type="submit" style="margin-top:12px">Check this email</button></form>
-    <div class="msgline" id="lkmsg" role="status" aria-live="polite"></div></div>
+    <div class="msgline" id="lkmsg" role="status" aria-live="polite"></div></div></div>
 </div>
-</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio<br>Udyam Reg. No. UDYAM-PB-12-0008441</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/blog/">Blog</a><a href="/faq/">FAQ</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div>
 
 <script>
 (function(){
@@ -44,7 +49,51 @@ function kb(n){return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.ro
 function api(a,d){return fetch("/api/admin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:a},d||{}))}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,status:r.status,j:j};});});}
 function msg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"+(c?" "+c:"");}}
 var LABEL={active:"Active",ending:"Ending soon",expired:"Ended",none:"-"};
-var DATA=null, filter="all", query="", sel=null, FLASH="";
+var DATA=null, filter="all", query="", sel=null, FLASH="", TAB="c";
+function showTab(t){
+  TAB=t;["c","l","r","s"].forEach(function(k){$("tab_"+k).classList.toggle("hide",k!==t);});
+  drawTabs();load();if(t==="l")loadLeads();if(t==="r")loadReviews();if(t==="s"&&!$("chk").innerHTML)runCheck(false);
+}
+function drawTabs(){
+  var s=(DATA&&DATA.stats)||{};
+  var T=[["c","Customers"],["l","Free audits"+(s.newLeads?" ("+s.newLeads+" new)":"")],["r","Reviews"+(s.pendingReviews?" ("+s.pendingReviews+" to approve)":"")],["s","Setup check"]];
+  $("tabs").innerHTML=T.map(function(a){return '<button type="button" role="tab" data-t="'+a[0]+'" class="'+(TAB===a[0]?"on":"")+'">'+a[1]+'</button>';}).join("");
+  $("tabs").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){showTab(b.getAttribute("data-t"));});});
+}
+function loadLeads(){
+  $("leads").innerHTML='<p class="empty">Loading…</p>';
+  api("leads").then(function(x){
+    if(!x.ok){$("leads").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var L=x.j.leads;
+    $("leads").innerHTML=L.length?L.map(function(l){
+      var wa="https://wa.me/91"+esc(l.phone)+"?text="+encodeURIComponent("Hi "+(l.name||"").split(" ")[0]+"! This is Nipun from Vigyapan Studio. Here are 3 quick tips for @"+l.ig+":\n\n1. \n2. \n3. \n\nIf you would like the full report with a 30-day calendar, you can see it here: https://vigyapanstudio.online/");
+      return '<div class="card"><div class="top2"><h2 style="margin:0">'+esc(l.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(l.ig)+'</span></h2><span class="chip '+(l.status==="done"?"active":"ending")+'">'+(l.status==="done"?"Done":"New")+'</span></div>'+
+        '<p class="sub" style="margin:6px 0 0">'+dt(l.createdAt)+(l.type?" &middot; "+esc(l.type):"")+' &middot; +91 '+esc(l.phone)+(l.email?" &middot; "+esc(l.email):"")+'</p>'+
+        '<p style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa+'">Reply on WhatsApp</a>'+
+        '<a class="btn alt sm" target="_blank" rel="noopener" href="https://www.instagram.com/'+esc(l.ig)+'/">Open their Instagram</a>'+
+        '<button class="btn alt sm" type="button" data-ls="'+esc(l.id)+'" data-to="'+(l.status==="done"?"new":"done")+'">'+(l.status==="done"?"Mark as new":"Mark done")+'</button>'+
+        '<button class="btn alt sm" type="button" data-ld="'+esc(l.id)+'">Delete</button></p></div>';
+    }).join(""):'<p class="empty">No requests yet. Share your /free-audit link in your Instagram bio and ads.</p>';
+    $("leads").querySelectorAll("[data-ls]").forEach(function(b){b.addEventListener("click",function(){api("lead-status",{id:b.getAttribute("data-ls"),status:b.getAttribute("data-to")}).then(function(){loadLeads();load();});});});
+    $("leads").querySelectorAll("[data-ld]").forEach(function(b){b.addEventListener("click",function(){if(!confirm("Delete this request?"))return;api("lead-delete",{id:b.getAttribute("data-ld")}).then(function(){loadLeads();load();});});});
+  });
+}
+function loadReviews(){
+  $("reviews").innerHTML='<p class="empty">Loading…</p>';
+  api("reviews").then(function(x){
+    if(!x.ok){$("reviews").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var R=x.j.reviews;
+    $("reviews").innerHTML=R.length?R.map(function(r){
+      var st="";for(var i=1;i<=5;i++)st+=i<=r.rating?"★":"☆";
+      var state=!r.publish?'<span class="chip none">Private</span>':(r.approved?'<span class="chip active">Showing on site</span>':'<span class="chip ending">Waiting for you</span>');
+      return '<div class="card"><div class="top2"><h2 style="margin:0;color:var(--gold)">'+st+'</h2>'+state+'</div><p style="margin:10px 0">'+esc(r.text)+'</p><p class="sub" style="margin:0">'+esc(r.name)+(r.biz?", "+esc(r.biz):"")+' &middot; '+esc(r.email)+' &middot; '+dt(r.updatedAt)+'</p>'+
+        '<p style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0">'+(r.publish?'<button class="btn alt sm" type="button" data-ra="'+esc(r.cid)+'" data-to="'+(r.approved?"0":"1")+'">'+(r.approved?"Hide from website":"Approve and show")+'</button>':'')+
+        '<button class="btn alt sm" type="button" data-rd="'+esc(r.cid)+'">Delete</button></p></div>';
+    }).join(""):'<p class="empty">No reviews yet. Clients are asked a week after their first report is ready.</p>';
+    $("reviews").querySelectorAll("[data-ra]").forEach(function(b){b.addEventListener("click",function(){api("review-approve",{cid:b.getAttribute("data-ra"),approved:b.getAttribute("data-to")==="1"}).then(function(){loadReviews();load();});});});
+    $("reviews").querySelectorAll("[data-rd]").forEach(function(b){b.addEventListener("click",function(){if(!confirm("Delete this review?"))return;api("review-delete",{cid:b.getAttribute("data-rd")}).then(function(){loadReviews();load();});});});
+  });
+}
 
 function showLogin(note){$("panel").classList.add("hide");$("login").classList.remove("hide");if(note)msg("lmsg",note,"bad");}
 function showPanel(){$("login").classList.add("hide");$("panel").classList.remove("hide");}
@@ -64,7 +113,7 @@ function load(){
     if(x.status===401){showLogin();return;}
     if(x.status===503){showLogin(x.j.error);return;}
     if(!x.ok){showLogin(x.j.error||"Something went wrong.");return;}
-    DATA=x.j;showPanel();render();
+    DATA=x.j;showPanel();render();drawTabs();
   });
 }
 function render(){
@@ -104,7 +153,13 @@ function drawDetail(d){
   var kv=[["Email",c.email],["WhatsApp","+91 "+c.phone],["Business",c.biz],["Type",c.type],["City",c.city],["Followers",c.followers],["Goal",c.goal],["Competitors",c.comp],["Sells / offers",c.about]].filter(function(a){return a[1];}).map(function(a){return '<dt>'+a[0]+'</dt><dd>'+esc(a[1])+'</dd>';}).join("");
   var note=c.nextNote?'<div class="banner warn"><b>Their note for next month:</b><br>'+esc(c.nextNote).replace(/\n/g,"<br>")+'</div>':"";
   var dels=d.deliveries.length?d.deliveries.map(function(f){return '<div class="row"><div><div class="t">'+esc(f.title)+'</div><div class="s">'+(f.month?esc(f.month)+' &middot; ':'')+kb(f.size)+' &middot; '+dt(f.uploadedAt)+'</div></div><button class="btn alt sm" type="button" data-del="'+esc(f.id)+'">Delete</button></div>';}).join(""):'<p class="empty">Nothing uploaded yet.</p>';
-  var pays=d.payments.map(function(p){return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?" &middot; renewal":" &middot; first order")+(p.bump?" &middot; with reel scripts":"")+' &middot; '+esc(p.paymentId)+'</div></div></div>';}).join("");
+  var pays=d.payments.map(function(p){return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?" &middot; renewal":" &middot; first order")+(p.months===3?" &middot; 3-month plan":"")+(p.bump?" &middot; with reel scripts":"")+(p.promo?" &middot; discount: "+esc(p.promo):"")+' &middot; '+esc(p.paymentId)+'</div></div></div>';}).join("");
+  var rf=d.referral||{},wb=d.winback;
+  var ref='<div class="card"><h2>Referral</h2><p class="sub">Code <b style="font-family:var(--mono);color:var(--gold)">'+esc(rf.code||"")+'</b> &middot; friends who joined: <b>'+(rf.friends||0)+'</b> &middot; 10% credits waiting: <b>'+(rf.credits||0)+'</b>'+(rf.referredBy?' &middot; came with code '+esc(rf.referredBy):'')+
+    (wb?' &middot; win-back offer sent '+dt(wb.sentAt)+(wb.used?' (used)':(wb.until>Date.now()?' (open until '+dt(wb.until)+')':' (expired)')):'')+'</p></div>';
+  var cal=d.calendar?'<div class="card"><h2>This month\u2019s posting ideas</h2><p class="sub">'+(m&&m.packMonths>1?'Month '+m.periodNo+' of '+m.packMonths+'. ':'')+'One idea per line, Day 1 first (up to 30 lines). They appear in the customer\u2019s posting tracker. They have ticked <b>'+d.calendar.ticked+' of 30</b> days.</p>'+
+    '<div class="f"><label class="sr" for="ideas" style="position:absolute;left:-9999px">Ideas</label><textarea id="ideas" style="min-height:160px" placeholder="Reel: Before and after of a bridal makeup\nCarousel: 5 skincare mistakes\nStory poll: Which look do you like?">'+esc(d.calendar.ideasText)+'</textarea></div>'+
+    '<button class="btn alt sm" id="ideasBtn" type="button" style="margin-top:12px">Save ideas</button><div class="msgline" id="ideasMsg" role="status" aria-live="polite"></div></div>':'';
   $("detail").innerHTML='<div class="card"><div class="top2"><h2 style="margin:0">'+esc(c.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(c.ig)+'</span></h2>'+(m?'<span class="chip '+m.status+'">'+LABEL[m.status]+(m.status==="expired"?"":" &middot; ends "+dt(m.expiresAt))+'</span>':'')+'</div>'+
     '<p style="margin:12px 0"><a class="btn wa sm" target="_blank" rel="noopener" href="https://wa.me/91'+esc(c.phone)+'">Chat on WhatsApp</a></p>'+note+'<dl class="kv" style="margin-top:14px">'+kv+'</dl></div>'+
     '<div class="card"><h2>Upload a report or calendar</h2><p class="sub">PDF, PNG or JPG, up to 3.8 MB. It appears in their dashboard right away.</p>'+
@@ -113,7 +168,11 @@ function drawDetail(d){
     '<div class="f full"><label for="u_file">File</label><input id="u_file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"></div></div>'+
     '<label class="check" for="u_notify"><input type="checkbox" id="u_notify" checked><div><b>Email them that it is ready</b></div></label>'+
     '<button class="btn full" type="submit" id="u_btn">Upload</button><div class="msgline" id="umsg" role="status" aria-live="polite"></div></form></div>'+
-    '<div class="card"><h2>Uploaded files</h2>'+dels+'</div><div class="card"><h2>Payments</h2>'+pays+'</div>';
+    cal+'<div class="card"><h2>Uploaded files</h2>'+dels+'</div>'+ref+'<div class="card"><h2>Payments</h2>'+pays+'</div>';
+  if($("ideasBtn"))$("ideasBtn").addEventListener("click",function(){
+    msg("ideasMsg","Saving…");
+    api("set-ideas",{cid:c.cid,text:$("ideas").value}).then(function(x){msg("ideasMsg",x.ok?"Saved. "+x.j.lines+" idea"+(x.j.lines===1?"":"s")+" now show for the customer.":(x.j.error||"Could not save."),x.ok?"good":"bad");});
+  });
   if(FLASH){msg("umsg",FLASH,"good");FLASH="";}
   $("uf").addEventListener("submit",function(e){e.preventDefault();upload(c.cid);});
   $("detail").querySelectorAll("[data-del]").forEach(function(b){b.addEventListener("click",function(){

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /thank-you
+Disallow: /api/
+
+Sitemap: https://vigyapanstudio.online/sitemap.xml

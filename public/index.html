@@ -271,6 +271,44 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 .pay-status{min-height:1.4em}
 .pay-status.err{color:var(--err)}
 @media (max-width:700px){.sample{grid-template-columns:1fr}.about{grid-template-columns:1fr}.about img{width:96px}}
+/* trust badge, plan choice, referral, extra sections */
+.udyam{display:flex;align-items:center;gap:14px;border:1.5px solid var(--gold);background:rgba(255,183,43,.08);border-radius:16px;padding:14px 18px;max-width:560px}
+.udyam svg{width:36px;height:36px;flex:none}
+.udyam b{display:block;font-family:var(--display);font-size:1.02rem;line-height:1.25}
+.udyam small{display:block;color:var(--mute);font-size:.82rem;line-height:1.4}
+.udyam code{font-family:var(--mono);color:var(--gold);font-weight:500;letter-spacing:.02em;font-size:.95em;white-space:nowrap}
+.packs{display:grid;grid-template-columns:1fr 1fr;gap:12px;grid-column:1/-1;border:0;padding:0;margin:0;min-width:0}
+.packs legend{position:absolute;left:-9999px}
+.pack{position:relative;display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:16px;padding:14px 14px 14px 12px;cursor:pointer;background:var(--bg);transition:border-color .15s,background .15s}
+.pack input{width:20px;height:20px;accent-color:var(--gold);flex:none;margin-top:3px}
+.pack b{font-family:var(--display);font-size:1.05rem;display:block}
+.pack span{color:var(--mute);font-size:.82rem;display:block;line-height:1.35}
+.pack em{font-style:normal;font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--gold);margin-left:auto;text-align:right;white-space:nowrap}
+.pack em s{display:block;color:var(--mute);font-weight:400;font-size:.78rem;font-family:var(--body)}
+.pack.on{border-color:var(--gold);background:rgba(255,183,43,.07)}
+.pack .save{position:absolute;top:-10px;left:14px;background:var(--mint);color:#032A1E;font-family:var(--mono);font-size:.64rem;font-style:normal;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:99px;padding:3px 9px}
+.refrow{display:flex;gap:10px}
+.refrow input{text-transform:uppercase;letter-spacing:.06em}
+.refrow .btn{padding:0 20px;font-size:.95rem;box-shadow:none;flex:none}
+.refok{color:var(--mint);font-size:.85rem}
+.band{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:clamp(20px,4vw,32px)}
+.band h3{font-family:var(--display);font-size:1.5rem;margin:0 0 8px;letter-spacing:-.01em}
+.band p{margin:0;color:var(--mute);max-width:52ch}
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.types a{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:16px 18px;transition:border-color .2s,transform .2s}
+.types a:hover{border-color:var(--gold);transform:translateY(-3px)}
+.types b{font-family:var(--display);display:block;font-size:1.05rem}
+.types span{color:var(--mute);font-size:.84rem}
+.revs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.rev{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:20px}
+.rev .stars{color:var(--gold);letter-spacing:.12em;font-size:1.05rem}
+.rev p{margin:8px 0 12px;color:var(--ink)}
+.rev small{color:var(--mute)}
+.posts{display:grid;gap:10px}
+.posts a{display:flex;justify-content:space-between;gap:14px;text-decoration:none;border-bottom:1px solid var(--line);padding-block:14px;font-family:var(--display);font-weight:600;font-size:1.05rem}
+.posts a span{color:var(--gold)}
+.posts a:hover{color:var(--gold)}
+@media (max-width:700px){.band{grid-template-columns:1fr}.packs{grid-template-columns:1fr}}
 </style>
 
 </head>
@@ -298,6 +336,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
       <div class="trust">
         <span>Ready in 48 hours</span><span>Made for small businesses</span>
       </div>
+      <div class="udyam" style="margin-top:22px"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M18 3 L31 8 V17 C31 25 25.5 30.5 18 33 C10.5 30.5 5 25 5 17 V8 Z" stroke="#FFB72B" stroke-width="2.4" stroke-linejoin="round"/><path d="M11.5 18 L16 22.5 L24.5 13.5" stroke="#5EE6B8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Government-registered business</b><small>Udyam Registration (MSME), Government of India</small><code>UDYAM-PB-12-0008441</code></div></div>
     </div>
 
     <div class="stage" aria-hidden="true">
@@ -358,6 +397,17 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
   </section>
 
   <section>
+    <div class="band">
+      <div>
+        <div class="eyebrow">Not ready to buy yet?</div>
+        <h3>Get 3 free tips for your Instagram page</h3>
+        <p>Send us your handle and we will look at your page and message you 3 quick, specific things to fix. No payment, no card, no pressure.</p>
+      </div>
+      <a class="btn" href="/free-audit/">Get my free tips <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section>
     <div class="eyebrow">Who's behind it</div>
     <h2>Vigyapan Studio</h2>
     <div class="about">
@@ -367,6 +417,13 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
         <a class="ig" href="https://www.instagram.com/vigyapan_studio/" target="_blank" rel="noopener">Follow @vigyapan_studio</a>
       </div>
     </div>
+    <div class="udyam" style="margin-top:22px"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M18 3 L31 8 V17 C31 25 25.5 30.5 18 33 C10.5 30.5 5 25 5 17 V8 Z" stroke="#FFB72B" stroke-width="2.4" stroke-linejoin="round"/><path d="M11.5 18 L16 22.5 L24.5 13.5" stroke="#5EE6B8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Registered with the Government of India</b><small>Udyam Registration (MSME). Proprietor: Nipun Aggarwal, Zirakpur, Punjab.</small><code>UDYAM-PB-12-0008441</code></div></div>
+  </section>
+
+  <section id="reviews" hidden>
+    <div class="eyebrow">What clients say</div>
+    <h2>Real feedback from real businesses.</h2>
+    <div class="revs" id="revList"></div>
   </section>
 
   <section id="order">
@@ -399,10 +456,20 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
             <div class="f full"><label for="comp">Competitor Instagram handles <small>(optional. Not sure? Leave it blank and we'll pick them for you)</small></label><textarea id="comp" placeholder="@competitor1, @competitor2, @competitor3"></textarea><div class="msg"></div></div>
             <div class="f full"><label for="about">What product do you sell or what services do you offer?</label><textarea id="about" placeholder="e.g. Bridal makeup and hair services for women aged 22-35 in Ludhiana."></textarea><div class="msg"></div></div>
 
+            <fieldset class="packs">
+              <legend>Choose your plan</legend>
+              <label class="pack on" for="pk1"><input type="radio" name="pack" id="pk1" value="1" checked><div><b>1 month</b><span>Report + 30-day calendar</span></div><em>₹999</em></label>
+              <label class="pack" for="pk3"><input type="radio" name="pack" id="pk3" value="3"><div><b>3 months</b><span>A fresh calendar every month</span></div><em>₹2,699<s>₹2,997</s></em><i class="save">Save ₹298</i></label>
+            </fieldset>
+
             <label class="bump" for="bump">
               <input type="checkbox" id="bump">
               <div><b>Add 10 ready-to-shoot reel scripts for just ₹299 more</b><span>Word-for-word scripts in Hinglish or English. Most customers add this.</span></div>
             </label>
+
+            <div class="f full"><label for="ref">Referral code <small>(optional, 10% off your first order)</small></label>
+              <div class="refrow"><input id="ref" placeholder="VS-XXXXXX" autocapitalize="characters" autocomplete="off" maxlength="12"><button class="btn alt" type="button" id="refBtn">Apply</button></div>
+              <div class="msg"></div><div class="refok" id="refOk" hidden></div></div>
 
             <label class="consent" for="agree"><input type="checkbox" id="agree"><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive my report on the WhatsApp number and email above. I understand this is a planning report, not a promise of followers or sales.</span></label>
             <div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
@@ -433,10 +500,12 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 
       <aside class="card sum">
         <h3>Your order</h3>
-        <div class="row"><span>Growth report + 30-day calendar</span><span>₹999</span></div>
+        <div class="row"><span id="planLabel">Growth report + 30-day calendar</span><span id="planPrice">₹999</span></div>
         <div class="row" id="bumpRow" hidden><span>10 reel scripts</span><span>₹299</span></div>
+        <div class="row" id="discRow" hidden style="color:var(--mint)"><span>Referral code</span><span id="discAmt">−₹0</span></div>
         <div class="row total"><span>Total</span><span id="total">₹999</span></div>
         <ul><li>Delivered in 48 hours</li><li>Page report + 3 competitors</li><li>Captions and hashtags included</li><li>5-minute video walkthrough</li></ul>
+        <p style="margin:16px 0 0;font-size:.8rem;color:var(--mute);line-height:1.5">Udyam registered business<br><span style="font-family:var(--mono);color:var(--gold)">UDYAM-PB-12-0008441</span></p>
       </aside>
     </div>
   </section>
@@ -448,7 +517,34 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
     <details><summary>Will this get me followers or sales?</summary><p>The plan shows you what to post and when, based on what works in your market. Results depend on how consistently you follow it, so we don't promise a number of followers.</p></details>
     <details><summary>Do you need my Instagram password?</summary><p>Never. We only look at your public page, so we only need your handle.</p></details>
     <details><summary>When do I get it?</summary><p>Within 48 hours of your payment being confirmed.</p></details>
+    <details><summary>What is the 3-month plan?</summary><p>You pay once for three months. You get a fresh report and 30-day calendar at the start of each month, and you save ₹298 compared with paying monthly.</p></details>
+    <details><summary>How does the referral code work?</summary><p>Every customer gets a personal code in their dashboard. A friend who types it at checkout gets 10% off their first order, and you get a 10% credit on your next renewal.</p></details>
     <details><summary>How do I pay?</summary><p>Fill the form, then pay on the next step with UPI, card, netbanking or wallet. Payment is handled securely by Razorpay.</p></details>
+  </section>
+  <section>
+    <div class="eyebrow">Made for your kind of business</div>
+    <h2>Pick your business, see what your plan looks like.</h2>
+    <div class="types">
+      <a href="/for/salons/"><b>Salons and beauty</b><span>Bridal, skin, hair, nails</span></a>
+      <a href="/for/restaurants-cafes/"><b>Cafes and restaurants</b><span>Menus, footfall, delivery</span></a>
+      <a href="/for/boutiques/"><b>Clothing and boutiques</b><span>Collections, try-ons, drops</span></a>
+      <a href="/for/gyms/"><b>Gyms and fitness</b><span>Memberships, transformations</span></a>
+      <a href="/for/clinics/"><b>Clinics and health</b><span>Trust, tips, appointments</span></a>
+      <a href="/for/coaching-classes/"><b>Coaching and education</b><span>Batches, results, enquiries</span></a>
+      <a href="/for/real-estate/"><b>Real estate</b><span>Listings, walkthroughs, leads</span></a>
+      <a href="/for/jewellery/"><b>Jewellery</b><span>Designs, occasions, trust</span></a>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">From the blog</div>
+    <h2>Free Instagram advice for small businesses.</h2>
+    <div class="posts">
+      <a href="/blog/best-time-to-post-on-instagram-india/">Best time to post on Instagram in India <span>→</span></a>
+      <a href="/blog/how-often-should-a-small-business-post-on-instagram/">How often should a small business post? <span>→</span></a>
+      <a href="/blog/reels-vs-posts-vs-stories-for-small-business/">Reels vs posts vs stories: what to use when <span>→</span></a>
+      <a href="/blog/">All articles <span>→</span></a>
+    </div>
   </section>
 </main>
 
@@ -458,10 +554,11 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
     <div class="links">
       <strong style="font-family:var(--display); font-size:1.15rem; color:var(--ink)">Vigyapan Studio</strong>
       <span>Made for small businesses that want to post with a plan.</span>
+      <span style="font-family:var(--mono);font-size:.78rem">Udyam Reg. No. <span style="color:var(--gold)">UDYAM-PB-12-0008441</span></span>
       <a class="ig" href="https://www.instagram.com/vigyapan_studio/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB72B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="#FFB72B"/></svg>Follow @vigyapan_studio</a>
     </div>
   </div>
-  <div class="legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a><span>© 2026 Vigyapan Studio</span></div>
+  <div class="legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/blog/">Blog</a><a href="/faq/">FAQ</a><a href="/free-audit/">Free audit</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a><span>© 2026 Vigyapan Studio</span></div>
 </footer>
 </div>
 
@@ -470,7 +567,8 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 
 <script>
 var CFG = window.VS_CONFIG || {};
-var BASE = CFG.PRICE_BASE || 999, BUMP = CFG.PRICE_BUMP || 299;
+var BASE = CFG.PRICE_BASE || 999, BUMP = CFG.PRICE_BUMP || 299, PACK3 = CFG.PRICE_PACK3 || 2699;
+var months = 1, refPct = 0, refCode = "";
 var $ = function(id){ return document.getElementById(id); };
 function inr(n){ return "₹" + n.toLocaleString("en-IN"); }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
@@ -490,13 +588,51 @@ function toast(t){ var e=$("toast"); e.textContent=t; e.classList.add("on"); cle
 })();
 
 /* --- price sync --- */
-function total(){ return BASE + ($("bump").checked ? BUMP : 0); }
+function subtotal(){ return (months===3 ? PACK3 : BASE) + ($("bump").checked ? BUMP : 0); }
+function discount(){ return refPct ? Math.round(subtotal()*refPct/100) : 0; }
+function total(){ return subtotal() - discount(); }
 function syncPrice(){
   var t=total();
   $("total").textContent=inr(t); $("stickyTotal").textContent=inr(t);
   $("bumpRow").hidden=!$("bump").checked;
+  $("planLabel").textContent = months===3 ? "Report + calendar, 3 months" : "Growth report + 30-day calendar";
+  $("planPrice").textContent = inr(months===3 ? PACK3 : BASE);
+  $("discRow").hidden = !refPct; $("discAmt").textContent = "−"+inr(discount());
 }
 $("bump").addEventListener("change", syncPrice);
+Array.prototype.forEach.call(document.querySelectorAll('input[name="pack"]'), function(r){
+  r.addEventListener("change", function(){
+    months = +document.querySelector('input[name="pack"]:checked').value;
+    Array.prototype.forEach.call(document.querySelectorAll(".pack"), function(p){ p.classList.toggle("on", p.querySelector("input").checked); });
+    syncPrice();
+  });
+});
+
+/* --- referral code --- */
+function clearRef(){ refPct=0; refCode=""; $("refOk").hidden=true; syncPrice(); }
+function applyRef(){
+  var code=$("ref").value.trim().toUpperCase();
+  if(!code){ clearRef(); return Promise.resolve(true); }
+  $("refBtn").disabled=true;
+  return fetch("/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({check:true, referral:code, email:$("email").value.trim(), phone:cleanPhone($("phone").value)})})
+    .then(function(r){ return r.json().catch(function(){return {};}).then(function(j){ return {ok:r.ok,j:j}; }); })
+    .then(function(x){
+      $("refBtn").disabled=false;
+      if(x.ok && x.j.ok){ refPct=x.j.pct||10; refCode=x.j.code||code; $("ref").value=refCode; $("refOk").textContent="✓ "+refPct+"% off applied to your first order."; $("refOk").hidden=false; setErr("ref",""); syncPrice(); return true; }
+      clearRef(); setErr("ref",(x.j&&x.j.error)||"Could not check that code. Please try again."); return false;
+    })
+    .catch(function(){ $("refBtn").disabled=false; clearRef(); setErr("ref","No connection. Please try again."); return false; });
+}
+$("refBtn").addEventListener("click", function(){ applyRef(); });
+$("ref").addEventListener("input", function(){ if(refPct) clearRef(); $("ref").closest(".f").classList.remove("bad"); });
+(function(){   // links like /?ref=VS-ABC123 and /?type=Salon%20%2F%20Beauty fill the form in
+  try{
+    var q=new URLSearchParams(location.search), r=(q.get("ref")||"").toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,12), t=q.get("type");
+    if(r){ $("ref").value=r; }
+    if(t){ var sel=$("type"); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].text===t){ sel.selectedIndex=i; break; } } }
+  }catch(e){}
+})();
 
 /* --- validation --- */
 function setErr(id,m){ var f=$(id).closest(".f"); if(m){ f.classList.add("bad"); f.querySelector(".msg").textContent=m; } else { f.classList.remove("bad"); } return !m; }
@@ -535,25 +671,33 @@ function waText(o){
   return ["Hi Vigyapan Studio! I'd like to order the Instagram Growth Report + 30-Day Calendar.",
     "Name: "+o.name, "WhatsApp: "+o.phone, "Email: "+o.email, "Instagram: @"+o.ig, "Business: "+o.biz+" ("+o.type+", "+o.city+")",
     "Followers: "+o.followers, "Goal: "+o.goal, "Competitors: "+(o.comp||"Please choose for me"), "Sells: "+o.about,
+    "Plan: "+(o.months===3?"3 months":"1 month"), o.referral?("Referral code: "+o.referral):"",
     "Add-on: "+(o.bump?"10 reel scripts (+"+inr(BUMP)+")":"No"), "Amount: "+inr(o.amount)].filter(Boolean).join("\n");
 }
 
 $("form").addEventListener("submit", function(e){
   e.preventDefault();
   if(!validate()){ var b=document.querySelector(".f.bad"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+  if($("ref").value.trim() && !refPct){
+    applyRef().then(function(ok){ if(ok) goPay(); else { var b=document.querySelector(".f.bad"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}); } });
+    return;
+  }
+  goPay();
+});
+function goPay(){
   var v=function(id){return $(id).value.trim();};
   order={ name:v("name"), phone:cleanPhone(v("phone")), email:v("email"), ig:cleanIg(v("ig")), biz:v("biz"), type:v("type"), city:v("city"),
-    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, amount:total() };
+    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, months:months, referral:refPct?refCode:"", amount:total() };
   session=null;
   $("payTotal").textContent=inr(order.amount);
-  $("payLine").textContent="Growth report + 30-day calendar"+(order.bump?" + 10 reel scripts":"");
+  $("payLine").textContent=(months===3?"Growth report + calendar, 3 months":"Growth report + 30-day calendar")+(order.bump?" + 10 reel scripts":"")+(refPct?" (referral discount applied)":"");
   $("payBtn").innerHTML="Pay "+inr(order.amount)+" securely <span aria-hidden=\"true\">→</span>";
   $("recap").innerHTML="<div><b>"+esc(order.name)+"</b> · "+esc(order.phone)+"</div><div>@"+esc(order.ig)+" · "+esc(order.biz)+"</div><div>"+esc(order.email)+"</div>";
   $("waBtn").href="https://wa.me/"+(CFG.WHATSAPP||"917009884880")+"?text="+encodeURIComponent(waText(order));
   if(window.vsTrack) window.vsTrack("InitiateCheckout",{value:order.amount,currency:"INR"});
   showStep(2);
   startPayment();
-});
+}
 $("back").addEventListener("click", function(){ session=null; showStep(1); });
 $("payBtn").addEventListener("click", function(){ startPayment(); });
 
@@ -578,7 +722,7 @@ function openCheckout(){
   if(!window.Razorpay){ setStatus("The payment window is still loading. Please tap Pay again in a moment.", true); return; }
   var rzp=new Razorpay({
     key:session.key, amount:session.amount, currency:"INR", order_id:session.orderId,
-    name:"Vigyapan Studio", description:"Instagram Growth Report + 30-Day Calendar",
+    name:"Vigyapan Studio", description:"Instagram Growth Report + Calendar"+(order.months===3?" (3 months)":""),
     image:location.origin+"/assets/logo-icon.jpg",
     prefill:{ name:order.name, email:order.email, contact:"+91"+order.phone },
     theme:{ color:"#FFB72B" },
@@ -602,7 +746,7 @@ function onPaid(resp){
     .then(function(j){ verified=!!(j&&j.verified); })
     .catch(function(){ verified=false; })
     .then(function(){
-      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, email:order.email, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump,
+      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, email:order.email, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump, months:order.months,
         orderId:session.orderId, paymentId:resp.razorpay_payment_id, verified:verified })); }catch(e){}
       location.href="/thank-you";
     });
@@ -613,6 +757,16 @@ if("IntersectionObserver" in window){
   new IntersectionObserver(function(en){ $("sticky").style.visibility = en[0].isIntersecting ? "hidden" : "visible"; },{threshold:.15}).observe($("order"));
 }
 syncPrice();
+
+/* client reviews: only the ones you approved in Admin show up here */
+fetch("/api/reviews").then(function(r){ return r.ok ? r.json() : {reviews:[]}; }).then(function(j){
+  var list=(j&&j.reviews)||[]; if(!list.length) return;
+  $("revList").innerHTML=list.map(function(r){
+    var st=""; for(var i=1;i<=5;i++) st+= i<=r.rating ? "★" : "☆";
+    return '<div class="rev"><div class="stars" aria-label="'+r.rating+' out of 5 stars">'+st+'</div><p>'+esc(r.text)+'</p><small>'+esc(r.name)+(r.biz?", "+esc(r.biz):"")+'</small></div>';
+  }).join("");
+  $("reviews").hidden=false;
+}).catch(function(){});
 </script>
 
 </body>

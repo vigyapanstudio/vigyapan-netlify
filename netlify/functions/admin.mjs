@@ -1,7 +1,8 @@
 // Your private admin API: see customers, upload their reports, restore a payment.
 import { json, readJson } from '../lib/http.mjs';
 import { authReady, isAdmin, adminCookie, clearCookie, checkAdminPassword } from '../lib/auth.mjs';
-import { listCustomers, getCustomer, getPayments, computeMembership, getDeliveries, cidOf, normEmail } from '../lib/members.mjs';
+import { listCustomers, getCustomer, getPayments, computeMembership, getDeliveries, cidOf, normEmail, ensureRefCode } from '../lib/members.mjs';
+import { getCal, saveIdeas, viewFor } from '../lib/calendar.mjs';
 import { invoiceNumber } from '../lib/invoice.mjs';
 import { processPaidPayment } from '../lib/receipt.mjs';
 import { sendMail, shell, mailReady } from '../lib/mail.mjs';
@@ -58,6 +59,10 @@ export default async (req, context) => {
         });
       }
       rows.sort((a, c) => (a.expiresAt || 0) - (c.expiresAt || 0));
+      let newLeads = 0, pendingReviews = 0;
+      for (const k of await db.keys(S.leads)) { const l = await db.get(S.leads, k); if (l && l.status === 'new') newLeads++; }
+      for (const k of await db.keys(S.reviews)) { const r = await db.get(S.reviews, k); if (r && r.publish && !r.approved) pendingReviews++; }
+      stats.newLeads = newLeads; stats.pendingReviews = pendingReviews;
       return json(200, { customers: rows, stats });
     }
 
@@ -67,13 +72,69 @@ export default async (req, context) => {
       if (!c) return json(404, { error: 'Customer not found.' });
       const pays = await getPayments(cid);
       const m = computeMembership(pays, Date.now());
+      const cal = m ? viewFor(await getCal(cid), m.periodKey) : { ideas: [], ticks: [] };
       return json(200, {
         customer: c,
-        membership: m && { status: m.status, expiresAt: m.expiresAt, daysLeft: m.daysLeft },
-        payments: pays.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, bump: p.bump, renewal: p.renewal })),
+        membership: m && { status: m.status, expiresAt: m.expiresAt, daysLeft: m.daysLeft, periodNo: m.periodNo, packMonths: m.packMonths, periodStart: m.periodStart, periodEnd: m.periodEnd },
+        calendar: m && { ideasText: cal.ideas.join('\n'), ticked: cal.ticks.length },
+        referral: { code: c.refCode || await ensureRefCode(c), credits: c.credits || 0, friends: (c.referred || []).length, referredBy: c.referredBy || '' },
+        winback: c.winback || null,
+        payments: pays.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, bump: p.bump, renewal: p.renewal, months: p.months || 1, promo: p.promo || '' })),
         deliveries: (await getDeliveries(cid)).slice().sort((a, d) => d.uploadedAt - a.uploadedAt),
         whatsapp: WHATSAPP
       });
+    }
+
+    if (action === 'set-ideas') {
+      const cid = String(b.cid || '');
+      if (!(await getCustomer(cid))) return json(404, { error: 'Customer not found.' });
+      const m = computeMembership(await getPayments(cid), Date.now());
+      if (!m) return json(400, { error: 'This customer has no plan.' });
+      const lines = await saveIdeas(cid, m.periodKey, b.text);
+      return json(200, { ok: true, lines: lines.length });
+    }
+
+    if (action === 'leads') {
+      const out = [];
+      for (const k of await db.keys(S.leads)) { const l = await db.get(S.leads, k); if (l) out.push(l); }
+      out.sort((a, d) => d.createdAt - a.createdAt);
+      return json(200, { leads: out.slice(0, 300) });
+    }
+    if (action === 'lead-status') {
+      const id = String(b.id || '');
+      const l = await db.get(S.leads, id);
+      if (!l) return json(404, { error: 'Not found.' });
+      l.status = b.status === 'done' ? 'done' : 'new';
+      await db.put(S.leads, id, l);
+      return json(200, { ok: true });
+    }
+    if (action === 'lead-delete') {
+      const id = String(b.id || '');
+      if (!(await db.get(S.leads, id))) return json(404, { error: 'Not found.' });
+      await db.del(S.leads, id);
+      return json(200, { ok: true });
+    }
+
+    if (action === 'reviews') {
+      const out = [];
+      for (const k of await db.keys(S.reviews)) { const r = await db.get(S.reviews, k); if (r) { const c = await getCustomer(r.cid); out.push(Object.assign({}, r, { email: c ? c.email : '' })); } }
+      out.sort((a, d) => (d.updatedAt || 0) - (a.updatedAt || 0));
+      return json(200, { reviews: out });
+    }
+    if (action === 'review-approve') {
+      const cid = String(b.cid || '');
+      const r = await db.get(S.reviews, cid);
+      if (!r) return json(404, { error: 'Not found.' });
+      if (b.approved && !r.publish) return json(400, { error: 'This client did not allow their review to be shown publicly.' });
+      r.approved = !!b.approved;
+      await db.put(S.reviews, cid, r);
+      return json(200, { ok: true });
+    }
+    if (action === 'review-delete') {
+      const cid = String(b.cid || '');
+      if (!(await db.get(S.reviews, cid))) return json(404, { error: 'Not found.' });
+      await db.del(S.reviews, cid);
+      return json(200, { ok: true });
     }
 
     if (action === 'upload') {

@@ -27,6 +27,6 @@ export function shell({ preheader, heading, bodyHtml, button, small }) {
     '<tr><td style="padding:8px 28px 18px;font-size:15px;line-height:1.6;color:#33504b">' + bodyHtml + '</td></tr>' +
     btn +
     '<tr><td style="padding:20px 28px 28px;font-size:12px;line-height:1.6;color:#7a948f">' + (small ? esc(small) + '<br>' : '') +
-    esc(SELLER.name) + ' (Proprietor: ' + esc(SELLER.proprietor) + '), ' + esc(SELLER.place) + '<br>' + esc(SELLER.email) + ' | ' + esc(SELLER.phone) + '</td></tr>' +
+    esc(SELLER.name) + ' (Proprietor: ' + esc(SELLER.proprietor) + '), ' + esc(SELLER.place) + '<br>Udyam Reg. No.: ' + esc(SELLER.udyam) + '<br>' + esc(SELLER.email) + ' | ' + esc(SELLER.phone) + '</td></tr>' +
     '</table></td></tr></table></body></html>';
 }

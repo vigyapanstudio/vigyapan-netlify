@@ -1,0 +1,43 @@
+/* Styles for the blog, FAQ, free audit and business-type pages (builds on site.css + app.css) */
+.hn{display:flex;align-items:center;gap:6px 18px;font-size:.9rem}
+.hn a:not(.btn){color:var(--mute);text-decoration:none}.hn a:not(.btn):hover{color:var(--gold)}
+@media(max-width:560px){.hn a:not(.btn){display:none}}
+.hero2{padding-block:26px 8px}
+.hero2 h1{font-size:clamp(2rem,5.6vw,3.4rem);max-width:20ch}
+.lede2{font-size:1.1rem;color:#D5E5E1;max-width:58ch;margin:0 0 20px}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:6px 0 22px}
+.sec{padding-block:34px 4px}
+.sec h2{font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1.1;margin:8px 0 16px;letter-spacing:-.02em}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.cards3 .card h3{font-family:var(--display);font-size:1.1rem;margin:0 0 6px}
+.cards3 .card p{margin:0;color:var(--mute);font-size:.94rem}
+.daylist{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.daylist li{display:flex;gap:14px;align-items:flex-start;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.daylist b{font-family:var(--mono);font-weight:500;color:var(--gold);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;min-width:54px;padding-top:2px}
+.daylist span{color:var(--ink)}
+.cta2{background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:clamp(20px,4vw,32px);margin-top:34px;display:grid;gap:12px}
+.cta2 h2{margin:0;font-size:1.6rem}.cta2 p{margin:0;color:var(--mute)}
+.crumbs{font-family:var(--mono);font-size:.76rem;color:var(--mute);margin:6px 0 0}.crumbs a{color:var(--mute)}
+.prose{max-width:66ch}
+.prose h2{font-size:1.45rem;margin:30px 0 8px}
+.prose p,.prose li{font-size:1.04rem;line-height:1.7}
+.prose ul,.prose ol{margin:0 0 14px;padding-left:1.3em;display:grid;gap:8px}
+.tip{border-left:3px solid var(--gold);background:rgba(255,183,43,.07);border-radius:0 12px 12px 0;padding:12px 16px;margin:18px 0}
+.tip p{margin:0}
+.meta{font-family:var(--mono);font-size:.78rem;color:var(--mute);margin:0 0 22px}
+.postlist{display:grid;gap:14px;margin-top:20px}
+.postlist a{display:block;text-decoration:none;background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:20px 22px;transition:border-color .2s,transform .2s}
+.postlist a:hover{border-color:var(--gold);transform:translateY(-3px)}
+.postlist b{font-family:var(--display);font-size:1.2rem;display:block;color:var(--ink)}
+.postlist span{color:var(--mute);font-size:.94rem}
+.faqs details{border-bottom:1px solid var(--line);padding-block:14px}
+.faqs summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between;gap:14px}
+.faqs summary::-webkit-details-marker{display:none}
+.faqs summary::after{content:"+";color:var(--gold);font-size:1.4rem;line-height:1}
+.faqs details[open] summary::after{transform:rotate(45deg)}
+.faqs details p{margin:10px 0 0;color:var(--mute);max-width:62ch}
+.formcard{max-width:560px}
+.formcard .consent{display:flex;gap:12px;align-items:flex-start;font-size:.88rem;color:var(--mute);margin-top:14px}
+.formcard .consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--gold)}
+.f.bad input,.f.bad select{border-color:var(--err)}
+.hp{position:absolute;left:-9999px;height:0;overflow:hidden}

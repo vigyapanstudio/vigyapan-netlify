@@ -5,12 +5,7 @@
 [functions]
   directory = "netlify/functions"
 
-# The website calls /api/..., Netlify sends it to the right function.
-[[redirects]]
-  from = "/api/create-order"
-  to = "/.netlify/functions/create-order"
-  status = 200
-  force = true
+# Every /api/... address is served by its own function (each one declares its path in its code).
 
 # Clean page addresses (yourdomain.com/terms instead of /terms.html)
 [[redirects]]

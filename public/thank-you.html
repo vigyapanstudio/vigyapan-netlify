@@ -33,13 +33,14 @@
     <li><b>Tap the green button below</b> to send us your payment details on WhatsApp. This lets us start straight away and chat with you.</li>
     <li>We study your page and your competitors and build your plan.</li>
     <li>You get your report, calendar and video walkthrough within <b>48 hours</b>, on WhatsApp and email.</li>
+    <li>Log in to your <a href="/login">dashboard</a> to tick off each day you post, and find your <b>personal referral code</b>. When a friend uses it, they get 10% off and so do you.</li>
   </ol>
 </div>
 <div class="cta">
   <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Send details on WhatsApp</a>
   <a class="btn alt" href="/login">My dashboard</a>
 </div>
-</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div><script>
+</main><footer><span>© 2026 Vigyapan Studio · @vigyapan_studio<br>Udyam Reg. No. UDYAM-PB-12-0008441</span><nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/blog/">Blog</a><a href="/faq/">FAQ</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a></nav></footer></div><script>
 (function(){
   var cfg=window.VS_CONFIG||{};
   var d=null; try{ d=JSON.parse(sessionStorage.getItem("vs_order")||"null"); }catch(e){}
@@ -55,6 +56,7 @@
     }
     if(d.email){ document.getElementById("mailTo").textContent=d.email; document.getElementById("mailLine").hidden=false; }
     var rows=[["Payment ID",d.paymentId],["Amount paid",inr(d.amount)],["Instagram","@"+d.ig],["Business",d.biz]];
+    rows.push(["Plan", d.months===3 ? "3 months (a new calendar each month)" : "1 month"]);
     if(d.bump) rows.push(["Add-on","10 reel scripts"]);
     var r=document.getElementById("receipt"); r.hidden=false;
     r.innerHTML=rows.map(function(x){return '<div class="r"><span>'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div>';}).join("");
