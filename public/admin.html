@@ -25,12 +25,30 @@
     <div class="f" style="justify-content:flex-end"><label class="check" style="margin-top:0"><input type="checkbox" id="asend"><div><b>Also email the invoice</b></div></label></div>
     <div><button class="btn alt sm" type="submit">Add payment</button></div></form><div class="msgline" id="amsg" role="status" aria-live="polite"></div></div>
   </div>
-  <div id="tab_l" class="hide"><h2 style="margin-top:22px">Free audit requests</h2><p class="sub">People who asked for 3 free tips. Message them on WhatsApp, then tap Done.</p><div id="leads" class="stack"></div></div>
+  <div id="tab_l" class="hide"><h2 style="margin-top:22px">Leads</h2><p class="sub">Free-audit requests, clients who want you to manage their page, and people who started an order but did not pay. Message them on WhatsApp, then tap Done.</p><div id="leads" class="stack"></div>
+    <h2 style="margin-top:28px">Unfinished orders</h2><p class="sub">They filled the order form but did not pay. We email each one a single reminder after 2 hours.</p><div id="carts" class="stack"></div></div>
+  <div id="tab_m" class="hide"><h2 style="margin-top:22px">Messages</h2><p class="sub">Questions from clients in their dashboard. Your reply is shown there and emailed to them.</p><div id="threads" class="stack"></div><div id="thread" class="stack"></div></div>
+  <div id="tab_a" class="hide"><h2 style="margin-top:22px">Add-on orders</h2><p class="sub">Extras clients bought from their dashboard. Upload the finished file under Customers (it shows in their reports), then tap Mark done.</p><div id="addons" class="stack"></div></div>
+  <div id="tab_k" class="hide"><h2 style="margin-top:22px">Discount codes</h2><p class="sub">Make a code for a festival, an ad, or a group (for example DIWALI20 or BNI15). Customers type it in the order form or when renewing.</p>
+    <div class="card"><form id="kf" novalidate><div class="grid2">
+      <div class="f"><label for="k_code">Code <small>(3 to 16 letters or numbers)</small></label><input id="k_code" maxlength="16" autocapitalize="characters" placeholder="DIWALI20"></div>
+      <div class="f"><label for="k_type">Type</label><select id="k_type"><option value="pct">Percent off</option><option value="flat">Rupees off</option></select></div>
+      <div class="f"><label for="k_val">Amount <small>(like 20 for 20% or ₹150)</small></label><input id="k_val" inputmode="numeric" placeholder="20"></div>
+      <div class="f"><label for="k_max">Maximum uses <small>(0 = no limit)</small></label><input id="k_max" inputmode="numeric" placeholder="50" value="0"></div>
+      <div class="f"><label for="k_exp">Last valid day <small>(optional)</small></label><input id="k_exp" type="date"></div>
+      <div class="f"><label for="k_for">Works for</label><select id="k_for"><option value="all">First orders and renewals</option><option value="first">First orders only</option><option value="renewal">Renewals only</option></select></div>
+      <div class="f full"><label for="k_note">Note for yourself <small>(optional)</small></label><input id="k_note" maxlength="80" placeholder="Diwali 2026 Meta ad"></div>
+    </div><button class="btn alt sm" type="submit" style="margin-top:12px">Save code</button><div class="msgline" id="kmsg" role="status" aria-live="polite"></div></form></div>
+    <div id="codes" class="stack" style="margin-top:14px"></div></div>
+  <div id="tab_i" class="hide"><h2 style="margin-top:22px">Money and growth</h2><div id="ins"><p class="empty">Loading…</p></div>
+    <div class="card" style="margin-top:14px"><h2>Download for Excel or Google Sheets</h2><p class="sub">Opens as a spreadsheet. Handy for your accounts, your CA or GST filing.</p>
+      <p style="display:flex;gap:10px;flex-wrap:wrap;margin:0"><button class="btn alt sm" type="button" data-dl="customers">Customers (.csv)</button><button class="btn alt sm" type="button" data-dl="payments">Sales and payments (.csv)</button><button class="btn alt sm" type="button" data-dl="leads">Leads (.csv)</button></p><div class="msgline" id="dlmsg" role="status" aria-live="polite"></div></div></div>
   <div id="tab_r" class="hide"><h2 style="margin-top:22px">Client reviews</h2><p class="sub">Only reviews you approve here (and that the client allowed) show on your home page.</p><div id="reviews" class="stack"></div></div>
   <div id="tab_s" class="hide"><div class="card" style="margin-top:22px"><h2>Setup check</h2>
     <p class="sub">Shows which settings your website can see, and sends a test email to you. Use it if login codes or invoices are not arriving.</p>
     <div id="chk"></div>
     <p style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0"><button class="btn alt sm" id="chkBtn" type="button">Check my settings</button><button class="btn alt sm" id="chkMail" type="button">Send me a test email</button></p>
+    <form id="waf" novalidate style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><input id="watest" inputmode="numeric" placeholder="10-digit number for a test WhatsApp" style="max-width:300px"><button class="btn alt sm" type="submit">Send test WhatsApp</button></form><div class="msgline" id="wamsg" role="status" aria-live="polite"></div>
     <div class="msgline" id="chkmsg" role="status" aria-live="polite"></div>
     <hr style="border:0;border-top:1px dashed var(--line);margin:16px 0">
     <form id="lkf" novalidate><div class="f"><label for="lkemail">Can this email log in to the dashboard?</label><input id="lkemail" type="email" placeholder="customer@email.com"></div>
@@ -51,12 +69,12 @@ function msg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"
 var LABEL={active:"Active",ending:"Ending soon",expired:"Ended",none:"-"};
 var DATA=null, filter="all", query="", sel=null, FLASH="", TAB="c";
 function showTab(t){
-  TAB=t;["c","l","r","s"].forEach(function(k){$("tab_"+k).classList.toggle("hide",k!==t);});
-  drawTabs();load();if(t==="l")loadLeads();if(t==="r")loadReviews();if(t==="s"&&!$("chk").innerHTML)runCheck(false);
+  TAB=t;["c","l","m","a","k","r","i","s"].forEach(function(k){$("tab_"+k).classList.toggle("hide",k!==t);});
+  drawTabs();load();if(t==="l")loadLeads();if(t==="m")loadThreads();if(t==="a")loadAddons();if(t==="k")loadCodes();if(t==="r")loadReviews();if(t==="i")loadInsights();if(t==="s"&&!$("chk").innerHTML)runCheck(false);
 }
 function drawTabs(){
   var s=(DATA&&DATA.stats)||{};
-  var T=[["c","Customers"],["l","Free audits"+(s.newLeads?" ("+s.newLeads+" new)":"")],["r","Reviews"+(s.pendingReviews?" ("+s.pendingReviews+" to approve)":"")],["s","Setup check"]];
+  var T=[["c","Customers"],["l","Leads"+(s.newLeads?" ("+s.newLeads+" new)":"")],["m","Messages"+(s.unreadMessages?" ("+s.unreadMessages+" new)":"")],["a","Add-ons"+(s.newAddons?" ("+s.newAddons+" to do)":"")],["k","Discount codes"],["r","Reviews"+(s.pendingReviews?" ("+s.pendingReviews+" to approve)":"")],["i","Money and growth"],["s","Setup check"]];
   $("tabs").innerHTML=T.map(function(a){return '<button type="button" role="tab" data-t="'+a[0]+'" class="'+(TAB===a[0]?"on":"")+'">'+a[1]+'</button>';}).join("");
   $("tabs").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){showTab(b.getAttribute("data-t"));});});
 }
@@ -64,10 +82,12 @@ function loadLeads(){
   $("leads").innerHTML='<p class="empty">Loading…</p>';
   api("leads").then(function(x){
     if(!x.ok){$("leads").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var C=x.j.carts||[];
+    $("carts").innerHTML=C.length?C.map(function(c){return '<div class="card"><div class="top2"><h2 style="margin:0">'+esc(c.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(c.ig)+'</span></h2><span class="chip '+(c.emailedAt?"active":"ending")+'">'+(c.emailedAt?"Reminder sent":"Waiting")+'</span></div><p class="sub" style="margin:6px 0 0">'+dt(c.updatedAt)+' &middot; '+inr(c.total||0)+(c.months===3?" (3 months)":"")+' &middot; +91 '+esc(c.phone)+' &middot; '+esc(c.email)+'</p><p style="margin:12px 0 0"><a class="btn wa sm" target="_blank" rel="noopener" href="https://wa.me/91'+esc(c.phone)+'?text='+encodeURIComponent("Hi "+(c.name||"").split(" ")[0]+"! This is Nipun from Vigyapan Studio. I saw you started an order for @"+c.ig+". Need any help finishing it?")+'">Message on WhatsApp</a></p></div>';}).join(""):'<p class="empty">No unfinished orders right now.</p>';
     var L=x.j.leads;
     $("leads").innerHTML=L.length?L.map(function(l){
-      var wa="https://wa.me/91"+esc(l.phone)+"?text="+encodeURIComponent("Hi "+(l.name||"").split(" ")[0]+"! This is Nipun from Vigyapan Studio. Here are 3 quick tips for @"+l.ig+":\n\n1. \n2. \n3. \n\nIf you would like the full report with a 30-day calendar, you can see it here: https://vigyapanstudio.online/");
-      return '<div class="card"><div class="top2"><h2 style="margin:0">'+esc(l.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(l.ig)+'</span></h2><span class="chip '+(l.status==="done"?"active":"ending")+'">'+(l.status==="done"?"Done":"New")+'</span></div>'+
+      var wa=l.kind==="manage"?"https://wa.me/91"+esc(l.phone)+"?text="+encodeURIComponent("Hi "+(l.name||"").split(" ")[0]+"! This is Nipun from Vigyapan Studio. Thanks for asking about managing your page. Can we talk for 5 minutes?"):"https://wa.me/91"+esc(l.phone)+"?text="+encodeURIComponent("Hi "+(l.name||"").split(" ")[0]+"! This is Nipun from Vigyapan Studio. Here are 3 quick tips for @"+l.ig+":\n\n1. \n2. \n3. \n\nIf you would like the full report with a 30-day calendar, you can see it here: https://vigyapanstudio.online/");
+      return '<div class="card"><div class="top2"><h2 style="margin:0">'+esc(l.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(l.ig)+'</span></h2><span><span class="chip none" style="margin-right:6px">'+(l.kind==="manage"?"Manage my page":"Free audit")+'</span><span class="chip '+(l.status==="done"?"active":"ending")+'">'+(l.status==="done"?"Done":"New")+'</span></span></div>'+(l.note?'<p style="margin:10px 0 0;white-space:pre-wrap">'+esc(l.note)+'</p>':'')+
         '<p class="sub" style="margin:6px 0 0">'+dt(l.createdAt)+(l.type?" &middot; "+esc(l.type):"")+' &middot; +91 '+esc(l.phone)+(l.email?" &middot; "+esc(l.email):"")+'</p>'+
         '<p style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa+'">Reply on WhatsApp</a>'+
         '<a class="btn alt sm" target="_blank" rel="noopener" href="https://www.instagram.com/'+esc(l.ig)+'/">Open their Instagram</a>'+
@@ -95,6 +115,109 @@ function loadReviews(){
   });
 }
 
+
+function ago(ms){return new Date(ms).toLocaleString("en-IN",{timeZone:"Asia/Kolkata",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true});}
+function loadThreads(open){
+  api("messages").then(function(x){
+    if(!x.ok){$("threads").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var T=x.j.threads;
+    $("threads").innerHTML=T.length?T.map(function(t){return '<div class="card" style="cursor:pointer" data-th="'+esc(t.cid)+'"><div class="top2"><h2 style="margin:0">'+esc(t.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(t.ig)+'</span></h2>'+(t.unread?'<span class="chip ending">New</span>':'')+'</div><p class="sub" style="margin:6px 0 0">'+ago(t.updatedAt)+' &middot; '+(t.lastFrom==="admin"?"You: ":"")+esc(t.last)+'</p></div>';}).join(""):'<p class="empty">No questions yet.</p>';
+    $("threads").querySelectorAll("[data-th]").forEach(function(c){c.addEventListener("click",function(){openThread(c.getAttribute("data-th"));});});
+    if(open)openThread(open);
+  });
+}
+function openThread(cid){
+  api("msg-thread",{cid:cid}).then(function(x){
+    if(!x.ok){$("thread").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var d=x.j;
+    $("thread").innerHTML='<div class="card"><h2 style="margin:0 0 4px">'+esc(d.name)+' <span style="color:var(--mute);font-weight:400">@'+esc(d.ig)+'</span></h2><p class="sub">'+esc(d.email)+' &middot; <a target="_blank" rel="noopener" href="https://wa.me/91'+esc(d.phone)+'">WhatsApp</a></p>'+
+      '<div class="thread">'+d.msgs.map(function(m){return '<div class="bub '+(m.from==="admin"?"me":"them")+'">'+esc(m.text)+'<small>'+(m.from==="admin"?"You":esc(d.name))+' &middot; '+ago(m.at)+'</small></div>';}).join("")+'</div>'+
+      '<div class="f"><label class="sr" for="rp" style="position:absolute;left:-9999px">Reply</label><textarea id="rp" maxlength="1000" placeholder="Type your reply…"></textarea></div><button class="btn sm" id="rpBtn" type="button" style="margin-top:12px">Send reply</button><div class="msgline" id="rpMsg" role="status" aria-live="polite"></div></div>';
+    $("thread").scrollIntoView({behavior:"smooth",block:"start"});
+    $("rpBtn").addEventListener("click",function(){
+      msg("rpMsg","Sending…");
+      api("msg-reply",{cid:cid,text:$("rp").value}).then(function(y){if(y.ok){loadThreads(cid);load();}else msg("rpMsg",(y.j&&y.j.error)||"Could not send.","bad");});
+    });
+    load();
+  });
+}
+function loadAddons(){
+  $("addons").innerHTML='<p class="empty">Loading…</p>';
+  api("addons-list").then(function(x){
+    if(!x.ok){$("addons").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var A=x.j.addons;
+    $("addons").innerHTML=A.length?A.map(function(a){return '<div class="card"><div class="top2"><h2 style="margin:0">'+esc(a.items.join(", "))+'</h2><span class="chip '+(a.status==="done"?"active":"ending")+'">'+(a.status==="done"?"Done":"To do")+'</span></div><p class="sub" style="margin:6px 0 0">'+esc(a.name)+' (@'+esc(a.ig)+') &middot; '+inr(a.amount)+' &middot; '+dt(a.paidAt)+' &middot; +91 '+esc(a.phone)+'</p>'+
+      '<p style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0"><button class="btn alt sm" type="button" data-oc="'+esc(a.cid)+'">Open customer</button>'+
+      (a.status==="done"?'<button class="btn alt sm" type="button" data-as="'+esc(a.cid)+'|'+esc(a.paymentId)+'|new">Mark as to do</button>':'<button class="btn sm" type="button" data-as="'+esc(a.cid)+'|'+esc(a.paymentId)+'|done">Mark done and email them</button>')+'</p></div>';}).join(""):'<p class="empty">No add-on orders yet.</p>';
+    $("addons").querySelectorAll("[data-as]").forEach(function(b){b.addEventListener("click",function(){var p=b.getAttribute("data-as").split("|");api("addon-status",{cid:p[0],paymentId:p[1],status:p[2],notify:true}).then(function(){loadAddons();load();});});});
+    $("addons").querySelectorAll("[data-oc]").forEach(function(b){b.addEventListener("click",function(){showTab("c");openCustomer(b.getAttribute("data-oc"));});});
+  });
+}
+function loadCodes(){
+  $("codes").innerHTML='<p class="empty">Loading…</p>';
+  api("coupons").then(function(x){
+    if(!x.ok){$("codes").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var C=x.j.coupons;
+    $("codes").innerHTML=C.length?C.map(function(c){
+      var exp=c.expiresAt&&c.expiresAt<Date.now(), full=c.maxUses&&c.used>=c.maxUses, live=c.active&&!exp&&!full;
+      return '<div class="card"><div class="top2"><h2 style="margin:0;font-family:var(--mono);letter-spacing:.06em">'+esc(c.code)+'</h2><span class="chip '+(live?"active":"none")+'">'+(live?"Working":(!c.active?"Switched off":exp?"Expired":"Fully used"))+'</span></div>'+
+      '<p class="sub" style="margin:6px 0 0">'+(c.type==="flat"?inr(c.value)+" off":c.value+"% off")+' &middot; '+({all:"first orders and renewals",first:"first orders only",renewal:"renewals only"})[c.appliesTo]+' &middot; used '+c.used+(c.maxUses?" of "+c.maxUses:"")+' &middot; '+(c.expiresAt?"valid till "+dt(c.expiresAt):"no end date")+(c.note?" &middot; "+esc(c.note):"")+'</p>'+
+      '<p style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0"><button class="btn alt sm" type="button" data-kt="'+esc(c.code)+'" data-to="'+(c.active?"0":"1")+'">'+(c.active?"Switch off":"Switch on")+'</button><button class="btn alt sm" type="button" data-kd="'+esc(c.code)+'">Delete</button></p></div>';
+    }).join(""):'<p class="empty">No codes yet. Make your first one above.</p>';
+    $("codes").querySelectorAll("[data-kt]").forEach(function(b){b.addEventListener("click",function(){api("coupon-toggle",{code:b.getAttribute("data-kt"),active:b.getAttribute("data-to")==="1"}).then(loadCodes);});});
+    $("codes").querySelectorAll("[data-kd]").forEach(function(b){b.addEventListener("click",function(){if(!confirm("Delete this code?"))return;api("coupon-delete",{code:b.getAttribute("data-kd")}).then(loadCodes);});});
+  });
+}
+$("kf").addEventListener("submit",function(e){
+  e.preventDefault();msg("kmsg","Saving…");
+  api("coupon-save",{code:$("k_code").value,type:$("k_type").value,value:$("k_val").value,maxUses:$("k_max").value,expires:$("k_exp").value,appliesTo:$("k_for").value,note:$("k_note").value}).then(function(x){
+    if(x.ok){msg("kmsg","Saved: "+x.j.coupon.code+". Share it in your ad or post.","good");$("k_code").value="";$("k_val").value="";$("k_note").value="";loadCodes();}else msg("kmsg",x.j.error||"Could not save.","bad");
+  });
+});
+function colChart(title,sub,series,keys,colors,legend,fmt){
+  var max=0;series.forEach(function(m){var t=0;keys.forEach(function(k){t+=m[k]||0;});if(t>max)max=t;});
+  var cols=series.map(function(m){
+    var tot=0,segs="",tip=m.label+": ";keys.forEach(function(k,i){var v=m[k]||0;tot+=v;});
+    keys.forEach(function(k,i){var v=m[k]||0;if(v>0)segs+='<i class="'+colors[i]+'" style="height:'+(max?v/max*100:0).toFixed(1)+'%"></i>';});
+    tip+=keys.map(function(k,i){return legend[i]+" "+fmt(m[k]||0);}).join(", ");
+    return '<div class="col" tabindex="0" aria-label="'+esc(tip)+'">'+segs+'<span class="tip">'+esc(tip)+'</span></div>';
+  }).join("");
+  var xl=series.map(function(m){return '<span>'+esc(m.label.split(" ")[0])+'</span>';}).join("");
+  var lg=legend.length>1?'<div class="legend">'+legend.map(function(l,i){return '<span><i class="'+colors[i]+'"></i>'+esc(l)+'</span>';}).join("")+'</div>':'';
+  return '<div class="chart"><h3>'+esc(title)+'</h3><div class="cs">'+esc(sub)+'</div><div class="cols">'+cols+'</div><div class="xl">'+xl+'</div>'+lg+'</div>';
+}
+function hbars(title,sub,rows){
+  var max=rows.reduce(function(m,r){return Math.max(m,r.n);},0)||1;
+  return '<div class="chart"><h3>'+esc(title)+'</h3><div class="cs">'+esc(sub)+'</div>'+(rows.length?rows.map(function(r){return '<div class="hbar"><span>'+esc(r.name)+'</span><span class="tr"><i style="width:'+(r.n/max*100).toFixed(1)+'%"></i></span><span>'+r.n+'</span></div>';}).join(""):'<p class="empty" style="margin:0">Nothing yet.</p>')+'</div>';
+}
+function loadInsights(){
+  api("insights").then(function(x){
+    if(!x.ok){$("ins").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var d=x.j, tm=d.thisMonth||{plans:0,addons:0};
+    var kp=[["Earned this month",inr(tm.plans+tm.addons)],["Earned all time",inr(d.revenue+d.addonRevenue)],["Customers",d.customers],["Average order",inr(d.avgOrder)],["Came back to renew",d.renewal.eligible?d.renewal.rate+"%":"-"],["Free audits that became customers",d.leads.total?d.leads.rate+"%":"-"]];
+    var sc=[{name:"Active",n:d.status.active||0},{name:"Ending soon",n:d.status.ending||0},{name:"Ended",n:d.status.expired||0}];
+    var disc=Object.keys(d.discounts.byKind).map(function(k){return {name:({referral:"Referral",credit:"Referral credit",winback:"Win-back",coupon:"Discount codes"})[k]||k,n:d.discounts.byKind[k]};});
+    var table='<details class="chart"><summary style="cursor:pointer">Show the numbers as a table</summary><table class="tbl"><thead><tr><th>Month</th><th>Plans</th><th>Add-ons</th><th>New customers</th></tr></thead><tbody>'+d.series.map(function(m){return '<tr><td>'+esc(m.label)+'</td><td>'+inr(m.plans)+'</td><td>'+inr(m.addons)+'</td><td>'+m.newCustomers+'</td></tr>';}).join("")+'</tbody></table></details>';
+    $("ins").innerHTML='<div class="kpis">'+kp.map(function(k){return '<div class="kpi"><b>'+k[1]+'</b><span>'+k[0]+'</span></div>';}).join("")+'</div>'+
+      colChart("Money earned each month","Last 12 months, in rupees. Hover or tap a bar.",d.series,["plans","addons"],["seg-a","seg-b"],["Plans","Add-ons"],inr)+
+      colChart("New customers each month","Customers whose first payment was that month.",d.series,["newCustomers"],["seg-c"],["New customers"],function(n){return String(n);})+
+      hbars("Where your customers are now","Active, ending within 5 days, and ended plans.",sc)+
+      hbars("Business types","Which kinds of business buy from you.",d.types.slice(0,8))+
+      (d.addonItems.length?hbars("Add-ons sold","Number of each add-on bought.",d.addonItems):'')+
+      hbars("Discounts given (rupees)","Total rupees given away, by type.",disc)+
+      '<div class="kpis"><div class="kpi"><b>'+d.referral.friends+'</b><span>friends brought by referrals</span></div><div class="kpi"><b>'+d.leads.total+'</b><span>free audit requests ('+d.leads.converted+' became customers)</span></div><div class="kpi"><b>'+d.leads.manage+'</b><span>"manage my page" enquiries</span></div><div class="kpi"><b>'+d.openCarts+'</b><span>recent unfinished orders</span></div><div class="kpi"><b>'+d.waOptIn+'</b><span>agreed to WhatsApp updates</span></div><div class="kpi"><b>'+d.emailsStopped+'</b><span>stopped optional emails</span></div></div>'+table;
+  });
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("[data-dl]"); if(!b)return;
+  msg("dlmsg","Preparing…");
+  api("export",{what:b.getAttribute("data-dl")}).then(function(x){
+    if(!x.ok||!x.j.csv){msg("dlmsg",(x.j&&x.j.error)||"Nothing to download.","bad");return;}
+    var blob=new Blob([x.j.csv],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download=x.j.filename;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);document.body.removeChild(a);},500);
+    msg("dlmsg","Downloaded "+x.j.filename+".","good");
+  });
+});
 function showLogin(note){$("panel").classList.add("hide");$("login").classList.remove("hide");if(note)msg("lmsg",note,"bad");}
 function showPanel(){$("login").classList.add("hide");$("panel").classList.remove("hide");}
 function logoutBtn(){
@@ -154,6 +277,7 @@ function drawDetail(d){
   var note=c.nextNote?'<div class="banner warn"><b>Their note for next month:</b><br>'+esc(c.nextNote).replace(/\n/g,"<br>")+'</div>':"";
   var dels=d.deliveries.length?d.deliveries.map(function(f){return '<div class="row"><div><div class="t">'+esc(f.title)+'</div><div class="s">'+(f.month?esc(f.month)+' &middot; ':'')+kb(f.size)+' &middot; '+dt(f.uploadedAt)+'</div></div><button class="btn alt sm" type="button" data-del="'+esc(f.id)+'">Delete</button></div>';}).join(""):'<p class="empty">Nothing uploaded yet.</p>';
   var pays=d.payments.map(function(p){return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?" &middot; renewal":" &middot; first order")+(p.months===3?" &middot; 3-month plan":"")+(p.bump?" &middot; with reel scripts":"")+(p.promo?" &middot; discount: "+esc(p.promo):"")+' &middot; '+esc(p.paymentId)+'</div></div></div>';}).join("");
+  var ad=(d.addons&&d.addons.length)?'<div class="card"><h2>Add-on orders</h2>'+d.addons.map(function(a){return '<div class="row"><div><div class="t">'+esc(a.items.join(", "))+'</div><div class="s">'+dt(a.paidAt)+' &middot; '+inr(a.amount)+'</div></div><span class="chip '+(a.status==="done"?"active":"ending")+'">'+(a.status==="done"?"Done":"To do")+'</span></div>';}).join("")+'<p class="fine" style="text-align:left">Upload the finished file above, then mark it done in the Add-ons tab.</p></div>':'';
   var rf=d.referral||{},wb=d.winback;
   var ref='<div class="card"><h2>Referral</h2><p class="sub">Code <b style="font-family:var(--mono);color:var(--gold)">'+esc(rf.code||"")+'</b> &middot; friends who joined: <b>'+(rf.friends||0)+'</b> &middot; 10% credits waiting: <b>'+(rf.credits||0)+'</b>'+(rf.referredBy?' &middot; came with code '+esc(rf.referredBy):'')+
     (wb?' &middot; win-back offer sent '+dt(wb.sentAt)+(wb.used?' (used)':(wb.until>Date.now()?' (open until '+dt(wb.until)+')':' (expired)')):'')+'</p></div>';
@@ -168,7 +292,7 @@ function drawDetail(d){
     '<div class="f full"><label for="u_file">File</label><input id="u_file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"></div></div>'+
     '<label class="check" for="u_notify"><input type="checkbox" id="u_notify" checked><div><b>Email them that it is ready</b></div></label>'+
     '<button class="btn full" type="submit" id="u_btn">Upload</button><div class="msgline" id="umsg" role="status" aria-live="polite"></div></form></div>'+
-    cal+'<div class="card"><h2>Uploaded files</h2>'+dels+'</div>'+ref+'<div class="card"><h2>Payments</h2>'+pays+'</div>';
+    cal+'<div class="card"><h2>Uploaded files</h2>'+dels+'</div>'+ad+ref+'<div class="card"><h2>Payments</h2>'+pays+'</div>';
   if($("ideasBtn"))$("ideasBtn").addEventListener("click",function(){
     msg("ideasMsg","Saving…");
     api("set-ideas",{cid:c.cid,text:$("ideas").value}).then(function(x){msg("ideasMsg",x.ok?"Saved. "+x.j.lines+" idea"+(x.j.lines===1?"":"s")+" now show for the customer.":(x.j.error||"Could not save."),x.ok?"good":"bad");});
@@ -207,11 +331,18 @@ function runCheck(send){
   msg("chkmsg","Checking…");
   api("diagnose",{sendTest:!!send}).then(function(x){
     if(!x.ok){msg("chkmsg",x.j.error||"Could not check.","bad");return;}
-    $("chk").innerHTML=x.j.checks.map(function(c){return '<div class="row"><div><div class="t">'+esc(c.key)+'</div><div class="s">'+(c.value?esc(c.value)+' &middot; ':'')+esc(c.hint)+'</div></div><span class="chip '+(c.ok?"active":"expired")+'">'+(c.ok?"Found":"Missing")+'</span></div>';}).join("");
+    $("chk").innerHTML=x.j.checks.map(function(c){return '<div class="row"><div><div class="t">'+esc(c.key)+'</div><div class="s">'+(c.value?esc(c.value)+' &middot; ':'')+esc(c.hint)+'</div></div><span class="chip '+(c.ok?"active":(c.optional?"none":"expired"))+'">'+(c.ok?"Found":(c.optional?"Not set (optional)":"Missing"))+'</span></div>';}).join("");
     if(x.j.test){ if(x.j.test.ok)msg("chkmsg","Test email sent to "+x.j.test.to+". Check your inbox and your spam folder.","good"); else msg("chkmsg","The email could not be sent: "+x.j.test.error,"bad"); }
     else msg("chkmsg","");
   });
 }
+$("waf").addEventListener("submit",function(e){
+  e.preventDefault();msg("wamsg","Sending…");
+  api("diagnose",{sendWaTest:$("watest").value}).then(function(x){
+    var r=x.j&&x.j.waTest; if(!r){msg("wamsg","Enter the number first.","bad");return;}
+    msg("wamsg",r.ok?"Test WhatsApp sent. Check that phone.":"Could not send: "+(r.reason||"unknown")+" (WhatsApp needs the token, phone ID and an approved template).",r.ok?"good":"bad");
+  });
+});
 $("chkBtn").addEventListener("click",function(){runCheck(false);});
 $("chkMail").addEventListener("click",function(){runCheck(true);});
 $("lkf").addEventListener("submit",function(e){

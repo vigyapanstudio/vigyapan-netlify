@@ -11,7 +11,7 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Get your Instagram growth report and 30-day content calendar in 48 hours. Made for small businesses by Vigyapan Studio.">
-<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<link rel="alternate" hreflang="en" href="https://vigyapanstudio.online/"><link rel="alternate" hreflang="hi" href="https://vigyapanstudio.online/hi/"><link rel="alternate" hreflang="pa" href="https://vigyapanstudio.online/pa/"><link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
 <title>Instagram Growth Report + 30-Day Plan | Vigyapan Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -467,15 +467,16 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
               <div><b>Add 10 ready-to-shoot reel scripts for just ₹299 more</b><span>Word-for-word scripts in Hinglish or English. Most customers add this.</span></div>
             </label>
 
-            <div class="f full"><label for="ref">Referral code <small>(optional, 10% off your first order)</small></label>
-              <div class="refrow"><input id="ref" placeholder="VS-XXXXXX" autocapitalize="characters" autocomplete="off" maxlength="12"><button class="btn alt" type="button" id="refBtn">Apply</button></div>
+            <div class="f full"><label for="ref">Referral or discount code <small>(optional)</small></label>
+              <div class="refrow"><input id="ref" placeholder="Enter your code" autocapitalize="characters" autocomplete="off" maxlength="16"><button class="btn alt" type="button" id="refBtn">Apply</button></div>
               <div class="msg"></div><div class="refok" id="refOk" hidden></div></div>
 
+            <label class="consent" for="wa" style="margin-top:-4px"><input type="checkbox" id="wa"><span>Send me <b>WhatsApp updates</b> about my plan (when my report is ready and when my plan is about to end). Optional. You can switch this off any time in your dashboard.</span></label>
             <label class="consent" for="agree"><input type="checkbox" id="agree"><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive my report on the WhatsApp number and email above. I understand this is a planning report, not a promise of followers or sales.</span></label>
             <div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
             <div class="actions">
               <button class="btn" type="submit" id="go">Continue to payment <span aria-hidden="true">→</span></button>
-              <p class="fine">Pay securely with UPI, card or netbanking.</p>
+              <p class="fine">Pay securely with UPI, card or netbanking. If you start an order and do not finish, we may email you one reminder.</p>
             </div>
           </div>
         </form>
@@ -502,7 +503,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
         <h3>Your order</h3>
         <div class="row"><span id="planLabel">Growth report + 30-day calendar</span><span id="planPrice">₹999</span></div>
         <div class="row" id="bumpRow" hidden><span>10 reel scripts</span><span>₹299</span></div>
-        <div class="row" id="discRow" hidden style="color:var(--mint)"><span>Referral code</span><span id="discAmt">−₹0</span></div>
+        <div class="row" id="discRow" hidden style="color:var(--mint)"><span id="discLabel">Discount</span><span id="discAmt">−₹0</span></div>
         <div class="row total"><span>Total</span><span id="total">₹999</span></div>
         <ul><li>Delivered in 48 hours</li><li>Page report + 3 competitors</li><li>Captions and hashtags included</li><li>5-minute video walkthrough</li></ul>
         <p style="margin:16px 0 0;font-size:.8rem;color:var(--mute);line-height:1.5">Udyam registered business<br><span style="font-family:var(--mono);color:var(--gold)">UDYAM-PB-12-0008441</span></p>
@@ -558,7 +559,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
       <a class="ig" href="https://www.instagram.com/vigyapan_studio/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB72B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="#FFB72B"/></svg>Follow @vigyapan_studio</a>
     </div>
   </div>
-  <div class="legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/blog/">Blog</a><a href="/faq/">FAQ</a><a href="/free-audit/">Free audit</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a><span>© 2026 Vigyapan Studio</span></div>
+  <div class="legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/blog/">Blog</a><a href="/faq/">FAQ</a><a href="/free-audit/">Free audit</a><a href="/hi/">हिन्दी</a><a href="/pa/">ਪੰਜਾਬੀ</a><a href="/shipping">Delivery</a><a href="/contact">Contact</a><a href="/login">Log in</a><span>© 2026 Vigyapan Studio</span></div>
 </footer>
 </div>
 
@@ -568,7 +569,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 <script>
 var CFG = window.VS_CONFIG || {};
 var BASE = CFG.PRICE_BASE || 999, BUMP = CFG.PRICE_BUMP || 299, PACK3 = CFG.PRICE_PACK3 || 2699;
-var months = 1, refPct = 0, refCode = "";
+var months = 1, refPct = 0, refOff = 0, refCode = "", refLabel = "";
 var $ = function(id){ return document.getElementById(id); };
 function inr(n){ return "₹" + n.toLocaleString("en-IN"); }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
@@ -589,7 +590,8 @@ function toast(t){ var e=$("toast"); e.textContent=t; e.classList.add("on"); cle
 
 /* --- price sync --- */
 function subtotal(){ return (months===3 ? PACK3 : BASE) + ($("bump").checked ? BUMP : 0); }
-function discount(){ return refPct ? Math.round(subtotal()*refPct/100) : 0; }
+function discount(){ var s=subtotal(); return refPct ? Math.round(s*refPct/100) : (refOff ? Math.min(refOff, s-1) : 0); }
+function hasDisc(){ return !!(refPct || refOff); }
 function total(){ return subtotal() - discount(); }
 function syncPrice(){
   var t=total();
@@ -597,7 +599,7 @@ function syncPrice(){
   $("bumpRow").hidden=!$("bump").checked;
   $("planLabel").textContent = months===3 ? "Report + calendar, 3 months" : "Growth report + 30-day calendar";
   $("planPrice").textContent = inr(months===3 ? PACK3 : BASE);
-  $("discRow").hidden = !refPct; $("discAmt").textContent = "−"+inr(discount());
+  $("discRow").hidden = !hasDisc(); $("discLabel").textContent = refLabel ? "Code "+refCode+" ("+refLabel+")" : "Discount"; $("discAmt").textContent = "−"+inr(discount());
 }
 $("bump").addEventListener("change", syncPrice);
 Array.prototype.forEach.call(document.querySelectorAll('input[name="pack"]'), function(r){
@@ -609,7 +611,7 @@ Array.prototype.forEach.call(document.querySelectorAll('input[name="pack"]'), fu
 });
 
 /* --- referral code --- */
-function clearRef(){ refPct=0; refCode=""; $("refOk").hidden=true; syncPrice(); }
+function clearRef(){ refPct=0; refOff=0; refCode=""; refLabel=""; $("refOk").hidden=true; syncPrice(); }
 function applyRef(){
   var code=$("ref").value.trim().toUpperCase();
   if(!code){ clearRef(); return Promise.resolve(true); }
@@ -619,16 +621,33 @@ function applyRef(){
     .then(function(r){ return r.json().catch(function(){return {};}).then(function(j){ return {ok:r.ok,j:j}; }); })
     .then(function(x){
       $("refBtn").disabled=false;
-      if(x.ok && x.j.ok){ refPct=x.j.pct||10; refCode=x.j.code||code; $("ref").value=refCode; $("refOk").textContent="✓ "+refPct+"% off applied to your first order."; $("refOk").hidden=false; setErr("ref",""); syncPrice(); return true; }
+      if(x.ok && x.j.ok){ refPct=x.j.pct||0; refOff=x.j.off||0; refCode=x.j.code||code; refLabel=x.j.label||""; $("ref").value=refCode; $("refOk").textContent="✓ "+(refLabel||"Discount")+" applied to your first order."; $("refOk").hidden=false; setErr("ref",""); syncPrice(); return true; }
       clearRef(); setErr("ref",(x.j&&x.j.error)||"Could not check that code. Please try again."); return false;
     })
     .catch(function(){ $("refBtn").disabled=false; clearRef(); setErr("ref","No connection. Please try again."); return false; });
 }
 $("refBtn").addEventListener("click", function(){ applyRef(); });
-$("ref").addEventListener("input", function(){ if(refPct) clearRef(); $("ref").closest(".f").classList.remove("bad"); });
+$("ref").addEventListener("input", function(){ if(hasDisc()) clearRef(); $("ref").closest(".f").classList.remove("bad"); });
+(function(){   // the "finish your order" email link: /?resume=...
+  try{
+    var rid=(new URLSearchParams(location.search).get("resume")||"").replace(/[^0-9a-f]/g,"").slice(0,24);
+    if(rid.length!==24) return;
+    fetch("/api/resume",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({rid:rid})})
+      .then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+        if(!j||!j.form) return; var f=j.form;
+        ["name","phone","email","biz","city","comp","about"].forEach(function(k){ if(f[k]) $(k).value=f[k]; });
+        if(f.ig) $("ig").value=f.ig;
+        ["type","followers","goal"].forEach(function(k){ var sel=$(k); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].text===f[k]){ sel.selectedIndex=i; break; } } });
+        if(f.months===3){ $("pk3").checked=true; months=3; Array.prototype.forEach.call(document.querySelectorAll(".pack"), function(p){ p.classList.toggle("on", p.querySelector("input").checked); }); }
+        $("bump").checked=!!f.bump; $("wa").checked=!!f.wa;
+        if(f.code) $("ref").value=f.code;
+        syncPrice(); toast("Welcome back! Your details are filled in.");
+      }).catch(function(){});
+  }catch(e){}
+})();
 (function(){   // links like /?ref=VS-ABC123 and /?type=Salon%20%2F%20Beauty fill the form in
   try{
-    var q=new URLSearchParams(location.search), r=(q.get("ref")||"").toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,12), t=q.get("type");
+    var q=new URLSearchParams(location.search), r=(q.get("ref")||q.get("code")||"").toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,16), t=q.get("type");
     if(r){ $("ref").value=r; }
     if(t){ var sel=$("type"); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].text===t){ sel.selectedIndex=i; break; } } }
   }catch(e){}
@@ -671,14 +690,14 @@ function waText(o){
   return ["Hi Vigyapan Studio! I'd like to order the Instagram Growth Report + 30-Day Calendar.",
     "Name: "+o.name, "WhatsApp: "+o.phone, "Email: "+o.email, "Instagram: @"+o.ig, "Business: "+o.biz+" ("+o.type+", "+o.city+")",
     "Followers: "+o.followers, "Goal: "+o.goal, "Competitors: "+(o.comp||"Please choose for me"), "Sells: "+o.about,
-    "Plan: "+(o.months===3?"3 months":"1 month"), o.referral?("Referral code: "+o.referral):"",
+    "Plan: "+(o.months===3?"3 months":"1 month"), o.referral?("Code: "+o.referral):"",
     "Add-on: "+(o.bump?"10 reel scripts (+"+inr(BUMP)+")":"No"), "Amount: "+inr(o.amount)].filter(Boolean).join("\n");
 }
 
 $("form").addEventListener("submit", function(e){
   e.preventDefault();
   if(!validate()){ var b=document.querySelector(".f.bad"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}); return; }
-  if($("ref").value.trim() && !refPct){
+  if($("ref").value.trim() && !hasDisc()){
     applyRef().then(function(ok){ if(ok) goPay(); else { var b=document.querySelector(".f.bad"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}); } });
     return;
   }
@@ -687,10 +706,10 @@ $("form").addEventListener("submit", function(e){
 function goPay(){
   var v=function(id){return $(id).value.trim();};
   order={ name:v("name"), phone:cleanPhone(v("phone")), email:v("email"), ig:cleanIg(v("ig")), biz:v("biz"), type:v("type"), city:v("city"),
-    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, months:months, referral:refPct?refCode:"", amount:total() };
+    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, months:months, referral:hasDisc()?refCode:"", wa:$("wa").checked, amount:total() };
   session=null;
   $("payTotal").textContent=inr(order.amount);
-  $("payLine").textContent=(months===3?"Growth report + calendar, 3 months":"Growth report + 30-day calendar")+(order.bump?" + 10 reel scripts":"")+(refPct?" (referral discount applied)":"");
+  $("payLine").textContent=(months===3?"Growth report + calendar, 3 months":"Growth report + 30-day calendar")+(order.bump?" + 10 reel scripts":"")+(hasDisc()?" (discount applied)":"");
   $("payBtn").innerHTML="Pay "+inr(order.amount)+" securely <span aria-hidden=\"true\">→</span>";
   $("recap").innerHTML="<div><b>"+esc(order.name)+"</b> · "+esc(order.phone)+"</div><div>@"+esc(order.ig)+" · "+esc(order.biz)+"</div><div>"+esc(order.email)+"</div>";
   $("waBtn").href="https://wa.me/"+(CFG.WHATSAPP||"917009884880")+"?text="+encodeURIComponent(waText(order));

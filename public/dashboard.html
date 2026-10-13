@@ -33,12 +33,13 @@ function calc(months,bump){
   var P=S.prices, sub=(months===3?P.pack3:P.renew)+(bump?P.bump:0), best=null, amt=0;
   if(S.offers.credit){var a=Math.round(sub*P.pct/100);if(a>amt){amt=a;best="credit";}}
   if(S.offers.winback){var w=P.winbackOff;if(w>amt){amt=w;best="winback";}}
+  if(RCODE){var c=RCODE.pct?Math.round(sub*RCODE.pct/100):Math.min(RCODE.off,sub-1);if(c>amt){amt=c;best="coupon";}}
   return {sub:sub,disc:amt,kind:best,total:sub-amt};
 }
-var RM=1;
+var RM=1, RCODE=null;
 function priceLine(q){
   if(!q.disc) return "";
-  return (q.kind==="winback"?"Welcome-back discount":"Referral credit (10% off)")+": <b>−"+inr(q.disc)+"</b>";
+  return (q.kind==="winback"?"Welcome-back discount":q.kind==="coupon"?"Code "+RCODE.code+" ("+RCODE.label+")":"Referral credit (10% off)")+": <b>−"+inr(q.disc)+"</b>";
 }
 function planCard(){
   var m=S.membership;
@@ -61,6 +62,7 @@ function planCard(){
       '<label class="pk'+(RM===3?' on':'')+'" for="pm3"><input type="radio" name="pm" id="pm3" value="3"'+(RM===3?' checked':'')+'><div><b>3 months</b><span>'+inr(S.prices.pack3)+' <i>save '+inr(3*S.prices.renew-S.prices.pack3)+'</i></span></div></label>'+
     '</div>'+
     '<label class="check" for="bump"><input type="checkbox" id="bump"><div><b>Add 10 reel scripts for '+inr(S.prices.bump)+' more</b><span>Word-for-word scripts for your next month.</span></div></label>'+
+    '<div class="coderow"><input id="rcode" placeholder="Discount code (optional)" autocapitalize="characters" autocomplete="off" maxlength="16" value="'+esc(RCODE?RCODE.code:"")+'"><button class="btn alt sm" id="rcodeBtn" type="button">Apply</button></div>'+
     '<div class="fine" id="priceLine" style="text-align:left">'+priceLine(q)+'</div>'+
     '<button class="btn full" id="renewBtn" type="button">Renew for '+inr(q.total)+'</button>'+
     '<p class="fine">No automatic charge, you only pay when you tap Renew. Renewing early never wastes days: your new days start when this plan ends.</p>'+
@@ -143,12 +145,62 @@ function helpCard(){
   var msg="Hi Vigyapan Studio, I need help with my account ("+S.customer.email+").";
   return '<div class="card"><h2>Need help?</h2><p class="sub">Questions about your report or calendar? Message us any time.</p><a class="btn wa sm" href="https://wa.me/'+esc(S.whatsapp)+'?text='+encodeURIComponent(msg)+'" target="_blank" rel="noopener">Chat on WhatsApp</a></div>';
 }
+
+function dayWord(n){return n===0?"today":n===1?"tomorrow":"in "+n+" days";}
+function festCard(){
+  var f=S.festivals||[]; if(!f.length) return "";
+  var rows=f.map(function(x){
+    var d=new Date(x.date+"T00:00:00Z");
+    var mon=d.toLocaleDateString("en-IN",{timeZone:"UTC",month:"short"}), day=d.getUTCDate();
+    return '<div class="fest"><div class="when'+(x.inDays<=7?' soon':'')+'"><b>'+day+'</b><span>'+mon+'</span></div><div><div class="nm">'+esc(x.name)+' <small style="color:var(--mute);font-weight:400">'+dayWord(x.inDays)+'</small></div><div class="tp">'+esc(x.tip)+'</div>'+(x.approx?'<div class="ap">Date can shift by a day.</div>':'')+'</div></div>';
+  }).join("");
+  return '<div class="card"><h2>Coming up: festivals and occasions</h2><p class="sub">Plan your posts ahead. Festival posts get more reach when they go up a few days early.</p>'+rows+'</div>';
+}
+function libCard(){
+  var L=S.library; if(!L) return "";
+  var caps=L.captions.map(function(c,i){return '<div class="lib"><div class="lt">'+esc(c.title)+'</div><div class="tx">'+esc(c.text)+'</div><button class="btn alt sm cp" type="button" data-cap="'+i+'">Copy caption</button></div>';}).join("");
+  var tags=L.hashtags.map(function(g,i){return '<div class="lib"><div class="lt">'+esc(g.label)+'</div><div class="tx">'+esc(g.line)+'</div><button class="btn alt sm cp" type="button" data-tag="'+i+'">Copy hashtags</button></div>';}).join("");
+  return '<details class="card" id="libCard"'+(LIBOPEN?' open':'')+'><summary><h2>Caption and hashtag library</h2></summary><div class="inner"><p class="sub">Tap Copy, paste into Instagram, then fill in the [square brackets]. Matched to your business type and city.</p>'+
+    '<div class="subh">Hashtags</div>'+tags+'<div class="subh">Caption starters</div>'+caps+'<div class="msgline" id="libMsg" role="status" aria-live="polite"></div></div></details>';
+}
+function fmtTime(ms){return new Date(ms).toLocaleString("en-IN",{timeZone:"Asia/Kolkata",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true});}
+function msgCard(){
+  var M=S.messages||{msgs:[],unread:false};
+  var th=M.msgs.length?'<div class="thread" id="thread">'+M.msgs.map(function(m){return '<div class="bub '+(m.from==="client"?"me":"them")+'">'+esc(m.text)+'<small>'+(m.from==="client"?"You":"Vigyapan Studio")+' &middot; '+fmtTime(m.at)+'</small></div>';}).join("")+'</div>':'<p class="empty" style="margin:0 0 12px">Ask anything about your report, calendar or next steps. We usually reply within a day.</p>';
+  return '<div class="card" id="msgCard"><h2>Ask us a question'+(M.unread?'<span class="dot" title="New reply"></span>':'')+'</h2><p class="sub">Your question comes straight to us. Our reply shows here and is also emailed to you.</p>'+th+
+    '<div class="f"><label class="sr" for="msgText" style="position:absolute;left:-9999px">Your question</label><textarea id="msgText" maxlength="1000" placeholder="Type your question…"></textarea></div>'+
+    '<button class="btn alt sm" id="msgSend" type="button" style="margin-top:12px">Send question</button><div class="msgline" id="msgMsg" role="status" aria-live="polite"></div></div>';
+}
+var ADD={};
+function addonCard(){
+  var A=S.addons; if(!A) return "";
+  var sel=A.items.filter(function(a){return ADD[a.id];}), tot=sel.reduce(function(t,a){return t+a.price;},0);
+  var rows=A.items.map(function(a){return '<label class="addrow'+(ADD[a.id]?' on':'')+'" for="ad_'+a.id+'"><input type="checkbox" id="ad_'+a.id+'" data-add="'+a.id+'"'+(ADD[a.id]?' checked':'')+'><div><span class="nm">'+esc(a.name)+'</span><span class="ds">'+esc(a.desc)+'</span></div><span class="pr">'+inr(a.price)+'</span></label>';}).join("");
+  var ords=A.orders.length?'<div class="subh">Your add-ons</div>'+A.orders.map(function(o){return '<div class="row"><div><div class="t">'+esc(o.items.join(", "))+'</div><div class="s">'+dt(o.paidAt)+' &middot; '+inr(o.amount)+' &middot; <a href="/api/invoice?pid='+encodeURIComponent(o.paymentId)+'" target="_blank" rel="noopener" style="color:var(--gold)">invoice</a></div></div><span class="stat '+(o.status==="done"?"done":"new")+'">'+(o.status==="done"?"Ready":"In progress")+'</span></div>';}).join("")+'<p class="fine" style="text-align:left">Finished add-ons appear under "Your reports and calendars" above.</p>':"";
+  return '<div class="card" id="addonCard"><h2>Add-on shop</h2><p class="sub">One-time extras. Pay securely and we start right away. Done within about 48 hours.</p>'+rows+
+    '<button class="btn full" id="addonBuy" type="button" style="margin-top:6px"'+(tot?'':' disabled')+'>'+(tot?'Pay '+inr(tot):'Choose an add-on')+'</button><div class="msgline" id="addonMsg" role="status" aria-live="polite"></div>'+ords+'</div>';
+}
+function manageCard(){
+  if(MANAGED) return '<div class="card"><h2>Want us to run your page?</h2><p class="msgline good" style="margin:0">Thank you! We will message you on WhatsApp soon.</p></div>';
+  return '<div class="card"><h2>Want us to run your Instagram for you?</h2><p class="sub">Too busy to post? We can plan, write and schedule your content every month. Tell us a little and we will message you on WhatsApp with a simple plan and price. No obligation.</p>'+
+    '<div class="f"><label class="sr" for="mgNote" style="position:absolute;left:-9999px">Anything we should know</label><textarea id="mgNote" maxlength="400" placeholder="Optional: how many posts a week, what you need help with…"></textarea></div>'+
+    '<button class="btn alt sm" id="mgSend" type="button" style="margin-top:12px">Yes, contact me</button><div class="msgline" id="mgMsg" role="status" aria-live="polite"></div></div>';
+}
+function prefsCard(){
+  var P=S.prefs||{};
+  return '<div class="card"><h2>Email and WhatsApp preferences</h2><p class="sub">Receipts, invoices and login codes always come to you. These are the optional ones.</p>'+
+    '<label class="check" for="pf_mail" style="margin-top:6px"><input type="checkbox" id="pf_mail"'+(P.emailsOff?'':' checked')+'><div><b>Send me the weekly plan and monthly progress emails</b><span>A short Monday note with the next 7 days of ideas.</span></div></label>'+
+    (P.waAvailable?'<label class="check" for="pf_wa"><input type="checkbox" id="pf_wa"'+(P.waOptIn?' checked':'')+'><div><b>Send me WhatsApp updates</b><span>When your plan is about to end and when your report is ready. Nothing else.</span></div></label>':'')+
+    '<div class="msgline" id="pfMsg" role="status" aria-live="polite"></div></div>';
+}
+var LIBOPEN=false, MANAGED=false;
 function render(){
   var first=(S.customer.name||"").split(" ")[0]||"there";
   var fl=flash?'<div class="banner '+flash.kind+'" role="status">'+esc(flash.text)+'</div>':"";
   $("app").innerHTML='<div class="eyebrow">Your dashboard</div><h1>Hi '+esc(first)+'</h1><p style="margin:0">'+(S.customer.biz?esc(S.customer.biz)+' &middot; ':'')+'@'+esc(S.customer.ig)+'</p>'+fl+
-    '<div class="stack">'+planCard()+reportsCard()+calCard()+focusCard()+refCard()+reviewCard()+detailsCard()+payCard()+helpCard()+'</div>';
+    '<div class="stack">'+planCard()+reportsCard()+calCard()+festCard()+libCard()+addonCard()+msgCard()+focusCard()+refCard()+reviewCard()+manageCard()+detailsCard()+prefsCard()+payCard()+helpCard()+'</div>';
   wire();
+  if(S.messages&&S.messages.unread){S.messages.unread=false;api("msg-seen");}
 }
 function setMsg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"+(c?" "+c:"");}}
 function wire(){
@@ -212,6 +264,90 @@ function wire(){
       else setMsg("rvMsg",x.j.error||"Could not save.","bad");
     });
   });
+
+  // renewal code
+  if($("rcodeBtn"))$("rcodeBtn").addEventListener("click",function(){
+    var code=$("rcode").value.trim();
+    if(!code){RCODE=null;reprice();setMsg("renewMsg","");return;}
+    setMsg("renewMsg","Checking code…");
+    api("check-code",{code:code}).then(function(x){
+      if(x.ok){RCODE={code:x.j.code,pct:x.j.pct,off:x.j.off,label:x.j.label};setMsg("renewMsg","Code applied: "+x.j.label+".","good");}
+      else{RCODE=null;setMsg("renewMsg",(x.j&&x.j.error)||"Could not check that code.","bad");}
+      reprice();
+    });
+  });
+  // library copy buttons
+  function copyText(t,okMsg){
+    function fb(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");setMsg("libMsg",okMsg,"good");}catch(e){setMsg("libMsg","Select the text and copy it.");}document.body.removeChild(a);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){setMsg("libMsg",okMsg,"good");},fb);}else fb();
+  }
+  var lc=$("libCard");
+  if(lc){
+    lc.addEventListener("toggle",function(){LIBOPEN=lc.open;});
+    lc.addEventListener("click",function(e){
+      var b=e.target.closest&&e.target.closest("button[data-cap],button[data-tag]"); if(!b)return;
+      if(b.hasAttribute("data-cap"))copyText(S.library.captions[+b.getAttribute("data-cap")].text,"Caption copied. Fill in the [brackets] before posting.");
+      else copyText(S.library.hashtags[+b.getAttribute("data-tag")].line,"Hashtags copied.");
+    });
+  }
+  // messages
+  var th=$("thread"); if(th)th.scrollTop=th.scrollHeight;
+  if($("msgSend"))$("msgSend").addEventListener("click",function(){
+    var t=$("msgText").value.trim(); if(t.length<2){setMsg("msgMsg","Please type your question.","bad");return;}
+    setMsg("msgMsg","Sending…"); $("msgSend").disabled=true;
+    api("msg-send",{text:t}).then(function(x){
+      $("msgSend").disabled=false;
+      if(x.ok){S.messages=x.j.messages;var keep=LIBOPEN;render();setMsg("msgMsg","Sent. We will reply here and by email.","good");}
+      else setMsg("msgMsg",(x.j&&x.j.error)||"Could not send. Please try again.","bad");
+    });
+  });
+  // add-on shop
+  Array.prototype.forEach.call(document.querySelectorAll("input[data-add]"),function(cb){cb.addEventListener("change",function(){
+    ADD[cb.getAttribute("data-add")]=cb.checked;
+    var tot=0;S.addons.items.forEach(function(a){if(ADD[a.id])tot+=a.price;});
+    cb.closest(".addrow").classList.toggle("on",cb.checked);
+    var bt=$("addonBuy");bt.disabled=!tot;bt.textContent=tot?"Pay "+inr(tot):"Choose an add-on";
+  });});
+  if($("addonBuy"))$("addonBuy").addEventListener("click",buyAddons);
+  // manage-my-page
+  if($("mgSend"))$("mgSend").addEventListener("click",function(){
+    setMsg("mgMsg","Sending…");
+    api("manage-enquiry",{note:$("mgNote").value}).then(function(x){if(x.ok){MANAGED=true;render();}else setMsg("mgMsg",(x.j&&x.j.error)||"Could not send. Please try again.","bad");});
+  });
+  // preferences
+  function savePref(patch){setMsg("pfMsg","Saving…");api("prefs",patch).then(function(x){setMsg("pfMsg",x.ok?"Saved.":"Could not save. Please try again.",x.ok?"good":"bad");});}
+  if($("pf_mail"))$("pf_mail").addEventListener("change",function(){S.prefs.emailsOff=!$("pf_mail").checked;savePref({emailsOff:S.prefs.emailsOff});});
+  if($("pf_wa"))$("pf_wa").addEventListener("change",function(){S.prefs.waOptIn=$("pf_wa").checked;savePref({waOptIn:S.prefs.waOptIn});});
+}
+function buyAddons(){
+  if(busy)return;
+  var ids=S.addons.items.filter(function(a){return ADD[a.id];}).map(function(a){return a.id;}); if(!ids.length)return;
+  busy=true;var bt=$("addonBuy");bt.disabled=true;setMsg("addonMsg","Opening secure payment…");
+  Promise.all([api("addon-order",{ids:ids}),loadRz()]).then(function(r){
+    var x=r[0]; if(!x.ok)throw new Error((x.j&&x.j.error)||"Could not start the payment.");
+    var o=x.j;
+    var rz=new Razorpay({key:o.key,amount:o.amount,currency:"INR",order_id:o.orderId,name:"Vigyapan Studio",description:"Add-on: "+o.label,image:location.origin+"/assets/logo-icon.jpg",prefill:o.prefill,theme:{color:"#FFB72B"},
+      modal:{ondismiss:function(){busy=false;bt.disabled=false;setMsg("addonMsg","Payment not completed. Tap Pay when you are ready.");}},
+      handler:function(resp){addonPaid(resp,o);}});
+    rz.on("payment.failed",function(f){busy=false;bt.disabled=false;setMsg("addonMsg",((f&&f.error&&f.error.description)||"The payment did not go through.")+" Please try again.","bad");});
+    setMsg("addonMsg","Complete your payment in the secure window.");rz.open();
+  }).catch(function(err){busy=false;bt.disabled=false;setMsg("addonMsg",(err&&err.message)||"Could not open the payment window. Please try again.","bad");});
+}
+function addonPaid(resp,o){
+  setMsg("addonMsg","Payment received. Confirming…");
+  var before=S.addons.orders.length;
+  fetch("/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:o.orderId,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature})})
+    .then(function(r){return r.json();}).catch(function(){return {};})
+    .then(function(){
+      var tries=0;
+      (function poll(){
+        api("me").then(function(x){
+          if(x.ok&&x.j.addons.orders.length>before){S=x.j;busy=false;ADD={};flash={kind:"good",text:"Thank you! Your add-on is paid and we have started on it. Your invoice has been emailed to you."};render();window.scrollTo({top:0,behavior:"smooth"});}
+          else if(++tries<6){setTimeout(poll,2500);}
+          else{busy=false;flash={kind:"good",text:"Payment received. Your add-on will show up here within a few minutes. Refresh shortly."};render();}
+        });
+      })();
+    });
 }
 var rzLoaded=null;
 function loadRz(){
@@ -223,7 +359,7 @@ function loadRz(){
 function renew(){
   if(busy)return;busy=true;var rb=$("renewBtn");rb.disabled=true;setMsg("renewMsg","Opening secure payment…");
   var bump=$("bump").checked;
-  Promise.all([api("renew",{bump:bump,months:RM}),loadRz()]).then(function(r){
+  Promise.all([api("renew",{bump:bump,months:RM,code:RCODE?RCODE.code:""}),loadRz()]).then(function(r){
     var x=r[0];
     if(!x.ok){throw new Error((x.j&&x.j.error)||"Could not start the payment.");}
     var o=x.j;
@@ -245,7 +381,7 @@ function paid(resp,o){
       var tries=0;
       (function poll(){
         api("me").then(function(x){
-          if(x.ok&&x.j.payments.length>before){S=x.j;busy=false;RM=1;flash={kind:"good",text:"Renewal received. Your plan now runs until "+dt(S.membership.expiresAt)+". Your invoice has been emailed to you."};render();window.scrollTo({top:0,behavior:"smooth"});}
+          if(x.ok&&x.j.payments.length>before){S=x.j;busy=false;RM=1;RCODE=null;flash={kind:"good",text:"Renewal received. Your plan now runs until "+dt(S.membership.expiresAt)+". Your invoice has been emailed to you."};render();window.scrollTo({top:0,behavior:"smooth"});}
           else if(++tries<6){setTimeout(poll,2500);}
           else{busy=false;flash={kind:"good",text:"Payment received. Your plan will update within a few minutes. Refresh this page shortly."};render();}
         });

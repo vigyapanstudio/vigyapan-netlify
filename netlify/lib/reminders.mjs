@@ -4,6 +4,8 @@ import { STORES as S } from './db.mjs';
 import { DAY, BASE_PRICE, BUMP_PRICE, WINBACK_OFF, WINBACK_AFTER_DAYS, WINBACK_VALID_DAYS, REVIEW_AFTER_DAYS, REFERRAL_PCT, SELLER, esc, inr, istDate, siteUrl } from './config.mjs';
 import { listCustomers, getPayments, computeMembership, getDeliveries, updateCustomer } from './members.mjs';
 import { sendMail, shell, mailReady } from './mail.mjs';
+import { isUnsub, unsubUrl } from './prefs.mjs';
+import { waNotifyEnding } from './whatsapp.mjs';
 
 const ORDER = { soon5: 1, soon1: 2, expired: 3 };
 
@@ -76,6 +78,7 @@ export async function runReminders(now) {
         Object.keys(ORDER).forEach((t) => { if (ORDER[t] <= ORDER[j.type]) j.flags.sent[j.base + t] = now; });
         await db.put(S.reminders, j.c.cid, j.flags);
         result.sent.push({ email: j.c.email, name: j.c.name, type: j.type, ends: istDate(j.m.expiresAt) });
+        if (j.type === 'soon5' || j.type === 'soon1') { if (await waNotifyEnding(j.c, istDate(j.m.expiresAt))) result.sent[result.sent.length - 1].wa = true; }
       } catch (err) { result.failed++; console.error('REMINDER FAILED for ' + j.c.email, String(err)); }
     }));
   }
@@ -105,6 +108,7 @@ export async function runWinback(now) {
     const since = now - m.expiresAt;
     if (since < WINBACK_AFTER_DAYS * DAY || since > 45 * DAY) continue;
     if (c.winback && c.winback.forExpiry === m.expiresAt) continue;
+    if (await isUnsub(c.email)) continue;
     const until = now + WINBACK_VALID_DAYS * DAY;
     const first = String(c.name || 'there').split(' ')[0];
     const price = BASE_PRICE - WINBACK_OFF;
@@ -114,7 +118,8 @@ export async function runWinback(now) {
           bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(first) + ', it has been a couple of weeks since your last plan ended. If you would like a fresh 30-day calendar and an updated look at your page, renew this week for <b>' + inr(price) + '</b> instead of ' + inr(BASE_PRICE) + '.</p>' +
             '<p style="margin:0;color:#7a948f;font-size:13px">Log in with this email and the discount is already applied. It is valid until <b>' + esc(istDate(until)) + '</b>. There is no automatic payment.</p>',
           button: site ? { text: 'Renew with ' + inr(WINBACK_OFF) + ' off', url: site + '/login' } : null,
-          small: 'You are getting this because you bought a plan from ' + SELLER.name + '.' }),
+          small: 'You are getting this because you bought a plan from ' + SELLER.name + '.', unsubUrl: unsubUrl(c.email) }),
+        unsubUrl: unsubUrl(c.email),
         text: 'Renew this week for ' + inr(price) + ' instead of ' + inr(BASE_PRICE) + '. Log in: ' + (site ? site + '/login' : ''), idemKey: 'vs-win-' + c.cid + '-' + m.expiresAt });
       await updateCustomer(c.cid, { winback: { forExpiry: m.expiresAt, sentAt: now, until, used: false } });
       out.push({ email: c.email, name: c.name });
@@ -138,13 +143,15 @@ export async function runReviewAsks(now) {
     const firstAt = dl.reduce((mn, d) => Math.min(mn, d.uploadedAt), Infinity);
     if (now - firstAt < REVIEW_AFTER_DAYS * DAY) continue;
     if (await db.get(S.reviews, c.cid)) { await updateCustomer(c.cid, { reviewAskedAt: now }); continue; }
+    if (await isUnsub(c.email)) continue;
     const first = String(c.name || 'there').split(' ')[0];
     try {
       await sendMail({ to: c.email, subject: 'How is your plan going, ' + first + '?',
         html: shell({ preheader: 'Two minutes to tell us how it went', heading: 'How is your plan going?',
           bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(first) + ', it has been a week since your report was ready. If you have a minute, we would love to hear how it is going. A few honest lines help us improve, and help other small businesses decide.</p>' +
             '<p style="margin:0;color:#7a948f;font-size:13px">Log in, scroll to <b>Share your feedback</b>, pick your stars and write a sentence or two. You choose whether we may show it on our website.</p>',
-          button: site ? { text: 'Share my feedback', url: site + '/login' } : null }),
+          button: site ? { text: 'Share my feedback', url: site + '/login' } : null, unsubUrl: unsubUrl(c.email) }),
+        unsubUrl: unsubUrl(c.email),
         text: 'How is your plan going? Share your feedback after logging in: ' + (site ? site + '/login' : ''), idemKey: 'vs-rev-' + c.cid });
       await updateCustomer(c.cid, { reviewAskedAt: now });
       out.push({ email: c.email, name: c.name });

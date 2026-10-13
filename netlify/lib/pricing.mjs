@@ -23,11 +23,14 @@ export function quote({ months, bump, offers }) {
 }
 export const referralOffer = (code) => ({ kind: 'referral', pct: REFERRAL_PCT, code });
 export const creditOffer = () => ({ kind: 'credit', pct: REFERRAL_PCT });
+export function couponOffer(c) {
+  return c.type === 'flat' ? { kind: 'coupon', off: c.value, code: c.code } : { kind: 'coupon', pct: c.value, code: c.code };
+}
 export const winbackOffer = () => ({ kind: 'winback', off: WINBACK_OFF });
 
 // What we write into the Razorpay order notes, and read back later.
 export const promoNote = (q) => (q.discount ? q.discount.kind + ':' + (q.discount.code || '-') + ':' + q.discount.amount : '');
 export function parsePromo(s) {
-  const m = /^(referral|credit|winback):([^:]*):(\d+)$/.exec(String(s || ''));
+  const m = /^(referral|credit|winback|coupon):([^:]*):(\d+)$/.exec(String(s || ''));
   return m ? { kind: m[1], code: m[2] === '-' ? '' : m[2], amount: Number(m[3]) } : null;
 }

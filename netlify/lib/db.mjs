@@ -36,5 +36,6 @@ export async function getBin(name, key) {
 export const STORES = {
   customers: 'vs-customers', payments: 'vs-payments', deliveries: 'vs-deliveries',
   files: 'vs-files', otp: 'vs-otp', reminders: 'vs-reminders', limits: 'vs-limits',
-  referrals: 'vs-referrals', leads: 'vs-leads', reviews: 'vs-reviews', calendar: 'vs-calendar'
+  referrals: 'vs-referrals', leads: 'vs-leads', reviews: 'vs-reviews', calendar: 'vs-calendar',
+  messages: 'vs-messages', addons: 'vs-addons', carts: 'vs-carts', coupons: 'vs-coupons', unsub: 'vs-unsub'
 };

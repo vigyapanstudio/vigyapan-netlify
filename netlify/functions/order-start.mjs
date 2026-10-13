@@ -4,6 +4,8 @@ import { json, readJson } from '../lib/http.mjs';
 import { razorpayReady, rzpCreateOrder } from '../lib/razorpay.mjs';
 import { cleanText as clean, EMAIL_RE, REFERRAL_PCT } from '../lib/config.mjs';
 import { quote, referralOffer, planNote, promoNote, cleanMonths } from '../lib/pricing.mjs';
+import { checkCoupon, cleanCode } from '../lib/coupons.mjs';
+import { saveCart } from '../lib/carts.mjs';
 import { findByRefCode, getCustomer, cidOf, normEmail } from '../lib/members.mjs';
 import { allow } from '../lib/limits.mjs';
 
@@ -19,6 +21,20 @@ async function checkReferral(code, email, phone) {
   }
   if (phone && ref.customer.phone && phone === ref.customer.phone) return { error: 'You cannot use your own referral code.' };
   return { offer: referralOffer(ref.code), code: ref.code };
+}
+
+// One box for both kinds of code: VS-XXXXXX = a friend's referral code, anything else = a code you made in Admin.
+async function checkAnyCode(raw, email, phone) {
+  const code = String(raw || '').trim().toUpperCase();
+  if (/^VS-/.test(code)) {
+    const r = await checkReferral(code, email, phone);
+    return r.error ? r : { offer: r.offer, code: r.code, kind: 'referral', label: REFERRAL_PCT + '% referral discount' };
+  }
+  if (EMAIL_RE.test(email) && (await getCustomer(cidOf(email)))) return { error: 'Discount codes on this form are for first orders. Existing customers can use a code when renewing in the dashboard.' };
+  const r = await checkCoupon(cleanCode(code), 'first');
+  if (r.error) return r;
+  const c = r.coupon;
+  return { offer: r.offer, code: c.code, kind: 'coupon', label: c.type === 'flat' ? '₹' + c.value + ' off' : c.value + '% off' };
 }
 
 export default async (req, context) => {
@@ -38,8 +54,9 @@ export default async (req, context) => {
   if (b.check) {
     if (!(await allow('refchk', ip, 25, 3600000))) return json(429, { error: 'Too many tries. Please wait a while.' });
     if (!code) return json(400, { error: 'Type your referral code first.' });
-    const r = await checkReferral(code, email, phone);
-    return r.error ? json(400, { error: r.error }) : json(200, { ok: true, pct: REFERRAL_PCT, code: r.code });
+    const r = await checkAnyCode(code, email, phone);
+    if (r.error) return json(400, { error: r.error });
+    return json(200, { ok: true, kind: r.kind, code: r.code, label: r.label, pct: r.offer.pct || 0, off: r.offer.off || 0 });
   }
 
   const keyId = process.env.RAZORPAY_KEY_ID;
@@ -60,7 +77,7 @@ export default async (req, context) => {
   const offers = [];
   if (code) {
     if (!(await allow('refchk', ip, 25, 3600000))) return json(429, { error: 'Too many tries. Please wait a while.' });
-    const r = await checkReferral(code, email, phone);
+    const r = await checkAnyCode(code, email, phone);
     if (r.error) return json(400, { error: r.error });
     offers.push(r.offer);
   }
@@ -83,6 +100,15 @@ export default async (req, context) => {
   };
   const promo = promoNote(q);
   if (promo) notes.promo = promo;
+  if (b.wa === true) notes.wa = 'yes';     // ticked "send me WhatsApp updates" (15 notes at most, so this is the last one added)
+
+  // Remember the form so we can send ONE reminder if they do not finish paying (removed as soon as they pay).
+  try {
+    if (!(await getCustomer(cidOf(email)))) {
+      await saveCart({ name, phone, email, ig, biz: notes.business, type: notes.business_type, city: notes.city, followers: notes.followers, goal: notes.goal,
+        comp: notes.competitors, about: notes.about, bump, months, code: code || '', wa: b.wa === true, total: q.total });
+    }
+  } catch (e) { console.error('cart save failed', String(e)); }
 
   try {
     const o = await rzpCreateOrder({ rupees: q.total, receipt, notes });

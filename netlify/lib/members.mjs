@@ -8,6 +8,7 @@ import * as db from './db.mjs';
 import { STORES as S } from './db.mjs';
 import { BASE_PRICE, BUMP_PRICE, PERIOD_DAYS, REMIND_DAYS, DAY, EMAIL_RE, cleanText } from './config.mjs';
 import { monthsFromNote, parsePromo } from './pricing.mjs';
+import { useCoupon } from './coupons.mjs';
 
 export const normEmail = (e) => String(e || '').trim().toLowerCase();
 export const cidOf = (email) => createHash('sha256').update(normEmail(email)).digest('hex').slice(0, 24);
@@ -58,7 +59,7 @@ export async function recordPayment(payment, order) {
     method: payment.method || '',
     bump: notes.addon_reel_scripts != null ? /^yes/i.test(String(notes.addon_reel_scripts)) : amount >= BASE_PRICE + BUMP_PRICE,
     renewal: String(notes.renewal || '') === 'yes',
-    promo: promo ? promo.kind : '',
+    promo: promo ? promo.kind : '', promoCode: promo ? promo.code : '', promoAmt: promo ? promo.amount : 0,
     raw: { id: payment.id, order_id: payment.order_id, amount: payment.amount, method: payment.method || '', created_at: payment.created_at || Math.floor(paidAt / 1000) },
     notes
   };
@@ -76,6 +77,7 @@ export async function recordPayment(payment, order) {
 
   // Things that must happen once per payment (never again if the same payment is saved twice).
   if (!alreadySaved && promo) {
+    if (promo.kind === 'coupon' && promo.code) { try { await useCoupon(promo.code); } catch (e) { console.error('coupon count failed', String(e)); } }
     if (promo.kind === 'credit') cust.credits = Math.max(0, (cust.credits || 0) - 1);
     if (promo.kind === 'winback') cust.winback = Object.assign({}, cust.winback || {}, { used: true });
     if (promo.kind === 'referral' && promo.code && !cust.referredBy) {
@@ -90,7 +92,12 @@ export async function recordPayment(payment, order) {
       }
     }
   }
+  if (!snap.renewal && String(notes.wa || '') === 'yes') cust.waOptIn = true;   // ticked "WhatsApp updates" on the order form
   await db.put(S.customers, cid, cust);
+  try {   // they paid, so the unfinished-checkout reminder is no longer needed
+    const idx = await db.get(S.carts, 'e-' + cid);
+    if (idx) { await db.del(S.carts, 'c-' + idx.rid); await db.del(S.carts, 'e-' + cid); }
+  } catch (e) { console.error('cart cleanup failed', String(e)); }
   await ensureRefCode(cust);
   return { cid, email, snap };
 }

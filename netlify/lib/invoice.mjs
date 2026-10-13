@@ -1,7 +1,7 @@
 // Builds the invoice / receipt (used in the email and on the dashboard's "View invoice" page).
 // payment = { id, order_id, amount (paise), method, created_at (unix seconds) }
 // order   = { notes: {...} }
-import { SELLER, BASE_PRICE, BUMP_PRICE, esc, inr, istDate, siteUrl } from './config.mjs';
+import { SELLER, BASE_PRICE, BUMP_PRICE, esc, inr, istDate, siteUrl, addons as addonCatalogue } from './config.mjs';
 import { monthsFromNote, packPrice, parsePromo } from './pricing.mjs';
 
 export function invoiceNumber(payment) {
@@ -20,13 +20,21 @@ export function buildInvoice(payment, order) {
   const renewal = String(notes.renewal || '') === 'yes';
   const promo = parsePromo(notes.promo);
   const days = months * 30;
-  const items = [{ label: months === 3
-    ? 'Instagram Growth Report + Content Calendar: 3-month plan (a new 30-day calendar each month)' + (renewal ? ' (renewal)' : '')
-    : 'Instagram Growth Report + 30-Day Content Calendar' + (renewal ? ' (monthly renewal)' : ''), amt: packPrice(months) }];
-  if (bump) items.push({ label: 'Add-on: 10 reel scripts', amt: BUMP_PRICE });
+  const isAddon = String(notes.kind || '') === 'addon';
+  let items;
+  if (isAddon) {
+    const cat = addonCatalogue();
+    items = String(notes.items || '').split(',').map((id) => cat.find((a) => a.id === id.trim())).filter(Boolean).map((a) => ({ label: 'Add-on: ' + a.name, amt: a.price }));
+    if (!items.length || items.reduce((t, i) => t + i.amt, 0) !== total) items = [{ label: 'Add-on order' + (items.length ? ': ' + items.map((i) => i.label.replace('Add-on: ', '')).join(', ') : ''), amt: total }];
+  } else {
+    items = [{ label: months === 3
+      ? 'Instagram Growth Report + Content Calendar: 3-month plan (a new 30-day calendar each month)' + (renewal ? ' (renewal)' : '')
+      : 'Instagram Growth Report + 30-Day Content Calendar' + (renewal ? ' (monthly renewal)' : ''), amt: packPrice(months) }];
+    if (bump) items.push({ label: 'Add-on: 10 reel scripts', amt: BUMP_PRICE });
+  }
   const subtotal = items.reduce((s, i) => s + i.amt, 0);
   if (subtotal > total) {
-    const why = promo ? ({ referral: 'Referral discount', credit: 'Referral credit (10% off)', winback: 'Welcome-back discount' })[promo.kind] : 'Discount';
+    const why = promo ? ({ referral: 'Referral discount', credit: 'Referral credit (10% off)', winback: 'Welcome-back discount', coupon: 'Discount code ' + (promo.code || '') })[promo.kind] : 'Discount';
     items.push({ label: why, amt: total - subtotal });
   }
   const invNo = invoiceNumber(payment);
@@ -53,7 +61,9 @@ export function buildInvoice(payment, order) {
 '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #dfe8e4">' +
 '<tr><td style="background:#06201F;padding:22px 28px"><div style="font-size:20px;font-weight:700;color:#FFB72B">Vigyapan Studio</div><div style="font-size:13px;color:#9DBFB9;margin-top:2px">' + esc(SELLER.instagram) + '</div></td></tr>' +
 '<tr><td style="padding:28px 28px 8px"><div style="font-size:22px;font-weight:700;color:#10211f">Payment received. Thank you, ' + esc(String(name).split(' ')[0]) + '!</div>' +
-'<p style="font-size:15px;line-height:1.55;color:#33504b;margin:12px 0 0">We have received your payment of <b>' + inr(total) + '</b>. ' + (renewal
+'<p style="font-size:15px;line-height:1.55;color:#33504b;margin:12px 0 0">We have received your payment of <b>' + inr(total) + '</b>. ' + (isAddon
+  ? 'We have started on your add-on. We will add it to your dashboard and let you know when it is ready (usually within 48 hours).'
+  : renewal
   ? 'Your membership has been extended by ' + days + ' days. We will prepare your next report and calendar and add them to your dashboard.'
   : 'We will study your Instagram page and competitors and send your report on WhatsApp and email within <b>48 hours</b>.') + '</p></td></tr>' +
 '<tr><td style="padding:20px 28px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;border-radius:10px"><tr>' +
@@ -85,10 +95,10 @@ dash +
     'Invoice no: ' + invNo, 'Date: ' + when,
     'Payment ID: ' + payment.id, 'Order ID: ' + payment.order_id, 'Method: ' + method,
     '', 'Items:'].concat(items.map((i) => ' - ' + i.label + ': ' + (i.amt < 0 ? '-' + inr(-i.amt) : inr(i.amt))), [
-    '', renewal ? 'Your membership has been extended by ' + days + ' days.' : 'We will send your report on WhatsApp and email within 48 hours.',
+    '', isAddon ? 'We have started on your add-on and will add it to your dashboard.' : renewal ? 'Your membership has been extended by ' + days + ' days.' : 'We will send your report on WhatsApp and email within 48 hours.',
     site ? 'Your dashboard: ' + site + '/login' : '',
     SELLER.name + ' (Proprietor: ' + SELLER.proprietor + '), ' + SELLER.place + ' | Udyam Reg. No.: ' + SELLER.udyam,
     SELLER.email + ' | ' + SELLER.phone]).join('\n');
 
-  return { html, text, invNo, total, bump, renewal, months, notes, name, email, phone, method };
+  return { html, text, invNo, total, bump, renewal, months, notes, name, email, phone, method, isAddon, itemsText: items.map((i) => i.label).join('; ') };
 }
