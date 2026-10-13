@@ -1,8 +1,8 @@
 // Shared settings for the dashboard, emails and payments.
 // Keep BASE_PRICE / BUMP_PRICE in step with netlify/functions/order-start.js and public/assets/config.js.
-export const BASE_PRICE = 999;      // rupees: report + 30-day calendar (first order and every renewal)
-export const BUMP_PRICE = 299;      // rupees: 10 reel scripts add-on
-export const PACK3_PRICE = 2699;    // rupees: 3-month pack (3 monthly calendars, one every 30 days)
+export const BASE_PRICE = 1499;      // rupees: report + 30-day calendar (first order and every renewal)
+export const BUMP_PRICE = 499;      // rupees: 10 reel scripts add-on
+export const PACK3_PRICE = 3999;    // rupees: 3-month pack (3 monthly calendars, one every 30 days)
 export const PERIOD_DAYS = 30;      // one month = 30 days
 export const REFERRAL_PCT = 10;     // percent off for a friend's first order AND for the referrer's next renewal
 export const WINBACK_OFF = 100;     // rupees off a renewal for people whose plan ended two weeks ago
@@ -37,9 +37,9 @@ export const istDate = (ms, withTime) => new Date(ms).toLocaleString('en-IN', Ob
 export const cleanText = (v, max) => String(v == null ? '' : v).replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
 
 // Extra things a client can buy from the dashboard with one tap. Change names/prices here.
-// Optional: set ADDON_PRICES in Netlify like  reels10=299,bio=199  to change prices without editing code.
+// Optional: set ADDON_PRICES in Netlify like  reels10=499,bio=199  to change prices without editing code.
 const ADDON_LIST = [
-  { id: 'reels10', name: '10 extra reel scripts', price: 299, desc: 'Word-for-word scripts for 10 more reels, in Hinglish or English.' },
+  { id: 'reels10', name: '10 extra reel scripts', price: 499, desc: 'Word-for-word scripts for 10 more reels, in Hinglish or English.' },
   { id: 'bio', name: 'Instagram bio rewrite', price: 199, desc: '3 bio options written to get enquiries, with a clear call to action.' },
   { id: 'covers', name: 'Highlight cover set', price: 399, desc: '6 matching Highlight covers in your colours, ready to upload.' },
   { id: 'captions', name: '30 ready captions', price: 349, desc: '30 captions in your voice with hashtags, ready to copy and post.' },

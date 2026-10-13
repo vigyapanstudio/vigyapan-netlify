@@ -65,7 +65,7 @@ function planCard(){
     '<div class="coderow"><input id="rcode" placeholder="Discount code (optional)" autocapitalize="characters" autocomplete="off" maxlength="16" value="'+esc(RCODE?RCODE.code:"")+'"><button class="btn alt sm" id="rcodeBtn" type="button">Apply</button></div>'+
     '<div class="fine" id="priceLine" style="text-align:left">'+priceLine(q)+'</div>'+
     '<button class="btn full" id="renewBtn" type="button">Renew for '+inr(q.total)+'</button>'+
-    '<p class="fine">No automatic charge, you only pay when you tap Renew. Renewing early never wastes days: your new days start when this plan ends.</p>'+
+    '<p class="fine">Prices can change without prior notice. No automatic charge, you only pay when you tap Renew. Renewing early never wastes days: your new days start when this plan ends.</p>'+
     '<div class="msgline" id="renewMsg" role="status" aria-live="polite"></div></div>';
 }
 var DAYMS=86400000, ALLDAYS=false;
@@ -177,7 +177,7 @@ function addonCard(){
   var sel=A.items.filter(function(a){return ADD[a.id];}), tot=sel.reduce(function(t,a){return t+a.price;},0);
   var rows=A.items.map(function(a){return '<label class="addrow'+(ADD[a.id]?' on':'')+'" for="ad_'+a.id+'"><input type="checkbox" id="ad_'+a.id+'" data-add="'+a.id+'"'+(ADD[a.id]?' checked':'')+'><div><span class="nm">'+esc(a.name)+'</span><span class="ds">'+esc(a.desc)+'</span></div><span class="pr">'+inr(a.price)+'</span></label>';}).join("");
   var ords=A.orders.length?'<div class="subh">Your add-ons</div>'+A.orders.map(function(o){return '<div class="row"><div><div class="t">'+esc(o.items.join(", "))+'</div><div class="s">'+dt(o.paidAt)+' &middot; '+inr(o.amount)+' &middot; <a href="/api/invoice?pid='+encodeURIComponent(o.paymentId)+'" target="_blank" rel="noopener" style="color:var(--gold)">invoice</a></div></div><span class="stat '+(o.status==="done"?"done":"new")+'">'+(o.status==="done"?"Ready":"In progress")+'</span></div>';}).join("")+'<p class="fine" style="text-align:left">Finished add-ons appear under "Your reports and calendars" above.</p>':"";
-  return '<div class="card" id="addonCard"><h2>Add-on shop</h2><p class="sub">One-time extras. Pay securely and we start right away. Done within about 48 hours.</p>'+rows+
+  return '<div class="card" id="addonCard"><h2>Add-on shop</h2><p class="sub">One-time extras. Pay securely and we start right away. Done within about 48 hours.</p>'+rows+'<p class="fine" style="text-align:left;margin:0 0 8px">Prices can change without prior notice.</p>'+
     '<button class="btn full" id="addonBuy" type="button" style="margin-top:6px"'+(tot?'':' disabled')+'>'+(tot?'Pay '+inr(tot):'Choose an add-on')+'</button><div class="msgline" id="addonMsg" role="status" aria-live="polite"></div>'+ords+'</div>';
 }
 function manageCard(){
