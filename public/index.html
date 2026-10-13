@@ -195,6 +195,7 @@ select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,v
 .sum h3{font-family:var(--display); margin:0 0 14px; font-size:1.15rem}
 .row{display:flex; justify-content:space-between; gap:12px; padding-block:9px; border-bottom:1px dashed var(--line); font-size:.92rem}
 .row span:last-child{font-family:var(--mono); font-variant-numeric:tabular-nums}
+[hidden]{display:none !important}
 .row.total{border-bottom:0; font-family:var(--display); font-size:1.4rem; padding-top:14px}
 .row.total span:last-child{font-family:var(--display); color:var(--gold)}
 .sum ul{list-style:none; padding:0; margin:14px 0 0; display:grid; gap:8px; font-size:.88rem; color:var(--mute)}
@@ -331,9 +332,9 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
       <p class="lede">We study your Instagram page and your top competitors, then hand you a ready-to-follow plan: what to fix, what to post, and when to post it.</p>
       <div class="cta-row">
         <a class="btn" href="#order">Get my plan <span aria-hidden="true">→</span></a>
-        <span class="price-tag"><strong>₹1,499</strong> &nbsp;one-time</span>
+        <span class="price-tag"><s>₹3,000</s> <strong>₹1,499</strong> &nbsp;one-time</span>
       </div>
-      <p class="pricenote" style="margin:-6px 0 14px;font-size:.78rem;color:var(--mute)">Prices can change without prior notice.</p>
+      <p class="pricenote" style="margin:16px 0 14px;font-size:.78rem;color:var(--mute)">Prices can change without prior notice.</p>
       <div class="trust">
         <span>Ready in 48 hours</span><span>Made for small businesses</span>
       </div>
@@ -459,11 +460,11 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 
             <fieldset class="packs">
               <legend>Choose your plan</legend>
-              <label class="pack on" for="pk1"><input type="radio" name="pack" id="pk1" value="1" checked><div><b>1 month</b><span>Report + 30-day calendar</span></div><em>₹1,499</em></label>
+              <label class="pack on" for="pk1"><input type="radio" name="pack" id="pk1" value="1" checked><div><b>1 month</b><span>Report + 30-day calendar</span></div><em>₹1,499<s>₹3,000</s></em></label>
               <label class="pack" for="pk3"><input type="radio" name="pack" id="pk3" value="3"><div><b>3 months</b><span>A fresh calendar every month</span></div><em>₹3,999<s>₹4,497</s></em><i class="save">Save ₹498</i></label>
             </fieldset>
 
-            <p class="fine" style="margin:-4px 0 4px;grid-column:1/-1">Prices can change without prior notice.</p>
+            <p class="fine" style="margin:6px 0 4px;grid-column:1/-1">Prices can change without prior notice.</p>
             <label class="bump" for="bump">
               <input type="checkbox" id="bump">
               <div><b>Add 10 ready-to-shoot reel scripts for just ₹499 more</b><span>Word-for-word scripts in Hinglish or English. Most customers add this.</span></div>
@@ -600,7 +601,7 @@ function syncPrice(){
   $("total").textContent=inr(t); $("stickyTotal").textContent=inr(t);
   $("bumpRow").hidden=!$("bump").checked;
   $("planLabel").textContent = months===3 ? "Report + calendar, 3 months" : "Growth report + 30-day calendar";
-  $("planPrice").textContent = inr(months===3 ? PACK3 : BASE);
+  if(months===3){ $("planPrice").textContent = inr(PACK3); } else { $("planPrice").innerHTML = '<s style="color:var(--coral);font-weight:400">₹3,000</s> '+inr(BASE); }
   $("discRow").hidden = !hasDisc(); $("discLabel").textContent = refLabel ? "Code "+refCode+" ("+refLabel+")" : "Discount"; $("discAmt").textContent = "−"+inr(discount());
 }
 $("bump").addEventListener("change", syncPrice);
