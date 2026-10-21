@@ -7,11 +7,28 @@ import { cleanText } from './config.mjs';
 import { couponOffer } from './pricing.mjs';
 
 export const cleanCode = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16);
-export const getCoupon = async (code) => { const c = cleanCode(code); return c ? await db.get(S.coupons, c) : null; };
+// The codes used by the website pop-ups. They work without you creating anything.
+// To change or switch one off, open Admin > Discount codes: saving a code with the same name
+// replaces it, and the On/Off switch turns it off.
+export const POPUP_CODES = {
+  WELCOME20: { note: 'Website pop-up: welcome offer for new visitors' },
+  FESTIVE20: { note: 'Website pop-up: festival offer' },
+  COMEBACK20: { note: 'Website pop-up: shown when a visitor is about to leave' }
+};
+const builtIn = (c) => POPUP_CODES[c]
+  ? { code: c, type: 'pct', value: 20, maxUses: 0, used: 0, expiresAt: 0, appliesTo: 'first', active: true, note: POPUP_CODES[c].note, createdAt: 0, builtIn: true }
+  : null;
+
+export const getCoupon = async (code) => {
+  const c = cleanCode(code);
+  if (!c) return null;
+  return (await db.get(S.coupons, c)) || builtIn(c);
+};
 
 export async function listCoupons() {
-  const out = [];
-  for (const k of await db.keys(S.coupons)) { const c = await db.get(S.coupons, k); if (c) out.push(c); }
+  const out = [], seen = new Set();
+  for (const k of await db.keys(S.coupons)) { const c = await db.get(S.coupons, k); if (c) { out.push(c); seen.add(c.code); } }
+  for (const k of Object.keys(POPUP_CODES)) if (!seen.has(k)) out.push(builtIn(k));
   return out.sort((a, b) => b.createdAt - a.createdAt);
 }
 
@@ -23,7 +40,7 @@ export async function saveCoupon(input) {
   if (!(value >= 1)) return { error: 'Enter the discount amount.' };
   if (type === 'pct' && value > 90) return { error: 'A percentage discount can be at most 90.' };
   if (type === 'flat' && value > 2000) return { error: 'A rupee discount can be at most 2000.' };
-  const prev = await db.get(S.coupons, code);
+  const prev = await getCoupon(code);
   let expiresAt = 0;
   if (input.expires) {                            // "YYYY-MM-DD": valid through the end of that day (India time)
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(input.expires));
@@ -34,7 +51,7 @@ export async function saveCoupon(input) {
     code, type, value, maxUses: Math.max(0, Math.min(100000, Math.round(Number(input.maxUses) || 0))),
     used: prev ? prev.used || 0 : 0, expiresAt,
     appliesTo: ['first', 'renewal'].includes(input.appliesTo) ? input.appliesTo : 'all',
-    active: input.active !== false, note: cleanText(input.note, 80), createdAt: prev ? prev.createdAt : Date.now()
+    active: input.active !== false, note: cleanText(input.note, 80), createdAt: prev && prev.createdAt ? prev.createdAt : Date.now()
   };
   await db.put(S.coupons, code, rec);
   return { coupon: rec };

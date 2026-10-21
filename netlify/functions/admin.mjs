@@ -252,6 +252,7 @@ export default async (req, context) => {
     if (action === 'coupon-delete') {
       const c = await getCoupon(b.code);
       if (!c) return json(404, { error: 'Not found.' });
+      if (c.builtIn) return json(400, { error: 'This is a built-in pop-up code. Switch it Off instead of deleting it.' });
       await db.del(S.coupons, c.code);
       return json(200, { ok: true });
     }

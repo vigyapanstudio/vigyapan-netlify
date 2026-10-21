@@ -71,6 +71,9 @@ export default async (req, context) => {
   if (!/^[A-Za-z0-9._]{1,30}$/.test(ig)) problems.push('Instagram handle');
   if (clean(b.about, 250).length < 3) problems.push('product or service details');
   if (problems.length) return json(400, { error: 'Please check your ' + problems.join(', ') + '.' });
+  // They must follow @vigyapan_studio (we cannot check this automatically, so it is a tick-box they confirm).
+  // Not saved as a note: Razorpay allows only 15 notes, and every paid order has confirmed it.
+  if (b.follow !== true) return json(400, { error: 'Please follow @vigyapan_studio on Instagram and tick the box, so we can study your page.' });
 
   const months = cleanMonths(b.months);
   const bump = b.bump === true || b.bump === 'true';
