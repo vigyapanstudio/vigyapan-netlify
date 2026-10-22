@@ -40,23 +40,23 @@ export async function processPaidPayment(paymentId, opts) {
     if (!EMAIL_RE.test(String(inv.email || ''))) { console.log('RECEIPT SKIPPED: no valid customer email on ' + paymentId); return { ok: true, recorded, emailed: false }; }
     await sendMail({
       to: inv.email,
-      subject: (inv.isAddon ? 'Add-on order received' : inv.renewal ? 'Renewal received' : 'Payment received') + ' – Invoice ' + inv.invNo + ' | Vigyapan Studio',
+      subject: (inv.isAddon ? 'Add-on order received' : inv.isCheck ? 'Quick Page Check received' : inv.renewal ? 'Renewal received' : 'Payment received') + ' – Invoice ' + inv.invNo + ' | Vigyapan Studio',
       html: inv.html, text: inv.text, idemKey: 'vs-cust-' + payment.id
     });
     console.log('RECEIPT SENT: ' + inv.invNo + ' to ' + inv.email);
 
     const n = inv.notes;
     const line = (k, v) => v ? '<tr><td style="padding:4px 12px 4px 0;color:#7a948f;vertical-align:top">' + esc(k) + '</td><td style="padding:4px 0">' + esc(v) + '</td></tr>' : '';
-    const ownerHtml = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#10211f"><h2 style="margin:0 0 8px">' + (inv.isAddon ? 'Add-on order' : inv.renewal ? 'Renewal' : 'New paid order') + ': ' + inr(inv.total) + '</h2><table>' +
+    const ownerHtml = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#10211f"><h2 style="margin:0 0 8px">' + (inv.isAddon ? 'Add-on order' : inv.isCheck ? 'QUICK PAGE CHECK, deliver within 24 hours' : inv.upgrade ? 'Upgrade to the full plan' : inv.renewal ? 'Renewal' : 'New paid order') + ': ' + inr(inv.total) + '</h2><table>' +
       line('Name', n.name) + line('WhatsApp', '+91 ' + inv.phone) + line('Email', inv.email) + line('Instagram', n.instagram) + line('Business', n.business) +
       line('Type', n.business_type) + line('City', n.city) + line('Followers', n.followers) + line('Goal', n.goal) + line('Competitors', n.competitors) +
       line('Sells / offers', n.about) + (inv.isAddon ? line('Add-on bought', inv.itemsText) : line('Plan', n.plan)) + line('Discount used', n.promo) + (inv.isAddon ? '' : line('Reel scripts add-on', n.addon_reel_scripts)) + line('WhatsApp updates', n.wa === 'yes' ? 'Yes, opted in' : '') + line('Invoice', inv.invNo) + line('Payment ID', payment.id) + line('Order ID', payment.order_id) +
-      '</table><p>' + (inv.isAddon ? 'Do the add-on, upload the file in Admin (Customers), then mark it done.' : 'Upload their report in your admin page, then it appears in their dashboard.') + '</p><p><a href="https://wa.me/91' + esc(inv.phone) + '">Open WhatsApp chat with customer</a></p></div>';
+      '</table><p>' + (inv.isAddon ? 'Do the add-on, upload the file in Admin (Customers), then mark it done.' : (inv.isCheck ? 'Upload their 1-page Quick Page Check in your admin page within 24 hours (tick "email them"); it also pitches the full plan with the credit.' : 'Upload their report in your admin page, then it appears in their dashboard.')) + '</p><p><a href="https://wa.me/91' + esc(inv.phone) + '">Open WhatsApp chat with customer</a></p></div>';
     try {
       await sendMail({
         to: process.env.OWNER_EMAIL || SELLER.email, replyTo: inv.email,
-        subject: (inv.isAddon ? 'Add-on order ' : inv.renewal ? 'Renewal ' : 'New order ') + inr(inv.total) + ' – ' + (n.name || 'customer') + ' ' + (n.instagram || ''),
-        html: ownerHtml, text: (inv.isAddon ? 'Add-on order ' : inv.renewal ? 'Renewal ' : 'New paid order ') + inr(inv.total) + ' from ' + n.name + ' / ' + inv.email + ' / +91 ' + inv.phone + ' / ' + n.instagram,
+        subject: (inv.isAddon ? 'Add-on order ' : inv.isCheck ? 'QUICK CHECK (24 hrs) ' : inv.upgrade ? 'Upgrade to full plan ' : inv.renewal ? 'Renewal ' : 'New order ') + inr(inv.total) + ' – ' + (n.name || 'customer') + ' ' + (n.instagram || ''),
+        html: ownerHtml, text: (inv.isAddon ? 'Add-on order ' : inv.isCheck ? 'Quick Page Check (deliver in 24 hours) ' : inv.upgrade ? 'Upgrade to full plan ' : inv.renewal ? 'Renewal ' : 'New paid order ') + inr(inv.total) + ' from ' + n.name + ' / ' + inv.email + ' / +91 ' + inv.phone + ' / ' + n.instagram,
         idemKey: 'vs-own-' + payment.id
       });
     } catch (e) { console.error('owner copy failed', String(e)); }

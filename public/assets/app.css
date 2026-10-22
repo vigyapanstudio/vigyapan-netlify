@@ -22,7 +22,7 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 .card .sub{color:var(--mute);font-size:.88rem;margin:0 0 12px}
 .otp{font-size:1.8rem;letter-spacing:.4em;text-align:center;font-family:var(--mono);padding-left:.4em}
 .chip{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;border:1.5px solid;white-space:nowrap}
-.chip.active{color:var(--mint);border-color:var(--mint)}.chip.ending{color:var(--gold);border-color:var(--gold)}.chip.expired{color:var(--coral);border-color:var(--coral)}.chip.none{color:var(--mute);border-color:var(--line)}
+.chip.active{color:var(--mint);border-color:var(--mint)}.chip.ending{color:var(--gold);border-color:var(--gold)}.chip.expired{color:var(--coral);border-color:var(--coral)}.chip.check{color:var(--gold);border-color:var(--gold)}.chip.none{color:var(--mute);border-color:var(--line)}
 .top2{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .big{font-family:var(--display);font-weight:800;font-size:2.8rem;line-height:1;letter-spacing:-.03em;margin:14px 0 12px}
 .big small{font-size:1rem;font-weight:600;color:var(--mute);letter-spacing:0}

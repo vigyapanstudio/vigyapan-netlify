@@ -192,6 +192,10 @@
   }
   function inPayment() { return !!document.querySelector('.razorpay-container, iframe[src*="razorpay"]'); }
 
+  // Testing: open /?popup=welcome (or festival, comeback, audit) to see a pop-up straight away, ignoring the "seen recently" memory.
+  var forced = (/[?&]popup=(welcome|festival|comeback|audit)\b/.exec(location.search) || [])[1];
+  if (forced) { setTimeout(function () { try { sessionStorage.removeItem(SES); } catch (e) {} memVisit = { n: 0, discount: false }; show(forced); }, 800); return; }
+
   var timedKind = function () { return activeFestival() ? 'festival' : 'welcome'; };
   var tries = 0;
   function timed() {

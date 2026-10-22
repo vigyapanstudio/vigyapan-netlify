@@ -33,16 +33,37 @@ function calc(months,bump){
   var P=S.prices, sub=(months===3?P.pack3:P.renew)+(bump?P.bump:0), best=null, amt=0;
   if(S.offers.credit){var a=Math.round(sub*P.pct/100);if(a>amt){amt=a;best="credit";}}
   if(S.offers.winback){var w=P.winbackOff;if(w>amt){amt=w;best="winback";}}
+  if(S.offers.checkCredit){var k=Math.min(P.check,sub-1);if(k>amt){amt=k;best="checkcredit";}}
   if(RCODE){var c=RCODE.pct?Math.round(sub*RCODE.pct/100):Math.min(RCODE.off,sub-1);if(c>amt){amt=c;best="coupon";}}
   return {sub:sub,disc:amt,kind:best,total:sub-amt};
 }
 var RM=1, RCODE=null;
 function priceLine(q){
   if(!q.disc) return "";
-  return (q.kind==="winback"?"Welcome-back discount":q.kind==="coupon"?"Code "+RCODE.code+" ("+RCODE.label+")":"Referral credit (10% off)")+": <b>−"+inr(q.disc)+"</b>";
+  return (q.kind==="checkcredit"?"Quick Page Check credit":q.kind==="winback"?"Welcome-back discount":q.kind==="coupon"?"Code "+RCODE.code+" ("+RCODE.label+")":"Referral credit (10% off)")+": <b>−"+inr(q.disc)+"</b>";
+}
+function upgradeCard(){
+  var q=calc(RM,false), cr=S.offers.checkCredit, P=S.prices;
+  var intro=S.deliveries.length?'Your Quick Page Check is ready below. Start with the 3 fixes in it.':'Your Quick Page Check is being prepared. It will be here within '+P.checkHours+' hours of your payment, and we will also send it on WhatsApp or email.';
+  var offer=cr?'<div class="banner good">Take the full plan and your <b>'+inr(P.check)+' is credited</b>. It is applied automatically. Your credit lasts until '+dt(cr.until)+'.</div>':
+    (S.quick.used?'<div class="banner good">Your Quick Page Check credit has been used. Thank you!</div>':'<div class="banner warn">Your '+inr(P.check)+' credit has ended. You can still take the full plan at the usual price.</div>');
+  return '<div class="card"><div class="top2"><h2 style="margin:0">Your Quick Page Check</h2><span class="chip '+(S.deliveries.length?'active':'ending')+'">'+(S.deliveries.length?'Ready':'In progress')+'</span></div>'+
+    '<p class="sub" style="margin-top:8px">'+intro+'</p></div>'+
+    '<div class="card" id="upgradeCard"><h2>Get the full analysis and 30-day plan</h2><p class="sub">Everything in your check, plus 3 competitors studied, a day-by-day content calendar with captions and hashtags, and a video walkthrough. Delivered in 48 hours.</p>'+offer+
+    '<div class="packs2" role="radiogroup" aria-label="Choose your plan">'+
+      '<label class="pk'+(RM===1?' on':'')+'" for="pm1"><input type="radio" name="pm" id="pm1" value="1"'+(RM===1?' checked':'')+'><div><b>1 month</b><span>'+inr(P.renew)+'</span></div></label>'+
+      '<label class="pk'+(RM===3?' on':'')+'" for="pm3"><input type="radio" name="pm" id="pm3" value="3"'+(RM===3?' checked':'')+'><div><b>3 months</b><span>'+inr(P.pack3)+' <i>save '+inr(3*P.renew-P.pack3)+'</i></span></div></label>'+
+    '</div>'+
+    '<label class="check" for="bump"><input type="checkbox" id="bump"><div><b>Add 10 reel scripts for '+inr(P.bump)+' more</b><span>Word-for-word scripts for your first month.</span></div></label>'+
+    '<div class="coderow"><input id="rcode" placeholder="Discount code (optional)" autocapitalize="characters" autocomplete="off" maxlength="16" value="'+esc(RCODE?RCODE.code:"")+'"><button class="btn alt sm" id="rcodeBtn" type="button">Apply</button></div>'+
+    '<div class="fine" id="priceLine" style="text-align:left">'+priceLine(q)+'</div>'+
+    '<button class="btn full" id="renewBtn" type="button">Get the full plan for '+inr(q.total)+'</button>'+
+    '<p class="fine">Prices can change without prior notice. You only pay when you tap the button. Only one discount applies at a time: the one that saves you the most.</p>'+
+    '<div class="msgline" id="renewMsg" role="status" aria-live="polite"></div></div>';
 }
 function planCard(){
   var m=S.membership;
+  if(!m && S.quick) return upgradeCard();
   if(!m) return '<div class="card"><h2>Your plan</h2><p class="empty">We could not find an active plan on this email.</p></div>';
   var label={active:"Active",ending:"Ending soon",expired:"Ended"}[m.status];
   var used=Math.min(100,Math.max(0,(Date.now()-m.periodStart)/(m.periodEnd-m.periodStart)*100));
@@ -137,7 +158,7 @@ function detailsCard(){
 }
 function payCard(){
   var rows=S.payments.map(function(p){
-    return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.renewal?' &middot; renewal':' &middot; first order')+(p.bump?' &middot; with reel scripts':'')+'</div></div><a class="btn alt sm" href="/api/invoice?pid='+encodeURIComponent(p.paymentId)+'" target="_blank" rel="noopener">View invoice</a></div>';
+    return '<div class="row"><div><div class="t">'+esc(p.invoiceNo)+' &middot; '+inr(p.amount)+'</div><div class="s">'+dt(p.paidAt)+(p.check?' &middot; Quick Page Check':p.renewal?' &middot; renewal':' &middot; first order')+(p.bump?' &middot; with reel scripts':'')+'</div></div><a class="btn alt sm" href="/api/invoice?pid='+encodeURIComponent(p.paymentId)+'" target="_blank" rel="noopener">View invoice</a></div>';
   }).join("")||'<p class="empty">No payments yet.</p>';
   return '<div class="card"><h2>Payments and invoices</h2><p class="sub">Open an invoice to print it or save it as a PDF.</p>'+rows+'</div>';
 }
@@ -205,7 +226,7 @@ function render(){
 function setMsg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"+(c?" "+c:"");}}
 function wire(){
   var bump=$("bump"),rb=$("renewBtn");
-  function reprice(){var q=calc(RM,bump.checked);rb.textContent="Renew for "+inr(q.total);$("priceLine").innerHTML=priceLine(q);}
+  function reprice(){var q=calc(RM,bump.checked);rb.textContent=(S.membership?"Renew for ":"Get the full plan for ")+inr(q.total);$("priceLine").innerHTML=priceLine(q);}
   if(bump)bump.addEventListener("change",reprice);
   Array.prototype.forEach.call(document.querySelectorAll('input[name="pm"]'),function(r){r.addEventListener("change",function(){
     RM=+document.querySelector('input[name="pm"]:checked').value;
@@ -363,9 +384,9 @@ function renew(){
     var x=r[0];
     if(!x.ok){throw new Error((x.j&&x.j.error)||"Could not start the payment.");}
     var o=x.j;
-    var rz=new Razorpay({key:o.key,amount:o.amount,currency:"INR",order_id:o.orderId,name:"Vigyapan Studio",description:(RM===3?"3-month renewal":"Monthly renewal")+(bump?" + reel scripts":""),
+    var rz=new Razorpay({key:o.key,amount:o.amount,currency:"INR",order_id:o.orderId,name:"Vigyapan Studio",description:(S.membership?(RM===3?"3-month renewal":"Monthly renewal"):(RM===3?"Full plan, 3 months":"Full plan"))+(bump?" + reel scripts":""),
       image:location.origin+"/assets/logo-icon.jpg",prefill:o.prefill,theme:{color:"#FFB72B"},
-      modal:{ondismiss:function(){busy=false;rb.disabled=false;setMsg("renewMsg","Payment not completed. Tap Renew when you are ready.");}},
+      modal:{ondismiss:function(){busy=false;rb.disabled=false;setMsg("renewMsg","Payment not completed. Tap the button when you are ready.");}},
       handler:function(resp){paid(resp,o);}});
     rz.on("payment.failed",function(f){busy=false;rb.disabled=false;setMsg("renewMsg",((f&&f.error&&f.error.description)||"The payment did not go through.")+" Please try again.","bad");});
     setMsg("renewMsg","Complete your payment in the secure window.");
@@ -374,14 +395,14 @@ function renew(){
 }
 function paid(resp,o){
   setMsg("renewMsg","Payment received. Updating your plan…");
-  var before=S.payments.length;
+  var before=S.payments.length, wasQuick=!S.membership;
   fetch("/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:o.orderId,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature})})
     .then(function(r){return r.json();}).catch(function(){return {};})
     .then(function(){
       var tries=0;
       (function poll(){
         api("me").then(function(x){
-          if(x.ok&&x.j.payments.length>before){S=x.j;busy=false;RM=1;RCODE=null;flash={kind:"good",text:"Renewal received. Your plan now runs until "+dt(S.membership.expiresAt)+". Your invoice has been emailed to you."};render();window.scrollTo({top:0,behavior:"smooth"});}
+          if(x.ok&&x.j.payments.length>before){S=x.j;busy=false;RM=1;RCODE=null;flash={kind:"good",text:(wasQuick?"Thank you! Your full plan is confirmed. We will send your full analysis and 30-day plan within 48 hours. ":"Renewal received. ")+(S.membership?"Your plan now runs until "+dt(S.membership.expiresAt)+". ":"")+"Your invoice has been emailed to you."};render();window.scrollTo({top:0,behavior:"smooth"});}
           else if(++tries<6){setTimeout(poll,2500);}
           else{busy=false;flash={kind:"good",text:"Payment received. Your plan will update within a few minutes. Refresh this page shortly."};render();}
         });

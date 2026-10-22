@@ -70,6 +70,44 @@ h1 em path{stroke:var(--coral); stroke-width:5; fill:none; stroke-linecap:round;
 @keyframes draw{to{stroke-dashoffset:0}}
 .lede{color:var(--mute); font-size:1.12rem; max-width:34em; margin:0 0 26px}
 .cta-row{display:flex; flex-wrap:wrap; gap:14px; align-items:center}
+/* sample report strip (under the headline) */
+.samplestrip{display:flex; gap:18px; align-items:center; margin:0 0 22px; padding:14px 18px 14px 14px; max-width:34em; border:1.5px solid var(--line); border-radius:18px; background:var(--bg2); color:inherit; text-decoration:none; transition:border-color .15s, transform .15s}
+.samplestrip:hover{border-color:var(--gold); transform:translateY(-2px)}
+.spimgs{position:relative; flex:none; width:158px; height:132px}
+.spimgs img{position:absolute; top:0; width:98px; height:auto; border-radius:6px; border:1px solid rgba(255,255,255,.18); box-shadow:0 8px 22px rgba(0,0,0,.5); background:#fff}
+.spimgs img:first-child{left:0; transform:rotate(-5deg); top:8px}
+.spimgs img:last-child{left:58px; transform:rotate(4deg); z-index:1}
+.sptxt{display:flex; flex-direction:column; gap:3px; min-width:0}
+.sptxt b{font-family:var(--display); font-size:1.12rem; line-height:1.2}
+.sptxt small{color:var(--mute); font-size:.86rem; line-height:1.4}
+.sptxt u{color:var(--gold); font-weight:700; font-size:.92rem; text-decoration:none; margin-top:4px}
+/* WhatsApp button next to "Get my plan" */
+.btn.wab{background:transparent; color:var(--ink); border:1.5px solid #25D366; box-shadow:none; padding:15px 22px; display:inline-flex; align-items:center; gap:10px}
+.btn.wab::after{display:none}
+.btn.wab:hover{background:rgba(37,211,102,.12); transform:none; box-shadow:none}
+.btn.wab svg{width:22px; height:22px; flex:none}
+.qclink{margin:0 0 14px; font-size:.9rem; color:var(--mute)}
+.qclink a{color:var(--gold); font-weight:700}
+/* the two plan cards */
+.plans2{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:stretch}
+.plan2{position:relative; display:flex; flex-direction:column; background:var(--bg2); border:1.5px solid var(--line); border-radius:22px; padding:26px 24px}
+.plan2.main{border-color:var(--gold)}
+.plan2 .tag{position:absolute; top:-12px; left:22px; font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; background:var(--gold); color:var(--gold-ink); border-radius:99px; padding:4px 12px; font-weight:700}
+.plan2 h3{font-family:var(--display); font-size:1.4rem; margin:4px 0 6px; letter-spacing:-.01em}
+.plan2 .pr{display:flex; align-items:baseline; gap:10px; margin:0 0 4px}
+.plan2 .pr b{font-family:var(--display); font-size:2.3rem; line-height:1; letter-spacing:-.02em}
+.plan2 .pr s{color:var(--coral); font-size:1.05rem}
+.plan2 .pr small{color:var(--mute); font-family:var(--mono); font-size:.78rem}
+.plan2 p.d{margin:0 0 14px; color:var(--mute); font-size:.95rem}
+.plan2 ul{list-style:none; padding:0; margin:0 0 20px; display:grid; gap:9px; font-size:.95rem}
+.plan2 li{position:relative; padding-left:24px; line-height:1.4}
+.plan2 li::before{content:"✓"; position:absolute; left:0; color:var(--mint); font-weight:700}
+.plan2 .go{margin-top:auto}
+.plan2 .go .btn{width:100%; justify-content:center; text-align:center; display:flex}
+.plan2 .fine2{margin:10px 0 0; font-size:.8rem; color:var(--mute); text-align:center}
+@media (max-width:760px){.plans2{grid-template-columns:1fr; gap:26px}}
+@media (max-width:520px){.samplestrip{gap:12px; padding:12px}.spimgs{width:128px; height:116px}.spimgs img{width:80px}.spimgs img:last-child{left:46px}.cta-row .btn{flex:1 1 100%; justify-content:center; text-align:center}}
+
 .btn{
   font-family:var(--display); font-weight:800; font-size:1.05rem; letter-spacing:-.01em;
   background:var(--gold); color:var(--gold-ink); border:0; border-radius:14px; padding:16px 26px;
@@ -282,7 +320,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 .udyam b{display:block;font-family:var(--display);font-size:1.02rem;line-height:1.25}
 .udyam small{display:block;color:var(--mute);font-size:.82rem;line-height:1.4}
 .udyam code{font-family:var(--mono);color:var(--gold);font-weight:500;letter-spacing:.02em;font-size:.95em;white-space:nowrap}
-.packs{display:grid;grid-template-columns:1fr 1fr;gap:12px;grid-column:1/-1;border:0;padding:0;margin:0;min-width:0}
+.packs{display:grid;grid-template-columns:1fr;gap:12px;grid-column:1/-1;border:0;padding:0;margin:0;min-width:0}
 .packs legend{position:absolute;left:-9999px}
 .pack{position:relative;display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:16px;padding:14px 14px 14px 12px;cursor:pointer;background:var(--bg);transition:border-color .15s,background .15s}
 .pack input{width:20px;height:20px;accent-color:var(--gold);flex:none;margin-top:3px}
@@ -313,6 +351,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 .posts a{display:flex;justify-content:space-between;gap:14px;text-decoration:none;border-bottom:1px solid var(--line);padding-block:14px;font-family:var(--display);font-weight:600;font-size:1.05rem}
 .posts a span{color:var(--gold)}
 .posts a:hover{color:var(--gold)}
+@media (max-width:860px){.packs{grid-template-columns:1fr}}
 @media (max-width:700px){.band{grid-template-columns:1fr}.packs{grid-template-columns:1fr}}
 </style>
 
@@ -333,12 +372,18 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
       <span class="pill">Reports open · 48 hr delivery</span>
       <div class="eyebrow">Instagram growth report + content calendar</div>
       <h1>Stop guessing what to post. Get a <em>30-day plan<svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M3 8 C 40 2, 90 12, 130 6 S 185 4, 197 7"/></svg></em> in 48 hours.</h1>
+      <a class="samplestrip" href="/assets/Vigyapan-Studio-Sample-Instagram-Report.pdf" target="_blank" rel="noopener" aria-label="See what your report looks like: open the full sample report (PDF)">
+        <span class="spimgs"><img src="/assets/sample-page-cover.jpg" alt="Cover page of a sample Instagram growth report" width="680" height="880"><img src="/assets/sample-page-snapshot.jpg" alt="Sample report page showing an Instagram snapshot" width="680" height="880"></span>
+        <span class="sptxt"><b>See what your report looks like</b><small>A 9-page sample for a salon, with example numbers. Yours is built from your own page.</small><u>Open the full sample (PDF) →</u></span>
+      </a>
       <p class="lede">We study your Instagram page and your top competitors, then hand you a ready-to-follow plan: what to fix, what to post, and when to post it.</p>
       <div class="cta-row">
         <a class="btn" href="#order">Get my plan <span aria-hidden="true">→</span></a>
+        <a class="btn wab" id="heroWa" href="https://wa.me/917009884880?text=Hi%20Vigyapan%20Studio!%20I%20have%20a%20question%20before%20I%20order." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.85 9.85 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.29z"/></svg>Chat on WhatsApp</a>
         <span class="price-tag"><s>₹3,000</s> <strong>₹1,499</strong> &nbsp;one-time</span>
       </div>
       <p class="pricenote" style="margin:16px 0 14px;font-size:.78rem;color:var(--mute)">Prices can change without prior notice.</p>
+      <p class="qclink">Not ready for the full plan? <a href="#plans" data-pick="q">Start with a Quick Page Check for ₹299</a>.</p>
       <div class="trust">
         <span>Ready in 48 hours</span><span>Made for small businesses</span>
       </div>
@@ -367,6 +412,41 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 
 <div class="wrap">
 <main>
+  <section id="plans">
+    <div class="eyebrow">Choose where to start</div>
+    <h2>Two ways to get your page checked.</h2>
+    <div class="plans2">
+      <article class="plan2">
+        <h3>Quick Page Check</h3>
+        <div class="pr"><b>₹299</b><small>one-time</small></div>
+        <p class="d">A fast look at your page, when you want one honest opinion before going deeper.</p>
+        <ul>
+          <li><b>1-page report</b> on your Instagram page</li>
+          <li><b>3 clear fixes</b> you can do this week</li>
+          <li>Delivered in <b>24 hours</b></li>
+          <li>Want more later? Your <b>₹299 is credited</b> when you take the full plan within 30 days</li>
+        </ul>
+        <div class="go"><a class="btn alt" href="#order" data-pick="q">Start with a Quick Check</a></div>
+        <p class="fine2">No competitor study or calendar in this one.</p>
+      </article>
+      <article class="plan2 main">
+        <span class="tag">Most popular</span>
+        <h3>Full Growth Plan</h3>
+        <div class="pr"><s>₹3,000</s><b>₹1,499</b><small>one-time</small></div>
+        <p class="d">Everything you need to post with a plan, not a guess.</p>
+        <ul>
+          <li>Complete <b>Instagram analysis</b> report</li>
+          <li><b>3 competitors</b> studied side by side</li>
+          <li><b>30-day content calendar</b>: a post, reel or story for every day</li>
+          <li>Captions and hashtags ready to paste</li>
+          <li>5-minute video walkthrough, delivered in <b>48 hours</b></li>
+        </ul>
+        <div class="go"><a class="btn" href="#order" data-pick="1">Get my full plan <span aria-hidden="true">→</span></a></div>
+        <p class="fine2">Prices can change without prior notice.</p>
+      </article>
+    </div>
+  </section>
+
   <section>
     <div class="eyebrow">What's inside</div>
     <h2>Everything you need to post with a plan, not a guess.</h2>
@@ -387,18 +467,6 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
         <svg viewBox="0 0 44 44" fill="none"><rect x="6" y="10" width="26" height="24" rx="6" stroke="#5EE6B8" stroke-width="3"/><path d="M32 18 L40 13 V31 L32 26" stroke="#5EE6B8" stroke-width="3" stroke-linejoin="round"/></svg>
         <h3>5-minute video walkthrough</h3><p>We explain your report on video so you know exactly what to do next.</p>
       </article>
-    </div>
-  </section>
-
-  <section>
-    <div class="eyebrow">See it first</div>
-    <h2>Want to see what you'll get?</h2>
-    <div class="sample">
-      <div>
-        <h3>Download a sample report</h3>
-        <p>A 9-page example for a salon: Instagram snapshot, competitor table, best posting times, a content calendar and ready-to-paste captions. Yours is built from your own page.</p>
-      </div>
-      <a class="btn" href="/assets/Vigyapan-Studio-Sample-Instagram-Report.pdf" target="_blank" rel="noopener">View sample (PDF)</a>
     </div>
   </section>
 
@@ -465,17 +533,18 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 
             <fieldset class="packs">
               <legend>Choose your plan</legend>
+              <label class="pack" for="pkq"><input type="radio" name="pack" id="pkq" value="q"><div><b>Quick Page Check</b><span>1-page report + 3 fixes, in 24 hours</span></div><em>₹299</em></label>
               <label class="pack on" for="pk1"><input type="radio" name="pack" id="pk1" value="1" checked><div><b>1 month</b><span>Report + 30-day calendar</span></div><em>₹1,499<s>₹3,000</s></em></label>
               <label class="pack" for="pk3"><input type="radio" name="pack" id="pk3" value="3"><div><b>3 months</b><span>A fresh calendar every month</span></div><em>₹3,999<s>₹4,497</s></em><i class="save">Save ₹498</i></label>
             </fieldset>
 
             <p class="fine" style="margin:6px 0 4px;grid-column:1/-1">Prices can change without prior notice.</p>
-            <label class="bump" for="bump">
+            <label class="bump" for="bump" id="bumpBox">
               <input type="checkbox" id="bump">
               <div><b>Add 10 ready-to-shoot reel scripts for just ₹499 more</b><span>Word-for-word scripts in Hinglish or English. Most customers add this.</span></div>
             </label>
 
-            <div class="f full"><label for="ref">Referral or discount code <small>(optional)</small></label>
+            <div class="f full" id="refWrap"><label for="ref">Referral or discount code <small>(optional)</small></label>
               <div class="refrow"><input id="ref" placeholder="Enter your code" autocapitalize="characters" autocomplete="off" maxlength="16"><button class="btn alt" type="button" id="refBtn">Apply</button></div>
               <div class="msg"></div><div class="refok" id="refOk" hidden></div></div>
 
@@ -513,7 +582,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
         <div class="row" id="bumpRow" hidden><span>10 reel scripts</span><span>₹499</span></div>
         <div class="row" id="discRow" hidden style="color:var(--mint)"><span id="discLabel">Discount</span><span id="discAmt">−₹0</span></div>
         <div class="row total"><span>Total</span><span id="total">₹1,499</span></div>
-        <p class="pricenote" style="margin:10px 0 0;font-size:.78rem;color:var(--mute)">Prices can change without prior notice.</p><ul><li>Delivered in 48 hours</li><li>Page report + 3 competitors</li><li>Captions and hashtags included</li><li>5-minute video walkthrough</li></ul>
+        <p class="pricenote" style="margin:10px 0 0;font-size:.78rem;color:var(--mute)">Prices can change without prior notice.</p><ul id="sumFull"><li>Delivered in 48 hours</li><li>Page report + 3 competitors</li><li>Captions and hashtags included</li><li>5-minute video walkthrough</li></ul><ul id="sumQuick" hidden><li>Delivered in 24 hours</li><li>1-page report on your page</li><li>3 clear fixes to do this week</li><li>₹299 credited if you take the full plan within 30 days</li></ul>
         <p style="margin:16px 0 0;font-size:.8rem;color:var(--mute);line-height:1.5">Udyam registered business<br><span style="font-family:var(--mono);color:var(--gold)">UDYAM-PB-12-0008441</span></p>
       </aside>
     </div>
@@ -526,6 +595,7 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
     <details><summary>Will this get me followers or sales?</summary><p>The plan shows you what to post and when, based on what works in your market. Results depend on how consistently you follow it, so we don't promise a number of followers.</p></details>
     <details><summary>Do you need my Instagram password?</summary><p>Never. We only look at your public page, so we only need your handle.</p></details>
     <details><summary>When do I get it?</summary><p>Within 48 hours of your payment being confirmed.</p></details>
+    <details><summary>What is the Quick Page Check?</summary><p>A small first step for ₹299. You get a 1-page report on your Instagram page and 3 clear fixes, delivered within 24 hours. If you later want the full analysis and 30-day plan, your ₹299 is credited when you take it within 30 days, so you pay ₹1,200 instead of ₹1,499. Prices can change without prior notice.</p></details>
     <details><summary>What is the 3-month plan?</summary><p>You pay once for three months. You get a fresh report and 30-day calendar at the start of each month, and you save ₹498 compared with paying monthly.</p></details>
     <details><summary>How does the referral code work?</summary><p>Every customer gets a personal code in their dashboard. A friend who types it at checkout gets 10% off their first order, and you get a 10% credit on your next renewal.</p></details>
     <details><summary>How do I pay?</summary><p>Fill the form, then pay on the next step with UPI, card, netbanking or wallet. Payment is handled securely by Razorpay.</p></details>
@@ -576,13 +646,14 @@ footer{padding-block:50px 20px; color:var(--mute); font-size:.85rem; display:fle
 
 <script>
 var CFG = window.VS_CONFIG || {};
-var BASE = CFG.PRICE_BASE || 1499, BUMP = CFG.PRICE_BUMP || 499, PACK3 = CFG.PRICE_PACK3 || 3999;
-var months = 1, refPct = 0, refOff = 0, refCode = "", refLabel = "";
+var BASE = CFG.PRICE_BASE || 1499, BUMP = CFG.PRICE_BUMP || 499, PACK3 = CFG.PRICE_PACK3 || 3999, CHECK = CFG.PRICE_CHECK || 299;
+var quick = false, months = 1, refPct = 0, refOff = 0, refCode = "", refLabel = "";
 var $ = function(id){ return document.getElementById(id); };
 function inr(n){ return "₹" + n.toLocaleString("en-IN"); }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
 function toast(t){ var e=$("toast"); e.textContent=t; e.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(function(){e.classList.remove("on")},3200); }
 
+(function(){ var w=$("heroWa"); if(w && CFG.WHATSAPP) w.href="https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent("Hi Vigyapan Studio! I have a question before I order."); })();
 /* --- decorative build --- */
 (function(){
   var pat=["r","p","s","p","r","p","s","r","p","s","p","s","r","p","r","p","s","p","r","s","r","p","s","p","r","p","s","r","p","s"];
@@ -597,27 +668,37 @@ function toast(t){ var e=$("toast"); e.textContent=t; e.classList.add("on"); cle
 })();
 
 /* --- price sync --- */
-function subtotal(){ return (months===3 ? PACK3 : BASE) + ($("bump").checked ? BUMP : 0); }
+function subtotal(){ return quick ? CHECK : (months===3 ? PACK3 : BASE) + ($("bump").checked ? BUMP : 0); }
 function discount(){ var s=subtotal(); return refPct ? Math.round(s*refPct/100) : (refOff ? Math.min(refOff, s-1) : 0); }
 function hasDisc(){ return !!(refPct || refOff); }
 function total(){ return subtotal() - discount(); }
 function syncPrice(){
   var t=total();
   $("total").textContent=inr(t); $("stickyTotal").textContent=inr(t);
-  $("bumpRow").hidden=!$("bump").checked;
-  $("planLabel").textContent = months===3 ? "Report + calendar, 3 months" : "Growth report + 30-day calendar";
-  if(months===3){ $("planPrice").textContent = inr(PACK3); } else { $("planPrice").innerHTML = '<s style="color:var(--coral);font-weight:400">₹3,000</s> '+inr(BASE); }
+  $("bumpRow").hidden=quick||!$("bump").checked;
+  $("bumpBox").hidden=quick; $("refWrap").hidden=quick;
+  $("sumFull").hidden=quick; $("sumQuick").hidden=!quick;
+  $("planLabel").textContent = quick ? "Quick Page Check" : months===3 ? "Report + calendar, 3 months" : "Growth report + 30-day calendar";
+  document.querySelector("#sticky small").textContent = quick ? "Ready in 24 hours" : "Ready in 48 hours";
+  if(quick){ $("planPrice").textContent = inr(CHECK); } else if(months===3){ $("planPrice").textContent = inr(PACK3); } else { $("planPrice").innerHTML = '<s style="color:var(--coral);font-weight:400">₹3,000</s> '+inr(BASE); }
   $("discRow").hidden = !hasDisc(); $("discLabel").textContent = refLabel ? "Code "+refCode+" ("+refLabel+")" : "Discount"; $("discAmt").textContent = "−"+inr(discount());
 }
 $("bump").addEventListener("change", syncPrice);
 Array.prototype.forEach.call(document.querySelectorAll('input[name="pack"]'), function(r){
   r.addEventListener("change", function(){
-    months = +document.querySelector('input[name="pack"]:checked').value;
+    var pv = document.querySelector('input[name="pack"]:checked').value;
+    quick = pv === "q"; if(!quick) months = +pv;
+    if(quick){ if(hasDisc()) clearRef(); $("ref").value=""; $("bump").checked=false; }
     Array.prototype.forEach.call(document.querySelectorAll(".pack"), function(p){ p.classList.toggle("on", p.querySelector("input").checked); });
     syncPrice();
   });
 });
 
+function selectPack(v){ var r=$(v==="q"?"pkq":v===3?"pk3":"pk1"); if(r && !r.checked){ r.checked=true; r.dispatchEvent(new Event("change")); } }
+Array.prototype.forEach.call(document.querySelectorAll("[data-pick]"), function(a){
+  a.addEventListener("click", function(){ var v=a.getAttribute("data-pick"); selectPack(v==="q"?"q":+v); if(a.getAttribute("href")==="#plans"){ return; } });
+});
+(function(){ try{ var p=new URLSearchParams(location.search).get("plan"); if(p==="check") selectPack("q"); }catch(e){} })();
 /* --- referral code --- */
 function clearRef(){ refPct=0; refOff=0; refCode=""; refLabel=""; $("refOk").hidden=true; syncPrice(); }
 function applyRef(){
@@ -629,7 +710,7 @@ function applyRef(){
     .then(function(r){ return r.json().catch(function(){return {};}).then(function(j){ return {ok:r.ok,j:j}; }); })
     .then(function(x){
       $("refBtn").disabled=false;
-      if(x.ok && x.j.ok){ refPct=x.j.pct||0; refOff=x.j.off||0; refCode=x.j.code||code; refLabel=x.j.label||""; $("ref").value=refCode; $("refOk").textContent="✓ "+(refLabel||"Discount")+" applied to your first order."; $("refOk").hidden=false; setErr("ref",""); syncPrice(); return true; }
+      if(x.ok && x.j.ok){ refPct=x.j.pct||0; refOff=x.j.off||0; refCode=x.j.code||code; refLabel=x.j.label||""; $("ref").value=refCode; if(quick) selectPack(1); $("refOk").textContent="✓ "+(refLabel||"Discount")+" applied to your first order."; $("refOk").hidden=false; setErr("ref",""); syncPrice(); return true; }
       clearRef(); setErr("ref",(x.j&&x.j.error)||"Could not check that code. Please try again."); return false;
     })
     .catch(function(){ $("refBtn").disabled=false; clearRef(); setErr("ref","No connection. Please try again."); return false; });
@@ -696,10 +777,10 @@ function showStep(n){
 }
 function setStatus(t, isErr){ var e=$("payStatus"); e.textContent=t; e.classList.toggle("err", !!isErr); }
 function waText(o){
-  return ["Hi Vigyapan Studio! I'd like to order the Instagram Growth Report + 30-Day Calendar.",
+  return ["Hi Vigyapan Studio! I'd like to order the "+(o.plan==="check"?"Quick Page Check.":"Instagram Growth Report + 30-Day Calendar."),
     "Name: "+o.name, "WhatsApp: "+o.phone, "Email: "+o.email, "Instagram: @"+o.ig+" (I follow @vigyapan_studio)", "Business: "+o.biz+" ("+o.type+", "+o.city+")",
     "Followers: "+o.followers, "Goal: "+o.goal, "Competitors: "+(o.comp||"Please choose for me"), "Sells: "+o.about,
-    "Plan: "+(o.months===3?"3 months":"1 month"), o.referral?("Code: "+o.referral):"",
+    "Plan: "+(o.plan==="check"?"Quick Page Check":o.months===3?"3 months":"1 month"), o.referral?("Code: "+o.referral):"",
     "Add-on: "+(o.bump?"10 reel scripts (+"+inr(BUMP)+")":"No"), "Amount: "+inr(o.amount)].filter(Boolean).join("\n");
 }
 
@@ -716,10 +797,10 @@ $("form").addEventListener("submit", function(e){
 function goPay(){
   var v=function(id){return $(id).value.trim();};
   order={ name:v("name"), phone:cleanPhone(v("phone")), email:v("email"), ig:cleanIg(v("ig")), biz:v("biz"), type:v("type"), city:v("city"),
-    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, months:months, referral:hasDisc()?refCode:"", wa:$("wa").checked, follow:$("follow").checked, amount:total() };
+    followers:v("followers"), goal:v("goal"), comp:v("comp"), about:v("about"), bump:$("bump").checked, months:months, referral:hasDisc()?refCode:"", wa:$("wa").checked, follow:$("follow").checked, plan:quick?"check":"", amount:total() };
   session=null;
   $("payTotal").textContent=inr(order.amount);
-  $("payLine").textContent=(months===3?"Growth report + calendar, 3 months":"Growth report + 30-day calendar")+(order.bump?" + 10 reel scripts":"")+(hasDisc()?" (discount applied)":"");
+  $("payLine").textContent=(quick?"Quick Page Check: 1-page report + 3 fixes":months===3?"Growth report + calendar, 3 months":"Growth report + 30-day calendar")+(order.bump?" + 10 reel scripts":"")+(hasDisc()?" (discount applied)":"");
   $("payBtn").innerHTML="Pay "+inr(order.amount)+" securely <span aria-hidden=\"true\">→</span>";
   $("recap").innerHTML="<div><b>"+esc(order.name)+"</b> · "+esc(order.phone)+"</div><div>@"+esc(order.ig)+" · "+esc(order.biz)+"</div><div>"+esc(order.email)+"</div>";
   $("waBtn").href="https://wa.me/"+(CFG.WHATSAPP||"917009884880")+"?text="+encodeURIComponent(waText(order));
@@ -775,7 +856,7 @@ function onPaid(resp){
     .then(function(j){ verified=!!(j&&j.verified); })
     .catch(function(){ verified=false; })
     .then(function(){
-      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, email:order.email, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump, months:order.months,
+      try{ sessionStorage.setItem("vs_order", JSON.stringify({ name:order.name, email:order.email, ig:order.ig, biz:order.biz, amount:order.amount, bump:order.bump, months:order.months, plan:order.plan,
         orderId:session.orderId, paymentId:resp.razorpay_payment_id, verified:verified })); }catch(e){}
       location.href="/thank-you";
     });

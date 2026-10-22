@@ -3,6 +3,9 @@
 export const BASE_PRICE = 1499;      // rupees: report + 30-day calendar (first order and every renewal)
 export const BUMP_PRICE = 499;      // rupees: 10 reel scripts add-on
 export const PACK3_PRICE = 3999;    // rupees: 3-month pack (3 monthly calendars, one every 30 days)
+export const CHECK_PRICE = 299;     // rupees: Quick Page Check (1-page report + 3 fixes, delivered in 24 hours)
+export const CHECK_CREDIT_DAYS = 30; // a Quick Page Check buyer gets the full price reduced by CHECK_PRICE for this many days
+export const CHECK_HOURS = 24;       // delivery promise for a Quick Page Check
 export const PERIOD_DAYS = 30;      // one month = 30 days
 export const REFERRAL_PCT = 10;     // percent off for a friend's first order AND for the referrer's next renewal
 export const WINBACK_OFF = 100;     // rupees off a renewal for people whose plan ended two weeks ago

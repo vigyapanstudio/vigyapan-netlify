@@ -31,8 +31,8 @@
   <ol>
     <li id="mailLine" hidden style="list-style:disc">Your <b>payment receipt and invoice</b> are being emailed to <b id="mailTo"></b>. Check your spam folder if you do not see it in a few minutes. You can also log in to your <a href="/login">dashboard</a> with this email to download your reports and renew each month.</li>
     <li><b>Tap the green button below</b> to send us your payment details on WhatsApp. This lets us start straight away and chat with you.</li>
-    <li>We study your page and your competitors and build your plan. If your Instagram account is <b>private</b>, please accept our follow request from <b>@vigyapan_studio</b> (or keep it public until your report arrives). We cannot study a private page otherwise.</li>
-    <li>You get your report, calendar and video walkthrough within <b>48 hours</b>, on WhatsApp and email.</li>
+    <li id="studyLine">We study your page and your competitors and build your plan. If your Instagram account is <b>private</b>, please accept our follow request from <b>@vigyapan_studio</b> (or keep it public until your report arrives). We cannot study a private page otherwise.</li>
+    <li id="getLine">You get your report, calendar and video walkthrough within <b>48 hours</b>, on WhatsApp and email.</li>
     <li>Log in to your <a href="/login">dashboard</a> to tick off each day you post, and find your <b>personal referral code</b>. When a friend uses it, they get 10% off and so do you.</li>
   </ol>
 </div>
@@ -56,8 +56,13 @@
     }
     if(d.email){ document.getElementById("mailTo").textContent=d.email; document.getElementById("mailLine").hidden=false; }
     var rows=[["Payment ID",d.paymentId],["Amount paid",inr(d.amount)],["Instagram","@"+d.ig],["Business",d.biz]];
-    rows.push(["Plan", d.months===3 ? "3 months (a new calendar each month)" : "1 month"]);
+    rows.push(["Plan", d.plan==="check" ? "Quick Page Check (1-page report + 3 fixes)" : d.months===3 ? "3 months (a new calendar each month)" : "1 month"]);
     if(d.bump) rows.push(["Add-on","10 reel scripts"]);
+    if(d.plan==="check"){
+      document.getElementById("tyLede").textContent="Your order is placed. Your Quick Page Check will reach you within 24 hours.";
+      document.getElementById("getLine").innerHTML="You get your <b>1-page report with 3 fixes</b> within <b>24 hours</b>, on WhatsApp and email. If you then want the full analysis and 30-day plan, your <b>₹299 is credited</b> (pay "+inr((cfg.PRICE_BASE||1499)-(cfg.PRICE_CHECK||299))+" instead of "+inr(cfg.PRICE_BASE||1499)+") when you take it within 30 days. You will find the button in your dashboard.";
+      var sl=document.getElementById("studyLine"); sl.innerHTML=sl.innerHTML.replace("and your competitors and build your plan.","and write your 1-page check.");
+    }
     var r=document.getElementById("receipt"); r.hidden=false;
     r.innerHTML=rows.map(function(x){return '<div class="r"><span>'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div>';}).join("");
     msg+="\nName: "+d.name+"\nInstagram: @"+d.ig+"\nBusiness: "+d.biz+"\nAmount paid: "+inr(d.amount)+(d.bump?" (with reel scripts add-on)":"")+"\nPayment ID: "+d.paymentId+"\nOrder ID: "+d.orderId;

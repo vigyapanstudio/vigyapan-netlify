@@ -8,7 +8,7 @@ import { processPaidPayment } from '../lib/receipt.mjs';
 import { sendMail, shell, mailReady } from '../lib/mail.mjs';
 import * as db from '../lib/db.mjs';
 import { STORES as S } from '../lib/db.mjs';
-import { siteUrl, esc, cleanText, WHATSAPP, SELLER, DAY } from '../lib/config.mjs';
+import { siteUrl, esc, cleanText, WHATSAPP, SELLER, DAY, CHECK_PRICE, CHECK_HOURS, BASE_PRICE, inr, istDate } from '../lib/config.mjs';
 import { listThreads, getThread, addFromAdmin, markSeenByAdmin } from '../lib/messages.mjs';
 import { listCoupons, saveCoupon, getCoupon } from '../lib/coupons.mjs';
 import { getAddons, allAddons, setAddonStatus } from '../lib/addons.mjs';
@@ -50,7 +50,7 @@ export default async (req, context) => {
       const now = Date.now();
       const customers = await listCustomers();
       const rows = [];
-      const stats = { total: 0, active: 0, ending: 0, expired: 0, revenue: 0, revenue30: 0 };
+      const stats = { total: 0, active: 0, ending: 0, expired: 0, revenue: 0, revenue30: 0, checks: 0, checksWaiting: 0 };
       for (const c of customers) {
         const pays = await getPayments(c.cid);
         const m = computeMembership(pays, now);
@@ -59,9 +59,13 @@ export default async (req, context) => {
         stats.total++; stats.revenue += paid;
         pays.forEach((p) => { if (now - p.paidAt < 30 * 86400000) stats.revenue30 += p.amount; });
         if (m) stats[m.status]++;
+        const lastCheck = pays.filter((p) => p.product === 'check').reduce((mx, p) => Math.max(mx, p.paidAt), 0);
+        const checkWaiting = lastCheck && !dl.some((d) => d.uploadedAt >= lastCheck);   // paid for a Quick Page Check, nothing delivered yet
+        if (lastCheck) stats.checks++;
+        if (checkWaiting) stats.checksWaiting++;
         rows.push({
           cid: c.cid, name: c.name, email: c.email, phone: c.phone, ig: c.ig, biz: c.biz,
-          status: m ? m.status : 'none', expiresAt: m ? m.expiresAt : 0, daysLeft: m ? m.daysLeft : 0,
+          status: m ? m.status : (pays.length ? 'check' : 'none'), checkDue: checkWaiting ? lastCheck + CHECK_HOURS * 3600000 : 0, expiresAt: m ? m.expiresAt : 0, daysLeft: m ? m.daysLeft : 0,
           payments: pays.length, totalPaid: paid, deliveries: dl.length,
           lastDelivery: dl.reduce((mx, d) => Math.max(mx, d.uploadedAt), 0), hasNote: !!c.nextNote
         });
@@ -89,7 +93,8 @@ export default async (req, context) => {
         calendar: m && { ideasText: cal.ideas.join('\n'), ticked: cal.ticks.length },
         referral: { code: c.refCode || await ensureRefCode(c), credits: c.credits || 0, friends: (c.referred || []).length, referredBy: c.referredBy || '' },
         winback: c.winback || null,
-        payments: pays.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, bump: p.bump, renewal: p.renewal, months: p.months || 1, promo: p.promo || '' })),
+        payments: pays.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, bump: p.bump, renewal: p.renewal, months: p.product === 'check' ? 0 : (p.months || 1), check: p.product === 'check', promo: p.promo || '' })),
+        quick: c.check || null,
         deliveries: (await getDeliveries(cid)).slice().sort((a, d) => d.uploadedAt - a.uploadedAt),
         addons: (await getAddons(cid)).map((a) => ({ paymentId: a.paymentId, items: a.items.map((i) => i.name), amount: a.amount, paidAt: a.paidAt, status: a.status })),
         prefs: { emailsOff: await isUnsub(c.email), waOptIn: !!c.waOptIn },
@@ -169,7 +174,25 @@ export default async (req, context) => {
       list.push(d);
       await db.put(S.deliveries, cid, list);
       let emailed = false;
-      if (b.notify && mailReady()) {
+      const pays = await getPayments(cid), onlyCheck = pays.length && !computeMembership(pays, Date.now());
+      const creditLive = onlyCheck && c.check && !c.check.used && c.check.until > Date.now();
+      if (b.notify && mailReady() && onlyCheck) {
+        // Quick Page Check delivery: also offers the full plan, with the check price credited.
+        try {
+          const site = siteUrl();
+          const full = BASE_PRICE - CHECK_PRICE;
+          await sendMail({
+            to: c.email, subject: 'Your Quick Page Check is ready | Vigyapan Studio',
+            html: shell({ preheader: 'Your 1-page report and 3 fixes are ready', heading: 'Your Quick Page Check is ready',
+              bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(String(c.name || 'there').split(' ')[0]) + ', your <b>' + esc(title) + '</b> is ready. Log in with this email address to download it.</p>' +
+                (creditLive ? '<p style="margin:0 0 12px"><b>Want the full picture?</b> The full Growth Report with a 30-day content plan is ' + inr(BASE_PRICE) + '. Because you did a Quick Page Check, <b>' + inr(CHECK_PRICE) + ' is credited: you pay ' + inr(full) + '</b>. Open your dashboard and tap the button there. This credit is yours until ' + istDate(c.check.until) + '.</p>' : '') +
+                '<p style="margin:0">Start with the 3 fixes in your report: they are quick to do.</p>',
+              button: site ? { text: creditLive ? 'Get the full plan for ' + inr(full) : 'Open my dashboard', url: site + '/login' } : null }),
+            text: 'Your ' + title + ' is ready. Log in to download it' + (site ? ': ' + site + '/login' : '.') + (creditLive ? ' The full plan is ' + inr(full) + ' for you (' + inr(CHECK_PRICE) + ' credited).' : ''), idemKey: 'vs-rdy-' + cid + '-' + id
+          });
+          emailed = true;
+        } catch (e) { console.error('check-ready email failed', String(e)); }
+      } else if (b.notify && mailReady()) {
         try {
           const site = siteUrl();
           await sendMail({
@@ -364,6 +387,7 @@ async function buildInsights() {
   const months = {}; keys.forEach((k) => { months[k] = { key: k, label: monthLabel(k), plans: 0, addons: 0, orders: 0, newCustomers: 0 }; });
   const status = { active: 0, ending: 0, expired: 0 }, types = {}, discounts = { total: 0, byKind: {}, byCode: {} };
   let revenue = 0, orders = 0, eligible = 0, renewed = 0, friends = 0, credits = 0, wa = 0, off = 0;
+  const quick = { sold: 0, upgraded: 0 };
   const phones = new Set(), emails = new Set();
   for (const c of customers) {
     const pays = await getPayments(c.cid);
@@ -373,9 +397,11 @@ async function buildInsights() {
     types[c.type || 'Not given'] = (types[c.type || 'Not given'] || 0) + 1;
     friends += (c.referred || []).length; credits += c.credits || 0; if (c.waOptIn) wa++;
     if (await isUnsub(c.email)) off++;
-    if (pays.length) {
-      const k0 = istMonth(pays[0].paidAt); if (months[k0]) months[k0].newCustomers++;
-      if (now - pays[0].paidAt >= 30 * DAY) { eligible++; if (pays.length > 1) renewed++; }
+    const planPays = pays.filter((p) => p.product !== 'check');
+    if (pays.some((p) => p.product === 'check')) { quick.sold++; if (planPays.length) quick.upgraded++; }
+    if (planPays.length) {
+      const k0 = istMonth(planPays[0].paidAt); if (months[k0]) months[k0].newCustomers++;
+      if (now - planPays[0].paidAt >= 30 * DAY) { eligible++; if (planPays.length > 1) renewed++; }
     }
     pays.forEach((p) => {
       revenue += p.amount; orders++;
@@ -394,7 +420,7 @@ async function buildInsights() {
   const series = keys.map((k) => months[k]);
   const last30 = series.length ? series[series.length - 1] : null;
   return {
-    series, status, revenue, addonRevenue, orders, customers: customers.length,
+    series, status, revenue, addonRevenue, orders, quick: { sold: quick.sold, upgraded: quick.upgraded, rate: quick.sold ? Math.round(quick.upgraded / quick.sold * 100) : 0 }, customers: customers.length,
     avgOrder: orders ? Math.round(revenue / orders) : 0,
     renewal: { eligible, renewed, rate: eligible ? Math.round(renewed / eligible * 100) : 0 },
     leads: { total: leads, converted, rate: leads ? Math.round(converted / leads * 100) : 0, manage },
@@ -430,7 +456,7 @@ async function buildExport(what) {
   if (what === 'payments') {
     const rows = [];
     for (const c of await listCustomers()) {
-      for (const p of await getPayments(c.cid)) rows.push([istStamp(p.paidAt), invoiceNumber(p.raw), 'Plan', c.name, c.email, p.amount, p.months || 1, p.renewal ? 'renewal' : 'first', p.bump ? 'yes' : 'no', p.promo || '', p.promoCode || '', p.promoAmt || '', p.method, p.paymentId]);
+      for (const p of await getPayments(c.cid)) rows.push([istStamp(p.paidAt), invoiceNumber(p.raw), p.product === 'check' ? 'Quick Page Check' : 'Plan', c.name, c.email, p.amount, p.product === 'check' ? '' : (p.months || 1), p.product === 'check' ? '' : (p.upgrade ? 'upgrade' : p.renewal ? 'renewal' : 'first'), p.bump ? 'yes' : 'no', p.promo || '', p.promoCode || '', p.promoAmt || '', p.method, p.paymentId]);
       for (const a of await getAddons(c.cid)) rows.push([istStamp(a.paidAt), invoiceNumber(a.raw), 'Add-on', c.name, c.email, a.amount, '', '', '', '', '', '', a.method, a.paymentId + ' (' + a.items.map((i) => i.name).join(' + ') + ')']);
     }
     rows.sort((x, y) => (x[0] < y[0] ? 1 : -1));

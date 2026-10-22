@@ -3,13 +3,13 @@ import { json, readJson } from '../lib/http.mjs';
 import { authReady, requestCode, verifyCode, sessionCookieFor, clearCookie, getSession } from '../lib/auth.mjs';
 import { getCustomer, getPayments, computeMembership, getDeliveries, updateCustomer, normEmail, ensureRefCode } from '../lib/members.mjs';
 import { getCal, tickDay, viewFor } from '../lib/calendar.mjs';
-import { quote, creditOffer, winbackOffer, planNote, promoNote, cleanMonths } from '../lib/pricing.mjs';
+import { quote, creditOffer, winbackOffer, checkCreditOffer, planNote, promoNote, cleanMonths } from '../lib/pricing.mjs';
 import * as db from '../lib/db.mjs';
 import { STORES as S } from '../lib/db.mjs';
 import { sendMail, shell, mailReady } from '../lib/mail.mjs';
 import { invoiceNumber } from '../lib/invoice.mjs';
 import { rzpCreateOrder, razorpayReady } from '../lib/razorpay.mjs';
-import { BASE_PRICE, BUMP_PRICE, PACK3_PRICE, REFERRAL_PCT, WINBACK_OFF, WHATSAPP, EMAIL_RE, SELLER, cleanText, esc, siteUrl, addons as addonCatalogue } from '../lib/config.mjs';
+import { BASE_PRICE, BUMP_PRICE, PACK3_PRICE, REFERRAL_PCT, WINBACK_OFF, CHECK_PRICE, CHECK_HOURS, WHATSAPP, EMAIL_RE, SELLER, cleanText, esc, siteUrl, addons as addonCatalogue } from '../lib/config.mjs';
 import { upcoming } from '../lib/festivals.mjs';
 import { libraryFor } from '../lib/library.mjs';
 import { getThread, addFromClient, markSeenByClient } from '../lib/messages.mjs';
@@ -22,12 +22,16 @@ import { allow } from '../lib/limits.mjs';
 
 export const config = { path: '/api/account' };
 
+// A Quick Page Check buyer can take the check price off the full plan, once, for a limited time.
+const checkCreditLive = (cust, now) => !!(cust.check && !cust.check.used && cust.check.until && now <= cust.check.until);
+
 // Which discounts this customer can use right now on a renewal.
 function renewalOffers(cust, now) {
   const offers = [];
   if ((cust.credits || 0) > 0) offers.push(creditOffer());
   const w = cust.winback;
   if (w && !w.used && w.until && now <= w.until) offers.push(winbackOffer());
+  if (checkCreditLive(cust, now)) offers.push(checkCreditOffer());
   return offers;
 }
 
@@ -82,12 +86,13 @@ export default async (req, context) => {
         membership: m && { status: m.status, expiresAt: m.expiresAt, startedAt: m.startedAt, daysLeft: m.daysLeft, periodStart: m.periodStart, periodEnd: m.periodEnd, periodNo: m.periodNo, packMonths: m.packMonths },
         calendar: m && { startMs: m.periodStart, periodNo: m.periodNo, packMonths: m.packMonths, ideas: cal.ideas, ticks: cal.ticks },
         deliveries: deliveries.map((d) => ({ id: d.id, title: d.title, month: d.month, filename: d.filename, size: d.size, uploadedAt: d.uploadedAt })),
-        payments: payments.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, method: p.method, bump: p.bump, renewal: p.renewal, months: p.months || 1 })),
+        payments: payments.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, method: p.method, bump: p.bump, renewal: p.renewal && !p.upgrade, months: p.product === 'check' ? 0 : (p.months || 1), check: p.product === 'check' })),
+        quick: cust.check ? { paidAt: cust.check.paidAt, until: cust.check.until, used: !!cust.check.used, live: checkCreditLive(cust, now) } : (payments.some((p) => p.product === 'check') ? { paidAt: 0, until: 0, used: false, live: false } : null),
         referral: { code, link: (site || '') + '/?ref=' + code, credits: cust.credits || 0, friends: (cust.referred || []).length },
-        offers: { credit: (cust.credits || 0) > 0, winback: w ? { until: w.until } : null },
+        offers: { credit: (cust.credits || 0) > 0, winback: w ? { until: w.until } : null, checkCredit: checkCreditLive(cust, now) ? { until: cust.check.until, off: CHECK_PRICE } : null },
         review: review ? { rating: review.rating, text: review.text, name: review.name, publish: !!review.publish, approved: !!review.approved } : null,
         canReview: deliveries.length > 0,
-        prices: { renew: BASE_PRICE, bump: BUMP_PRICE, pack3: PACK3_PRICE, pct: REFERRAL_PCT, winbackOff: WINBACK_OFF }, whatsapp: WHATSAPP
+        prices: { renew: BASE_PRICE, bump: BUMP_PRICE, pack3: PACK3_PRICE, pct: REFERRAL_PCT, winbackOff: WINBACK_OFF, check: CHECK_PRICE, checkHours: CHECK_HOURS }, whatsapp: WHATSAPP
       });
     }
 
@@ -204,6 +209,7 @@ export default async (req, context) => {
       if (!razorpayReady()) return json(503, { error: 'Online payment is not switched on yet.' });
       const bump = b.bump === true || b.bump === 'true';
       const months = cleanMonths(b.months);
+      const hasPlan = !!computeMembership(await getPayments(sess.cid), Date.now());   // false for someone who only bought a Quick Page Check
       const offers = renewalOffers(cust, Date.now());
       const code = cleanCode(b.code);
       if (code) {
@@ -216,7 +222,7 @@ export default async (req, context) => {
       const notes = {
         name: cust.name, phone: cust.phone, email: cust.email, instagram: '@' + cust.ig, business: cust.biz,
         business_type: cust.type, city: cust.city, followers: cust.followers, goal: cust.goal, competitors: cust.comp, about: cust.about,
-        addon_reel_scripts: bump ? 'YES' : 'no', plan: planNote(months), renewal: 'yes'
+        addon_reel_scripts: bump ? 'YES' : 'no', plan: planNote(months), renewal: hasPlan ? 'yes' : 'upgrade'
       };
       const promo = promoNote(q);
       if (promo) notes.promo = promo;

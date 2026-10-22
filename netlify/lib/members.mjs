@@ -6,8 +6,8 @@
 import { createHash } from 'node:crypto';
 import * as db from './db.mjs';
 import { STORES as S } from './db.mjs';
-import { BASE_PRICE, BUMP_PRICE, PERIOD_DAYS, REMIND_DAYS, DAY, EMAIL_RE, cleanText } from './config.mjs';
-import { monthsFromNote, parsePromo } from './pricing.mjs';
+import { BASE_PRICE, BUMP_PRICE, PERIOD_DAYS, REMIND_DAYS, DAY, EMAIL_RE, CHECK_CREDIT_DAYS, cleanText } from './config.mjs';
+import { monthsFromNote, parsePromo, isCheckPlan } from './pricing.mjs';
 import { useCoupon } from './coupons.mjs';
 
 export const normEmail = (e) => String(e || '').trim().toLowerCase();
@@ -52,13 +52,14 @@ export async function recordPayment(payment, order) {
   const cid = cidOf(email);
   const paidAt = (payment.created_at ? payment.created_at * 1000 : Date.now());
   const amount = Math.round(payment.amount / 100);
-  const months = monthsFromNote(notes.plan);
+  const isCheck = isCheckPlan(notes.plan);               // Quick Page Check: a one-off report, never a membership
+  const months = isCheck ? 0 : monthsFromNote(notes.plan);
   const promo = parsePromo(notes.promo);
   const snap = {
-    paymentId: payment.id, orderId: payment.order_id, amount, paidAt, months,
+    paymentId: payment.id, orderId: payment.order_id, amount, paidAt, months, product: isCheck ? 'check' : 'plan',
     method: payment.method || '',
     bump: notes.addon_reel_scripts != null ? /^yes/i.test(String(notes.addon_reel_scripts)) : amount >= BASE_PRICE + BUMP_PRICE,
-    renewal: String(notes.renewal || '') === 'yes',
+    renewal: /^(yes|upgrade)$/.test(String(notes.renewal || '')), upgrade: String(notes.renewal || '') === 'upgrade',
     promo: promo ? promo.kind : '', promoCode: promo ? promo.code : '', promoAmt: promo ? promo.amount : 0,
     raw: { id: payment.id, order_id: payment.order_id, amount: payment.amount, method: payment.method || '', created_at: payment.created_at || Math.floor(paidAt / 1000) },
     notes
@@ -76,7 +77,13 @@ export async function recordPayment(payment, order) {
   if (keepOld) PROFILE_FIELDS.forEach((f) => { if (!cust[f]) cust[f] = fresh[f]; });
 
   // Things that must happen once per payment (never again if the same payment is saved twice).
+  if (!alreadySaved && isCheck && !(prev && prev.check)) {
+    // First Quick Page Check: their price is credited if they buy the full plan soon after.
+    const had = (await getPayments(cid)).some((p) => p.product !== 'check' && p.paymentId !== payment.id);
+    if (!had) cust.check = { paidAt, paymentId: payment.id, until: paidAt + CHECK_CREDIT_DAYS * DAY, used: false };
+  }
   if (!alreadySaved && promo) {
+    if (promo.kind === 'checkcredit') cust.check = Object.assign({}, cust.check || {}, { used: true, usedAt: paidAt });
     if (promo.kind === 'coupon' && promo.code) { try { await useCoupon(promo.code); } catch (e) { console.error('coupon count failed', String(e)); } }
     if (promo.kind === 'credit') cust.credits = Math.max(0, (cust.credits || 0) - 1);
     if (promo.kind === 'winback') cust.winback = Object.assign({}, cust.winback || {}, { used: true });
@@ -110,7 +117,8 @@ export async function getPayments(cid) {
 }
 
 export function computeMembership(payments, now) {
-  if (!payments || !payments.length) return null;
+  payments = (payments || []).filter((p) => p.product !== 'check');     // a Quick Page Check never starts a membership
+  if (!payments.length) return null;
   now = now == null ? Date.now() : now;
   let cursor = 0; const periods = [];
   for (const p of payments) {

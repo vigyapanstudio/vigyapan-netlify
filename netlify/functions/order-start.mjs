@@ -3,7 +3,7 @@
 import { json, readJson } from '../lib/http.mjs';
 import { razorpayReady, rzpCreateOrder } from '../lib/razorpay.mjs';
 import { cleanText as clean, EMAIL_RE, REFERRAL_PCT } from '../lib/config.mjs';
-import { quote, referralOffer, planNote, promoNote, cleanMonths } from '../lib/pricing.mjs';
+import { quote, referralOffer, planNote, promoNote, cleanMonths, CHECK_NOTE } from '../lib/pricing.mjs';
 import { checkCoupon, cleanCode } from '../lib/coupons.mjs';
 import { saveCart } from '../lib/carts.mjs';
 import { findByRefCode, getCustomer, cidOf, normEmail } from '../lib/members.mjs';
@@ -75,16 +75,18 @@ export default async (req, context) => {
   // Not saved as a note: Razorpay allows only 15 notes, and every paid order has confirmed it.
   if (b.follow !== true) return json(400, { error: 'Please follow @vigyapan_studio on Instagram and tick the box, so we can study your page.' });
 
+  const isCheck = b.plan === 'check';                      // the Quick Page Check
   const months = cleanMonths(b.months);
-  const bump = b.bump === true || b.bump === 'true';
+  const bump = !isCheck && (b.bump === true || b.bump === 'true');
   const offers = [];
+  if (code && isCheck) return json(400, { error: 'Discount codes are for the full plan. Please remove the code or choose the full plan.' });
   if (code) {
     if (!(await allow('refchk', ip, 25, 3600000))) return json(429, { error: 'Too many tries. Please wait a while.' });
     const r = await checkAnyCode(code, email, phone);
     if (r.error) return json(400, { error: r.error });
     offers.push(r.offer);
   }
-  const q = quote({ months, bump, offers });
+  const q = quote({ months, bump, offers, check: isCheck });
   const receipt = ('vs_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)).slice(0, 40);
 
   // These notes show up on the payment inside your Razorpay dashboard (Razorpay allows at most 15).
@@ -99,7 +101,7 @@ export default async (req, context) => {
     competitors: clean(b.comp, 250),
     about: clean(b.about, 250),
     addon_reel_scripts: bump ? 'YES' : 'no',
-    plan: planNote(months)
+    plan: isCheck ? CHECK_NOTE : planNote(months)
   };
   const promo = promoNote(q);
   if (promo) notes.promo = promo;
@@ -107,7 +109,7 @@ export default async (req, context) => {
 
   // Remember the form so we can send ONE reminder if they do not finish paying (removed as soon as they pay).
   try {
-    if (!(await getCustomer(cidOf(email)))) {
+    if (!isCheck && !(await getCustomer(cidOf(email)))) {
       await saveCart({ name, phone, email, ig, biz: notes.business, type: notes.business_type, city: notes.city, followers: notes.followers, goal: notes.goal,
         comp: notes.competitors, about: notes.about, bump, months, code: code || '', wa: b.wa === true, total: q.total });
     }
