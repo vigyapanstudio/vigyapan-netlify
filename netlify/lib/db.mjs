@@ -37,5 +37,6 @@ export const STORES = {
   customers: 'vs-customers', payments: 'vs-payments', deliveries: 'vs-deliveries',
   files: 'vs-files', otp: 'vs-otp', reminders: 'vs-reminders', limits: 'vs-limits',
   referrals: 'vs-referrals', leads: 'vs-leads', reviews: 'vs-reviews', calendar: 'vs-calendar',
-  messages: 'vs-messages', addons: 'vs-addons', carts: 'vs-carts', coupons: 'vs-coupons', unsub: 'vs-unsub'
+  messages: 'vs-messages', addons: 'vs-addons', carts: 'vs-carts', coupons: 'vs-coupons', unsub: 'vs-unsub',
+  enquiries: 'vs-enquiries', projects: 'vs-projects'
 };

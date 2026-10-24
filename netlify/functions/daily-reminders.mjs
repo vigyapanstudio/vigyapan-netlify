@@ -1,5 +1,6 @@
 // Runs by itself every day at 9:30 AM India time (04:00 UTC).
 import { runReminders, runWinback, runReviewAsks } from '../lib/reminders.mjs';
+import { runProjectNudge } from '../lib/projects.mjs';
 import { runWeekly, runProgress, runLeadFollowups, runCartReminders } from '../lib/jobs.mjs';
 
 const safe = async (name, fn) => { try { await fn(); } catch (e) { console.error(name + ' job failed', String(e)); } };
@@ -12,5 +13,6 @@ export default async () => {
   await safe('lead follow-up', runLeadFollowups);
   await safe('winback', runWinback);
   await safe('review asks', runReviewAsks);
+  await safe('project nudge', runProjectNudge);
 };
 export const config = { schedule: '0 4 * * *' };

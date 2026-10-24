@@ -1,0 +1,22 @@
+/* "Tell us your problem" form (home and contact pages) */
+.enq{max-width:640px; margin:30px auto 0; text-align:left; background:var(--bg2); border:1px solid var(--line); border-radius:22px; padding:clamp(18px,4vw,28px)}
+.enq h3{font-family:var(--display); font-weight:800; font-size:1.35rem; margin:0 0 4px; letter-spacing:-.01em; color:var(--ink)}
+.enq .enq-sub{color:var(--mute); margin:0 0 16px; font-size:.95rem; max-width:none}
+.enq .eg{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.enq .ef{display:flex; flex-direction:column; gap:5px; min-width:0}
+.enq .ef.full{grid-column:1/-1}
+.enq label{font-size:.85rem; color:var(--mute)}
+.enq input,.enq select,.enq textarea{font:inherit; color:var(--ink); background:var(--bg); border:1.5px solid var(--line); border-radius:12px; padding:12px 13px; width:100%; min-height:46px}
+.enq textarea{min-height:104px; resize:vertical}
+.enq input:focus,.enq select:focus,.enq textarea:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(255,183,43,.16)}
+.enq input[aria-invalid="true"],.enq textarea[aria-invalid="true"]{border-color:var(--coral)}
+.enq .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+.enq .eb{margin-top:16px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+.enq .eb .btn{font-size:1rem}
+.enq .em{min-height:1.4em; font-size:.92rem; color:var(--mute); margin:12px 0 0}
+.enq .em.bad{color:var(--err,#FF8A7A)} .enq .em.good{color:var(--mint)}
+.enq .en{font-size:.78rem; color:var(--mute); margin:12px 0 0}
+.enq .en a{color:var(--mute)}
+.enq .done{text-align:center; padding:14px 6px}
+.enq .done b{display:block; font-family:var(--display); font-size:1.4rem; color:var(--mint); margin-bottom:6px}
+@media (max-width:560px){.enq .eg{grid-template-columns:1fr}}

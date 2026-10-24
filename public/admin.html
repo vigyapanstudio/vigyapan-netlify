@@ -27,6 +27,7 @@
   </div>
   <div id="tab_l" class="hide"><h2 style="margin-top:22px">Leads</h2><p class="sub">Free-audit requests, clients who want you to manage their page, and people who started an order but did not pay. Message them on WhatsApp, then tap Done.</p><div id="leads" class="stack"></div>
     <h2 style="margin-top:28px">Unfinished orders</h2><p class="sub">They filled the order form but did not pay. We email each one a single reminder after 2 hours.</p><div id="carts" class="stack"></div></div>
+  <div id="tab_e" class="hide"><h2 style="margin-top:22px">Enquiries</h2><p class="sub">Messages from the &ldquo;Tell us your problem&rdquo; form on your home and contact pages. Reply on WhatsApp, then tap Done. You also get each one by email.</p><div id="enqs" class="stack"></div></div>
   <div id="tab_m" class="hide"><h2 style="margin-top:22px">Messages</h2><p class="sub">Questions from clients in their dashboard. Your reply is shown there and emailed to them.</p><div id="threads" class="stack"></div><div id="thread" class="stack"></div></div>
   <div id="tab_a" class="hide"><h2 style="margin-top:22px">Add-on orders</h2><p class="sub">Extras clients bought from their dashboard. Upload the finished file under Customers (it shows in their reports), then tap Mark done.</p><div id="addons" class="stack"></div></div>
   <div id="tab_k" class="hide"><h2 style="margin-top:22px">Discount codes</h2><p class="sub">Make a code for a festival, an ad, or a group (for example DIWALI20 or BNI15). Customers type it in the order form or when renewing.</p>
@@ -69,14 +70,14 @@ function msg(id,t,c){var m=$(id);if(m){m.textContent=t||"";m.className="msgline"
 var LABEL={active:"Active",ending:"Ending soon",expired:"Ended",check:"Quick check",none:"-"};
 var DATA=null, filter="all", query="", sel=null, FLASH="", TAB="c";
 function showTab(t){
-  TAB=t;["c","l","m","a","k","r","i","s"].forEach(function(k){$("tab_"+k).classList.toggle("hide",k!==t);});
-  drawTabs();load();if(t==="l")loadLeads();if(t==="m")loadThreads();if(t==="a")loadAddons();if(t==="k")loadCodes();if(t==="r")loadReviews();if(t==="i")loadInsights();if(t==="s"&&!$("chk").innerHTML)runCheck(false);
+  TAB=t;["c","e","l","m","a","k","r","i","s"].forEach(function(k){$("tab_"+k).classList.toggle("hide",k!==t);});
+  drawTabs();load();if(t==="l")loadLeads();if(t==="e")loadEnquiries();if(t==="m")loadThreads();if(t==="a")loadAddons();if(t==="k")loadCodes();if(t==="r")loadReviews();if(t==="i")loadInsights();if(t==="s"&&!$("chk").innerHTML)runCheck(false);
 }
 function drawTabs(){
   var s=(DATA&&DATA.stats)||{};
-  var T=[["c","Customers"],["l","Leads"+(s.newLeads?" ("+s.newLeads+" new)":"")],["m","Messages"+(s.unreadMessages?" ("+s.unreadMessages+" new)":"")],["a","Add-ons"+(s.newAddons?" ("+s.newAddons+" to do)":"")],["k","Discount codes"],["r","Reviews"+(s.pendingReviews?" ("+s.pendingReviews+" to approve)":"")],["i","Money and growth"],["s","Setup check"]];
+  var T=[["c","Customers"],["e","Enquiries"+(s.newEnquiries?" ("+s.newEnquiries+" new)":"")],["p","Projects"+(s.activeProjects?" ("+s.activeProjects+" active)":"")+" →"],["l","Leads"+(s.newLeads?" ("+s.newLeads+" new)":"")],["m","Messages"+(s.unreadMessages?" ("+s.unreadMessages+" new)":"")],["a","Add-ons"+(s.newAddons?" ("+s.newAddons+" to do)":"")],["k","Discount codes"],["r","Reviews"+(s.pendingReviews?" ("+s.pendingReviews+" to approve)":"")],["i","Money and growth"],["s","Setup check"]];
   $("tabs").innerHTML=T.map(function(a){return '<button type="button" role="tab" data-t="'+a[0]+'" class="'+(TAB===a[0]?"on":"")+'">'+a[1]+'</button>';}).join("");
-  $("tabs").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){showTab(b.getAttribute("data-t"));});});
+  $("tabs").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){var t=b.getAttribute("data-t");if(t==="p"){location.href="/admin/projects";return;}showTab(t);});});
 }
 function loadLeads(){
   $("leads").innerHTML='<p class="empty">Loading…</p>';
@@ -96,6 +97,25 @@ function loadLeads(){
     }).join(""):'<p class="empty">No requests yet. Share your /free-audit link in your Instagram bio and ads.</p>';
     $("leads").querySelectorAll("[data-ls]").forEach(function(b){b.addEventListener("click",function(){api("lead-status",{id:b.getAttribute("data-ls"),status:b.getAttribute("data-to")}).then(function(){loadLeads();load();});});});
     $("leads").querySelectorAll("[data-ld]").forEach(function(b){b.addEventListener("click",function(){if(!confirm("Delete this request?"))return;api("lead-delete",{id:b.getAttribute("data-ld")}).then(function(){loadLeads();load();});});});
+  });
+}
+function loadEnquiries(){
+  $("enqs").innerHTML='<p class="empty">Loading…</p>';
+  api("enquiries").then(function(x){
+    if(!x.ok){$("enqs").innerHTML='<div class="banner bad">'+esc(x.j.error||"Could not load.")+'</div>';return;}
+    var E=x.j.enquiries;
+    $("enqs").innerHTML=E.length?E.map(function(e){
+      var wa="https://wa.me/91"+esc(e.phone)+"?text="+encodeURIComponent("Hi "+(e.name||"").split(" ")[0]+"! This is Nipun from Vigyapan Studio. Thanks for your message. Can we talk for 10 minutes about your requirement?");
+      return '<div class="card"><div class="top2"><h2 style="margin:0">'+esc(e.name)+'</h2><span><span class="chip none" style="margin-right:6px">'+esc(e.need)+'</span><span class="chip '+(e.status==="done"?"active":"ending")+'">'+(e.status==="done"?"Done":"New")+'</span></span></div>'+
+        '<p style="margin:10px 0;white-space:pre-wrap">'+esc(e.problem)+'</p>'+
+        '<p class="sub" style="margin:6px 0 0">'+dt(e.createdAt)+' &middot; +91 '+esc(e.phone)+(e.email?" &middot; "+esc(e.email):"")+' &middot; from the '+esc(e.source||"home")+' page</p>'+
+        '<p style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa+'">Reply on WhatsApp</a>'+
+        '<a class="btn alt sm" href="/admin/projects?new='+encodeURIComponent(e.id)+'">Start a project</a>'+
+        '<button class="btn alt sm" type="button" data-es="'+esc(e.id)+'" data-to="'+(e.status==="done"?"new":"done")+'">'+(e.status==="done"?"Mark as new":"Mark done")+'</button>'+
+        '<button class="btn alt sm" type="button" data-ed="'+esc(e.id)+'">Delete</button></p></div>';
+    }).join(""):'<p class="empty">No enquiries yet. They appear here when someone uses the form on your home or contact page.</p>';
+    $("enqs").querySelectorAll("[data-es]").forEach(function(b){b.addEventListener("click",function(){api("enquiry-status",{id:b.getAttribute("data-es"),status:b.getAttribute("data-to")}).then(function(){loadEnquiries();load();});});});
+    $("enqs").querySelectorAll("[data-ed]").forEach(function(b){b.addEventListener("click",function(){if(!confirm("Delete this enquiry?"))return;api("enquiry-delete",{id:b.getAttribute("data-ed")}).then(function(){loadEnquiries();load();});});});
   });
 }
 function loadReviews(){

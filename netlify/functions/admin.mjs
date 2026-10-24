@@ -75,6 +75,10 @@ export default async (req, context) => {
       for (const k of await db.keys(S.leads)) { const l = await db.get(S.leads, k); if (l && l.status === 'new') newLeads++; }
       for (const k of await db.keys(S.reviews)) { const r = await db.get(S.reviews, k); if (r && r.publish && !r.approved) pendingReviews++; }
       stats.newLeads = newLeads; stats.pendingReviews = pendingReviews;
+      let newEnq = 0, activeProjects = 0;
+      for (const k of await db.keys(S.enquiries)) { const e = await db.get(S.enquiries, k); if (e && e.status === 'new') newEnq++; }
+      for (const k of await db.keys(S.projects)) { const pr = await db.get(S.projects, k); if (pr && ['accepted', 'building', 'testing'].includes(pr.status)) activeProjects++; }
+      stats.newEnquiries = newEnq; stats.activeProjects = activeProjects;
       stats.unreadMessages = (await listThreads()).filter((t) => t.unreadAdmin).length;
       stats.newAddons = (await allAddons()).filter((a) => a.status !== 'done').length;
       return json(200, { customers: rows, stats });
@@ -117,6 +121,26 @@ export default async (req, context) => {
       out.sort((a, d) => d.createdAt - a.createdAt);
       const carts = (await listCarts()).map((c) => ({ rid: c.rid, name: c.name, phone: c.phone, email: c.email, ig: c.ig, type: c.type, total: c.total, months: c.months, updatedAt: c.updatedAt, emailedAt: c.emailedAt || 0 }));
       return json(200, { leads: out.slice(0, 300), carts: carts.slice(0, 200) });
+    }
+    if (action === 'enquiries') {
+      const out = [];
+      for (const k of await db.keys(S.enquiries)) { const e = await db.get(S.enquiries, k); if (e) out.push(e); }
+      out.sort((x, y) => y.createdAt - x.createdAt);
+      return json(200, { enquiries: out.slice(0, 300) });
+    }
+    if (action === 'enquiry-status') {
+      const id = String(b.id || '');
+      const e = await db.get(S.enquiries, id);
+      if (!e) return json(404, { error: 'Not found.' });
+      e.status = b.status === 'done' ? 'done' : 'new';
+      await db.put(S.enquiries, id, e);
+      return json(200, { ok: true });
+    }
+    if (action === 'enquiry-delete') {
+      const id = String(b.id || '');
+      if (!(await db.get(S.enquiries, id))) return json(404, { error: 'Not found.' });
+      await db.del(S.enquiries, id);
+      return json(200, { ok: true });
     }
     if (action === 'lead-status') {
       const id = String(b.id || '');

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects | Admin | Vigyapan Studio</title><meta name="robots" content="noindex"><meta name="theme-color" content="#06201F">
+<link rel="icon" type="image/jpeg" href="/assets/logo-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/app.css">
+<style>
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.kp div{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px}.kp b{display:block;font-family:var(--display);font-size:1.25rem}.kp span{color:var(--mute);font-size:.78rem}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+.steps{display:flex;gap:6px;margin:10px 0 0}.steps i{flex:1;height:6px;border-radius:3px;background:var(--line)}.steps i.on{background:var(--gold)}
+.hint{color:var(--mute);font-size:.82rem;margin:4px 0 0}
+label{font-size:.85rem;color:var(--mute)}
+.card h3{font-family:var(--display);font-size:1.1rem;margin:0 0 8px}
+.upd{border-top:1px dashed var(--line);padding:12px 0}.upd ul{margin:4px 0 8px;padding-left:20px}
+.cb{display:flex;gap:10px;align-items:center;font-size:.92rem;color:var(--ink)}.cb input{width:auto}
+</style>
+<script src="/assets/config.js"></script></head><body><div class="wrap wide"><header class="top"><a class="logo" href="/"><img alt="Vigyapan Studio logo" width="40" height="40" src="/assets/logo-icon.jpg"> Vigyapan Studio</a><a class="back" href="/admin">← Back to admin</a></header><main>
+<div id="noauth" class="hide"><div class="eyebrow">Owner area</div><h1>Please log in</h1><p class="sub" style="margin-top:10px">Log in on the admin page first, then come back here.</p><p><a class="btn" href="/admin">Go to admin login</a></p></div>
+<div id="app" class="hide">
+  <div class="eyebrow">Owner area</div><h1>Client projects</h1>
+  <p class="sub" style="margin-top:6px">Make a quotation, collect the advance and the balance, send an invoice for each payment, and email your client a weekly update. Everything for one client stays in one place.</p>
+  <div id="msg" class="msgline" role="status" aria-live="polite"></div>
+  <div id="v"></div>
+</div>
+</main></div>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function inr(n){return "₹"+Number(n||0).toLocaleString("en-IN");}
+function dt(ms){return ms?new Date(ms).toLocaleDateString("en-IN",{timeZone:"Asia/Kolkata",day:"numeric",month:"short",year:"numeric"}):"-";}
+function api(a,d){return fetch("/api/projects",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:a},d||{}))}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,status:r.status,j:j};});});}
+function say(t,c){var m=$("msg");m.textContent=t||"";m.className="msgline"+(c?" "+c:"");if(t)window.scrollTo({top:0,behavior:"smooth"});}
+var D=null, P=[], cur=null;
+var STEP={quote:1,accepted:1,building:2,testing:3,delivered:4,closed:4}, STEPN=["Planning","Building","Testing","Delivered"];
+function label(s){var r=(D.statuses||[]).filter(function(x){return x[0]===s;})[0];return r?r[1]:s;}
+function chipClass(s){return s==="delivered"||s==="closed"?"active":(s==="building"||s==="testing"||s==="accepted"?"ending":"none");}
+function find(id){return P.filter(function(p){return p.id===id;})[0];}
+
+function load(openId, newFromEnq){
+  return api("list").then(function(x){
+    if(x.status===401){$("noauth").classList.remove("hide");$("app").classList.add("hide");return;}
+    if(!x.ok){$("app").classList.remove("hide");say(x.j.error||"Could not load.","bad");return;}
+    D=x.j;P=D.projects;$("app").classList.remove("hide");
+    if(newFromEnq){return api("prefill",{enquiryId:newFromEnq}).then(function(r){showForm(null,r.ok?r.j:null);});}
+    if(openId&&find(openId))showProject(openId);else showList();
+  });
+}
+function showList(){
+  cur=null;
+  var h='<p class="acts" style="margin:18px 0 0"><button class="btn sm" id="newp" type="button">+ New project</button></p><div class="stack">';
+  h+=P.length?P.map(function(p){
+    var late=(p.status==="building"||p.status==="testing"||p.status==="accepted")&&p.lastUpdate&&(Date.now()-p.lastUpdate>6*86400000);
+    return '<div class="card" style="cursor:pointer" data-open="'+esc(p.id)+'"><div class="top2"><h2 style="margin:0">'+esc(p.title)+'</h2><span class="chip '+chipClass(p.status)+'">'+esc(label(p.status))+'</span></div>'+
+      '<p class="sub" style="margin:6px 0 0">'+esc(p.client.name)+(p.client.business?" &middot; "+esc(p.client.business):"")+' &middot; '+inr(p.price)+' &middot; paid '+inr(p.paid)+(p.balance?' &middot; <b style="color:var(--gold)">balance '+inr(p.balance)+'</b>':' &middot; <b style="color:var(--mint)">fully paid</b>')+'</p>'+
+      (late?'<p class="hint" style="color:var(--gold)">No update sent for '+Math.floor((Date.now()-p.lastUpdate)/86400000)+' days. Time to email your client.</p>':'')+'</div>';
+  }).join(""):'<p class="empty">No projects yet. Tap &ldquo;New project&rdquo; when someone is ready for a quotation.</p>';
+  h+='</div>';$("v").innerHTML=h;
+  $("newp").addEventListener("click",function(){showForm(null,null);});
+  $("v").querySelectorAll("[data-open]").forEach(function(c){c.addEventListener("click",function(){showProject(c.getAttribute("data-open"));});});
+}
+
+function showForm(p,pre){
+  var c=(p&&p.client)||(pre&&pre.client)||{};
+  var kinds=Object.keys(D.kinds).map(function(k){return '<option value="'+k+'"'+(((p&&p.kind)||(pre&&pre.kind)||"website")===k?" selected":"")+'>'+esc(D.kinds[k])+'</option>';}).join("");
+  var terms=(p&&p.terms&&p.terms.length?p.terms:D.defaultTerms).join("\n");
+  $("v").innerHTML='<p class="acts" style="margin:18px 0 0"><button class="btn alt sm" type="button" id="back">← '+(p?"Back to project":"All projects")+'</button></p>'+
+  '<form id="pf" class="card" style="margin-top:14px" novalidate><h2>'+(p?"Edit project":"New project and quotation")+'</h2>'+
+  (pre&&pre.note?'<div class="banner warn" style="margin:0 0 14px"><b>Their message:</b> '+esc(pre.note)+'</div>':'')+
+  '<div class="grid2"><div class="f"><label for="cn">Client name</label><input id="cn" value="'+esc(c.name||"")+'" maxlength="80"></div><div class="f"><label for="cb">Business name (optional)</label><input id="cb" value="'+esc(c.business||"")+'" maxlength="100"></div>'+
+  '<div class="f"><label for="ce">Client email (needed to email the quotation)</label><input id="ce" type="email" value="'+esc(c.email||"")+'"></div><div class="f"><label for="cp">Client mobile (10 digits)</label><input id="cp" inputmode="numeric" value="'+esc(c.phone||"")+'"></div></div>'+
+  '<div class="grid2" style="margin-top:14px"><div class="f"><label for="pt">Project title</label><input id="pt" value="'+esc(p?p.title:"")+'" placeholder="Website for Sharma Skin Clinic" maxlength="120"></div><div class="f"><label for="pk">Type</label><select id="pk">'+kinds+'</select></div></div>'+
+  '<div class="grid3" style="margin-top:14px"><div class="f"><label for="pr">Total price (₹)</label><input id="pr" inputmode="numeric" value="'+(p?p.price:"")+'"></div><div class="f"><label for="pa">Advance %</label><input id="pa" inputmode="numeric" value="'+(p?p.advancePct:50)+'"><span class="hint" id="padv"></span></div><div class="f"><label for="pd">Delivery (days)</label><input id="pd" inputmode="numeric" value="'+(p?p.deliveryDays:14)+'"></div></div>'+
+  '<div class="f" style="margin-top:14px"><label for="ps">What is included (one point per line)</label><textarea id="ps" style="min-height:130px" placeholder="5-page website (Home, About, Services, Gallery, Contact)\nOnline appointment form\nWorks well on phones\nWhatsApp button">'+esc(((p&&p.scope)||[]).join("\n"))+'</textarea></div>'+
+  '<div class="f" style="margin-top:14px"><label for="px">What is not included (one point per line, optional)</label><textarea id="px" placeholder="Logo design\nWriting the text for you">'+esc(((p&&p.exclusions)||[]).join("\n"))+'</textarea></div>'+
+  '<details style="margin-top:14px"><summary style="cursor:pointer">Terms in the agreement (already filled in, edit only if you need to)</summary><div class="f" style="margin-top:10px"><textarea id="pm" style="min-height:260px">'+esc(terms)+'</textarea><span class="hint">One term per line. These are plain, standard terms. It is a good idea to have a lawyer look at them once.</span></div></details>'+
+  '<p class="acts"><button class="btn sm" type="submit">'+(p?"Save changes":"Save project")+'</button></p></form>';
+  function adv(){var pr=parseInt($("pr").value,10)||0,pc=parseInt($("pa").value,10);if(isNaN(pc))pc=50;$("padv").textContent=pr?("Advance "+inr(Math.round(pr*pc/100))+", balance "+inr(pr-Math.round(pr*pc/100))):"";}
+  $("pr").addEventListener("input",adv);$("pa").addEventListener("input",adv);adv();
+  $("back").addEventListener("click",function(){if(p)showProject(p.id);else showList();});
+  $("pf").addEventListener("submit",function(e){
+    e.preventDefault();
+    api("save",{id:p?p.id:undefined,fromEnquiry:pre&&pre.fromEnquiry,client:{name:$("cn").value,business:$("cb").value,email:$("ce").value,phone:$("cp").value},title:$("pt").value,kind:$("pk").value,price:$("pr").value,advancePct:$("pa").value,deliveryDays:$("pd").value,scope:$("ps").value,exclusions:$("px").value,terms:$("pm").value}).then(function(x){
+      if(!x.ok){say(x.j.error||"Could not save.","bad");return;}
+      say("Saved.","good");load(x.j.project.id);
+    });
+  });
+}
+
+function showProject(id){
+  var p=find(id);if(!p){showList();return;}cur=id;
+  var st=STEP[p.status]||1;
+  var opts=D.statuses.map(function(s){return '<option value="'+s[0]+'"'+(p.status===s[0]?" selected":"")+'>'+esc(s[1])+'</option>';}).join("");
+  var mopts=Object.keys(D.methods).map(function(k){return '<option value="'+k+'">'+esc(D.methods[k])+'</option>';}).join("");
+  var today=new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
+  var wa=p.client.phone?'https://wa.me/91'+esc(p.client.phone)+'?text='+encodeURIComponent("Hi "+p.client.name.split(" ")[0]+"! This is Nipun from Vigyapan Studio. About your project: "+p.title+". "):"";
+  var h='<p class="acts" style="margin:18px 0 0"><button class="btn alt sm" type="button" id="back">← All projects</button></p>'+
+  '<div class="card" style="margin-top:14px"><div class="top2"><h2 style="margin:0">'+esc(p.title)+'</h2><span class="chip '+chipClass(p.status)+'">'+esc(label(p.status))+'</span></div>'+
+  '<p class="sub" style="margin:6px 0 0">'+esc(p.client.name)+(p.client.business?" &middot; "+esc(p.client.business):"")+(p.client.email?" &middot; "+esc(p.client.email):"")+(p.client.phone?" &middot; +91 "+esc(p.client.phone):"")+'</p>'+
+  '<div class="steps" aria-hidden="true">'+[1,2,3,4].map(function(n){return '<i class="'+(n<=st?"on":"")+'"></i>';}).join("")+'</div><p class="hint">'+STEPN[st-1]+' stage &middot; Quotation '+esc(p.quoteNo)+'</p>'+
+  '<div class="kp"><div><b>'+inr(p.price)+'</b><span>Project price</span></div><div><b>'+inr(p.paid)+'</b><span>Paid so far</span></div><div><b style="color:'+(p.balance?"var(--gold)":"var(--mint)")+'">'+inr(p.balance)+'</b><span>Balance remaining</span></div></div>'+
+  '<div class="acts"><button class="btn alt sm" id="edit" type="button">Edit details</button>'+(wa?'<a class="btn wa sm" target="_blank" rel="noopener" href="'+wa+'">WhatsApp client</a>':'')+
+  '<span class="f" style="flex-direction:row;align-items:center;gap:8px"><label for="st" style="margin:0">Stage</label><select id="st" style="width:auto;padding:9px 34px 9px 12px">'+opts+'</select></span></div></div>'+
+
+  '<div class="card"><h3>1. Quotation and agreement</h3><p class="sub">'+(p.acceptedAt?'<b style="color:var(--mint)">Accepted</b> by '+esc(p.acceptedBy)+' on '+dt(p.acceptedAt)+(p.acceptedVia?" ("+esc(p.acceptedVia)+")":""):(p.quoteSentAt?'Emailed on '+dt(p.quoteSentAt)+'. Waiting for the client to accept (valid 15 days).':'Not sent yet.'))+'</p>'+
+  '<div class="acts" style="margin-top:0"><a class="btn alt sm" target="_blank" rel="noopener" href="/api/project-doc?id='+esc(p.id)+'&type=quote">Preview quotation</a><button class="btn sm" id="sendq" type="button">'+(p.quoteSentAt?"Email it again":"Email quotation to client")+'</button>'+(p.acceptedAt?'':'<button class="btn alt sm" id="acc" type="button">Client agreed on WhatsApp</button>')+'</div><div class="msgline" id="qmsg" role="status"></div></div>'+
+
+  '<div class="card"><h3>2. Payments and invoices</h3><p class="sub">Advance to start: <b>'+inr(p.advance)+'</b> ('+p.advancePct+'%). Record each payment you receive and the invoice is made for you.</p>'+
+  (p.payments.length?p.payments.map(function(x){return '<div class="row"><div><div class="t">'+inr(x.amount)+' &middot; '+esc(D.payKinds[x.kind]||"Payment")+'</div><div class="s">'+dt(x.paidAt)+' &middot; '+esc(D.methods[x.method]||"")+(x.ref?" &middot; "+esc(x.ref):"")+' &middot; '+esc(x.invNo)+(x.emailedAt?' &middot; invoice emailed':'')+'</div></div><div class="acts" style="margin:0"><a class="btn alt sm" target="_blank" rel="noopener" href="/api/project-doc?id='+esc(p.id)+'&type=inv&pay='+esc(x.id)+'">View invoice</a><button class="btn alt sm" data-ei="'+esc(x.id)+'" type="button">Email invoice</button><button class="btn alt sm" data-dp="'+esc(x.id)+'" type="button">Remove</button></div></div>';}).join(""):'<p class="empty">No payments recorded yet.</p>')+
+  (p.balance>0?'<form id="payf" style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px" novalidate><div class="grid3"><div class="f"><label for="pk2">This is the</label><select id="pk2"><option value="advance"'+(p.paid===0?" selected":"")+'>Advance</option><option value="final"'+(p.paid>0?" selected":"")+'>Final payment</option><option value="other">Other payment</option></select></div><div class="f"><label for="pam">Amount received (₹)</label><input id="pam" inputmode="numeric" value="'+(p.paid===0?p.advance:p.balance)+'"></div><div class="f"><label for="pme">Paid by</label><select id="pme">'+mopts+'</select></div></div>'+
+  '<div class="grid3" style="margin-top:12px"><div class="f"><label for="pda">Date received</label><input id="pda" type="date" value="'+today+'" max="'+today+'"></div><div class="f"><label for="pre">Reference (UPI ID, cheque no., optional)</label><input id="pre" maxlength="80"></div><div class="f"><label for="pno">Note on invoice (optional)</label><input id="pno" maxlength="300"></div></div>'+
+  '<p class="acts"><label class="cb"><input type="checkbox" id="pem" '+(p.client.email?"checked":"disabled")+'> Email the invoice to the client</label><button class="btn sm" type="submit">Record payment</button></p></form>':'')+
+  '<div class="msgline" id="pmsg" role="status"></div></div>'+
+
+  '<div class="card"><h3>3. Weekly updates</h3><p class="sub">Send one short email each week. Clients who feel informed stay calm and happy. You also get a reminder email on Fridays when an update is due.</p>'+
+  '<form id="uf" novalidate><div class="grid2"><div class="f"><label for="ud">Done this week (one point per line)</label><textarea id="ud" placeholder="Home page design finished\nContact form connected"></textarea></div><div class="f"><label for="un">Coming next week (one point per line)</label><textarea id="un" placeholder="Gallery page\nTesting on phones"></textarea></div></div>'+
+  '<div class="grid2" style="margin-top:12px"><div class="f"><label for="ur">What we need from you (optional, one per line)</label><textarea id="ur" style="min-height:70px" placeholder="Clinic photos\nList of doctors and timings"></textarea></div><div class="f"><label for="uo">Extra note (optional)</label><textarea id="uo" style="min-height:70px"></textarea></div></div>'+
+  '<p class="acts"><span class="f" style="flex-direction:row;align-items:center;gap:8px"><label for="us" style="margin:0">Stage</label><select id="us" style="width:auto;padding:9px 34px 9px 12px">'+opts+'</select></span><label class="cb"><input type="checkbox" id="uem" '+(p.client.email?"checked":"disabled")+'> Email this to the client</label><button class="btn sm" type="submit">Save update</button></p></form><div class="msgline" id="umsg" role="status"></div>'+
+  (p.updates.length?p.updates.map(function(u){return '<div class="upd"><div class="s" style="color:var(--mute);font-size:.82rem">'+dt(u.at)+' &middot; '+esc(label(u.status))+(u.emailedAt?' &middot; emailed':' &middot; not emailed')+'</div>'+(u.done&&u.done.length?'<b>Done</b><ul>'+u.done.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul>':'')+(u.next&&u.next.length?'<b>Next</b><ul>'+u.next.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul>':'')+(u.need&&u.need.length?'<b>We need from you</b><ul>'+u.need.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul>':'')+(u.note?'<p style="margin:4px 0;white-space:pre-wrap">'+esc(u.note)+'</p>':'')+'</div>';}).join(""):'')+'</div>'+
+  (p.payments.length?'':'<p class="acts"><button class="btn alt sm" id="delp" type="button">Delete this project</button></p>');
+  $("v").innerHTML=h;
+  $("back").addEventListener("click",showList);
+  $("edit").addEventListener("click",function(){showForm(p,null);});
+  $("st").addEventListener("change",function(){api("set-status",{id:p.id,status:$("st").value}).then(function(x){if(!x.ok)say(x.j.error,"bad");else load(p.id);});});
+  $("sendq").addEventListener("click",function(){
+    if(!p.client.email){$("qmsg").textContent="Add the client's email address first (Edit details).";$("qmsg").className="msgline bad";return;}
+    if(!confirm("Email the quotation to "+p.client.email+"?"))return;
+    $("qmsg").textContent="Sending…";
+    api("send-quote",{id:p.id}).then(function(x){if(!x.ok){$("qmsg").textContent=x.j.error||"Could not send.";$("qmsg").className="msgline bad";return;}load(p.id).then(function(){say("Quotation emailed to "+p.client.email+".","good");});});
+  });
+  if($("acc"))$("acc").addEventListener("click",function(){if(!confirm("Mark the quotation as accepted by "+p.client.name+"?"))return;api("mark-accepted",{id:p.id}).then(function(x){if(!x.ok)say(x.j.error,"bad");else load(p.id);});});
+  if($("payf"))$("payf").addEventListener("submit",function(e){
+    e.preventDefault();
+    api("add-payment",{id:p.id,kind:$("pk2").value,amount:$("pam").value,method:$("pme").value,date:$("pda").value,ref:$("pre").value,note:$("pno").value,email:$("pem").checked}).then(function(x){
+      if(!x.ok){$("pmsg").textContent=x.j.error||"Could not save.";$("pmsg").className="msgline bad";return;}
+      load(p.id).then(function(){say(x.j.emailed?"Payment recorded and invoice emailed.":(x.j.mailError?"Payment recorded, but the invoice email failed: "+x.j.mailError:"Payment recorded."),x.j.mailError?"bad":"good");});
+    });
+  });
+  $("v").querySelectorAll("[data-ei]").forEach(function(b){b.addEventListener("click",function(){if(!p.client.email){say("Add the client's email address first.","bad");return;}if(!confirm("Email this invoice to "+p.client.email+"?"))return;api("email-invoice",{id:p.id,payId:b.getAttribute("data-ei")}).then(function(x){if(!x.ok)say(x.j.error,"bad");else load(p.id).then(function(){say("Invoice emailed.","good");});});});});
+  $("v").querySelectorAll("[data-dp]").forEach(function(b){b.addEventListener("click",function(){if(!confirm("Remove this payment record? Use this only to fix a mistake."))return;api("del-payment",{id:p.id,payId:b.getAttribute("data-dp")}).then(function(x){if(!x.ok)say(x.j.error,"bad");else load(p.id);});});});
+  $("uf").addEventListener("submit",function(e){
+    e.preventDefault();
+    api("add-update",{id:p.id,done:$("ud").value,next:$("un").value,need:$("ur").value,note:$("uo").value,status:$("us").value,send:$("uem").checked}).then(function(x){
+      if(!x.ok){$("umsg").textContent=x.j.error||"Could not save.";$("umsg").className="msgline bad";return;}
+      load(p.id).then(function(){say(x.j.emailed?"Update saved and emailed.":(x.j.mailError?"Update saved, but the email failed: "+x.j.mailError:"Update saved."),x.j.mailError?"bad":"good");});
+    });
+  });
+  if($("delp"))$("delp").addEventListener("click",function(){if(!confirm("Delete this project?"))return;api("delete",{id:p.id}).then(function(x){if(!x.ok)say(x.j.error,"bad");else{say("Deleted.","good");load();}});});
+}
+var q=new URLSearchParams(location.search);
+load(null,q.get("new")||"");
+})();
+</script>
+</body></html>
