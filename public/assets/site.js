@@ -18,7 +18,7 @@
     window.fbq('track', 'PageView');
     ready = true;
     q.forEach(function (x) { send(x[0], x[1]); }); q = [];
-    if (location.pathname === '/' || /^\/(hi|pa|for)\//.test(location.pathname)) send('ViewContent', { content_name: 'Instagram Growth Report', value: c.PRICE_BASE || 1499, currency: 'INR' });
+    if (/^\/(instagram-analysis|hi|pa|for)\//.test(location.pathname)) send('ViewContent', { content_name: 'Instagram Growth Report', value: c.PRICE_BASE || 1499, currency: 'INR' });
   }
   if (c.PIXEL_ID) start(c.PIXEL_ID);
   else if (window.fetch) fetch('/api/site-config').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.pixelId) start(j.pixelId); }).catch(function () {});

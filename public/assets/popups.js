@@ -6,6 +6,7 @@
   'use strict';
   var path = location.pathname, C = window.VS_CONFIG || {};
   if (C.POPUPS === false) return;
+  if (path === '/' || path === '/index.html') return;                 // the new home page has no pop-ups
   if (/^\/(admin|dashboard|login|thank-you|privacy|terms|shipping|contact|free-audit)(\/|\.html|$)/.test(path)) return;
   if (/[?&]resume=/.test(location.search)) return;
 
@@ -137,12 +138,12 @@
         cp.textContent = T.copied; setTimeout(function () { cp.textContent = T.copy; }, 1600);
       });
       kr.appendChild(cp); card.appendChild(kr);
-      cta = el('a', 'vb', T.claim); cta.href = '/?code=' + code + '#order';
+      cta = el('a', 'vb', T.claim); cta.href = '/instagram-analysis/?code=' + code + '#order';
       cta.addEventListener('click', function (e) {
         var r = loadLocal(); r.claimed = now(); saveLocal(r);
         try { window.vsTrack && window.vsTrack('Lead', { content_name: 'Popup ' + kind }); } catch (er) {}
         var refBox = document.getElementById('ref'), refBtn = document.getElementById('refBtn');
-        if (path === '/' && refBox && refBtn) {                       // already on the order page: apply it right here
+        if (/^\/instagram-analysis(\/|\/index\.html)?$/.test(path) && refBox && refBtn) {                       // already on the order page: apply it right here
           e.preventDefault(); close();
           refBox.value = code; refBtn.click();
           var o = document.getElementById('order'); if (o && o.scrollIntoView) o.scrollIntoView({ behavior: 'smooth', block: 'start' });

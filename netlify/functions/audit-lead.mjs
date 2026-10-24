@@ -51,7 +51,7 @@ export default async (req, context) => {
           html: shell({ preheader: 'Your 3 quick tips are on the way', heading: 'Got it, ' + name.split(' ')[0] + '!',
             bodyHtml: '<p style="margin:0 0 12px">We will look at <b>@' + esc(ig) + '</b> and send you <b>3 quick tips</b> on WhatsApp (+91 ' + esc(phone) + ') within about 24 hours.</p>' +
               '<p style="margin:0;color:#7a948f;font-size:13px">If you would like the full report with a 30-day calendar, you can order it any time. There is no pressure.</p>',
-            button: site ? { text: 'See the full report', url: site + '/#order' } : null,
+            button: site ? { text: 'See the full report', url: site + '/instagram-analysis/#order' } : null,
             small: 'You asked for this on our website. We will not add you to any list.' }),
           text: 'We got your free audit request for @' + ig + '. We will send 3 quick tips on WhatsApp within about 24 hours.', idemKey: 'vs-leadc-' + id });
       } catch (e) { console.error('lead confirm mail failed', String(e)); }

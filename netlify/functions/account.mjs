@@ -88,7 +88,7 @@ export default async (req, context) => {
         deliveries: deliveries.map((d) => ({ id: d.id, title: d.title, month: d.month, filename: d.filename, size: d.size, uploadedAt: d.uploadedAt })),
         payments: payments.slice().reverse().map((p) => ({ paymentId: p.paymentId, invoiceNo: invoiceNumber(p.raw), amount: p.amount, paidAt: p.paidAt, method: p.method, bump: p.bump, renewal: p.renewal && !p.upgrade, months: p.product === 'check' ? 0 : (p.months || 1), check: p.product === 'check' })),
         quick: cust.check ? { paidAt: cust.check.paidAt, until: cust.check.until, used: !!cust.check.used, live: checkCreditLive(cust, now) } : (payments.some((p) => p.product === 'check') ? { paidAt: 0, until: 0, used: false, live: false } : null),
-        referral: { code, link: (site || '') + '/?ref=' + code, credits: cust.credits || 0, friends: (cust.referred || []).length },
+        referral: { code, link: (site || '') + '/instagram-analysis/?ref=' + code, credits: cust.credits || 0, friends: (cust.referred || []).length },
         offers: { credit: (cust.credits || 0) > 0, winback: w ? { until: w.until } : null, checkCredit: checkCreditLive(cust, now) ? { until: cust.check.until, off: CHECK_PRICE } : null },
         review: review ? { rating: review.rating, text: review.text, name: review.name, publish: !!review.publish, approved: !!review.approved } : null,
         canReview: deliveries.length > 0,

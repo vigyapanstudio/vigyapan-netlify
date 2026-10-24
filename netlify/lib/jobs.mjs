@@ -161,8 +161,8 @@ export async function runLeadFollowups(now) {
           bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(fn) + ', a few days ago you asked us to look at <b>@' + esc(l.ig) + '</b>. We hope the tips were useful.</p>' +
             '<p style="margin:0 0 12px">If you would like the full picture, the <b>Instagram Growth Report + 30-Day Content Calendar</b> covers your page, 3 competitors, best posting times, hashtags and a day-by-day plan, delivered within 48 hours for ' + inr(BASE_PRICE) + '.</p>' +
             '<p style="margin:0;color:#7a948f;font-size:13px">No pressure. If you have a question first, just reply to this email or WhatsApp ' + esc(SELLER.phone) + '.</p>',
-          button: site ? { text: 'See the full report', url: site + '/#order' } : null, unsubUrl: url, small: 'You asked for a free audit on our website, so we are following up once.' }),
-        text: 'A few days ago you asked us to look at @' + l.ig + '. The full Growth Report + 30-Day Calendar is ' + inr(BASE_PRICE) + (site ? ': ' + site + '/#order' : '.') + (url ? '\nStop these emails: ' + url : ''),
+          button: site ? { text: 'See the full report', url: site + '/instagram-analysis/#order' } : null, unsubUrl: url, small: 'You asked for a free audit on our website, so we are following up once.' }),
+        text: 'A few days ago you asked us to look at @' + l.ig + '. The full Growth Report + 30-Day Calendar is ' + inr(BASE_PRICE) + (site ? ': ' + site + '/instagram-analysis/#order' : '.') + (url ? '\nStop these emails: ' + url : ''),
         unsubUrl: url, idemKey: 'vs-fu-' + l.id });
       l.followedUp = now; await db.put(S.leads, k, l);
       out.push({ email: l.email });
@@ -193,8 +193,8 @@ export async function runCartReminders(now) {
         html: shell({ preheader: 'Your details are saved. Finish in a minute.', heading: 'You are one step away',
           bodyHtml: '<p style="margin:0 0 12px">Hi ' + esc(fn) + ', you started ordering your Instagram Growth Report + 30-Day Calendar for <b>@' + esc(c.ig) + '</b> but did not finish paying. Your details are saved, so it takes about a minute.</p>' +
             '<p style="margin:0;color:#7a948f;font-size:13px">If something went wrong with the payment, or you have a question, reply to this email or WhatsApp ' + esc(SELLER.phone) + '. We will help.</p>',
-          button: site ? { text: 'Finish my order', url: site + '/?resume=' + c.rid + '#order' } : null, unsubUrl: url, small: 'We send this reminder only once.' }),
-        text: 'You started an order for @' + c.ig + ' but did not finish paying. Finish here: ' + (site ? site + '/?resume=' + c.rid + '#order' : '') + (url ? '\nStop these emails: ' + url : ''),
+          button: site ? { text: 'Finish my order', url: site + '/instagram-analysis/?resume=' + c.rid + '#order' } : null, unsubUrl: url, small: 'We send this reminder only once.' }),
+        text: 'You started an order for @' + c.ig + ' but did not finish paying. Finish here: ' + (site ? site + '/instagram-analysis/?resume=' + c.rid + '#order' : '') + (url ? '\nStop these emails: ' + url : ''),
         unsubUrl: url, idemKey: 'vs-cart-' + c.rid });
       c.emailedAt = now; await db.put(S.carts, 'c-' + c.rid, c);
       out.push({ email: c.email });
