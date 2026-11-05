@@ -1,0 +1,153 @@
+/* Extra graphics for the home page only (used together with theme.css). */
+
+/* ---------- icons ---------- */
+.ico{width:54px; height:54px; border-radius:16px; display:grid !important; place-items:center; margin-bottom:14px !important; position:relative;
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.03)); border:1px solid var(--glass-line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 26px rgba(255,122,61,.18)}
+.ico svg{width:30px; height:30px; fill:none; stroke:url(#gIco); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; overflow:visible}
+html.fx [data-draw] .dr{stroke-dasharray:1; stroke-dashoffset:1; transition:stroke-dashoffset 1.5s cubic-bezier(.4,.1,.2,1) .15s}
+html.fx [data-draw].drawn .dr{stroke-dashoffset:0}
+html.fx-show [data-draw] .dr{stroke-dashoffset:0 !important}
+.card:hover .ico, .svc:hover .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 12px 32px rgba(255,122,61,.4)}
+.ico{transition:box-shadow .3s}
+
+/* ---------- section headings get a small glowing bar ---------- */
+.sec > h2::after{content:""; display:block; width:58px; height:4px; border-radius:4px; margin-top:12px; background:linear-gradient(90deg,#FFB72B,#FF7A3D,#F0467F); box-shadow:0 0 16px rgba(255,122,61,.55)}
+
+/* ---------- hero graphics ---------- */
+.stage{isolation:isolate}
+.fxbox{position:absolute; inset:-30px -12px -30px -30px; overflow:hidden; z-index:-1; pointer-events:none}
+.orb{position:absolute; left:50%; top:50%; width:400px; height:400px; margin:-200px 0 0 -200px; opacity:.6;
+  background:radial-gradient(circle at 30% 26%,rgba(255,226,140,.95),rgba(255,138,64,.8) 36%,rgba(240,70,127,.62) 66%,rgba(139,92,246,.4));
+  box-shadow:inset 0 0 70px rgba(255,255,255,.28),0 0 130px rgba(255,122,61,.38);
+  border-radius:46% 54% 62% 38% / 44% 38% 62% 56%; animation:orbmorph 13s ease-in-out infinite alternate}
+@keyframes orbmorph{
+  0%{border-radius:46% 54% 62% 38% / 44% 38% 62% 56%; transform:rotate(0) scale(1)}
+  50%{border-radius:62% 38% 44% 56% / 52% 62% 38% 48%; transform:rotate(80deg) scale(1.07)}
+  100%{border-radius:38% 62% 56% 44% / 60% 40% 60% 40%; transform:rotate(170deg) scale(.95)}}
+.ring{position:absolute; left:50%; top:50%; border-radius:50%; border:1px dashed rgba(255,214,190,.32)}
+.ring::after{content:""; position:absolute; top:-5px; left:50%; width:10px; height:10px; margin-left:-5px; border-radius:50%; background:var(--gold); box-shadow:0 0 14px 3px rgba(255,183,43,.7)}
+.ring.r1{width:430px; height:430px; margin:-215px 0 0 -215px; animation:spin 38s linear infinite}
+.ring.r2{width:520px; height:520px; margin:-260px 0 0 -260px; border-color:rgba(240,70,127,.3); animation:spin 62s linear infinite reverse}
+.ring.r2::after{background:var(--magenta); box-shadow:0 0 14px 3px rgba(240,70,127,.7)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gem{position:absolute; background:var(--glass); border:1px solid var(--glass-line); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:var(--glass-shadow)}
+.gem.g1{width:74px; height:74px; border-radius:50%; top:6%; left:6%; animation:bob2 7s ease-in-out infinite}
+.gem.g2{width:58px; height:58px; border-radius:18px; bottom:10%; right:2%; transform:rotate(18deg); animation:bob2 9s ease-in-out -3s infinite}
+.gem.g3{width:30px; height:30px; border-radius:50%; top:44%; right:-2%; animation:bob2 6s ease-in-out -1s infinite}
+@keyframes bob2{50%{margin-top:-16px}}
+@media (max-width:860px){
+  .orb{width:300px; height:300px; margin:-150px 0 0 -150px}
+  .ring.r1{width:360px; height:360px; margin:-180px 0 0 -180px}
+  .ring.r2{display:none}
+}
+
+/* rotating "We build ..." line */
+.rot{font-family:var(--display); font-weight:800; font-size:clamp(1.15rem,2.4vw,1.5rem); letter-spacing:-.01em; margin:0 0 16px; min-height:1.4em}
+.rot b{background:linear-gradient(95deg,#FFD25E,#FF8F3C 50%,#F0467F); -webkit-background-clip:text; background-clip:text; color:transparent}
+.rot b::after{content:""; display:inline-block; width:2px; height:1em; margin-left:3px; vertical-align:-.12em; background:var(--gold); animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+
+/* scroll cue */
+.cue{display:flex; justify-content:center; margin:-6px 0 4px}
+.cue i{width:26px; height:42px; border-radius:16px; border:2px solid rgba(255,214,190,.42); position:relative; display:block}
+.cue i::after{content:""; position:absolute; left:50%; top:8px; width:4px; height:9px; margin-left:-2px; border-radius:3px; background:var(--gold); animation:wheel 1.8s ease-in-out infinite}
+@keyframes wheel{0%{opacity:0; transform:translateY(0)}30%{opacity:1}100%{opacity:0; transform:translateY(14px)}}
+
+/* ---------- moving ticker ---------- */
+.marq{overflow:hidden; margin:12px -16px 0; padding:14px 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent); mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.marq-track{display:flex; width:max-content; animation:marq 42s linear infinite}
+.marq-set{display:flex; gap:12px; padding-right:12px}
+.marq span{white-space:nowrap; font-family:var(--mono); font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; color:#FFDCC2; padding:10px 18px; border-radius:99px;
+  background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.03)); border:1px solid var(--glass-line); box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.marq span::before{content:"✦"; color:var(--gold); margin-right:10px}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* ---------- promises ---------- */
+.promises{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:26px}
+.prom{padding:18px 18px 16px; border-radius:20px; display:grid; gap:4px}
+.prom b{font-family:var(--display); font-weight:800; font-size:1.45rem; letter-spacing:-.02em; background:linear-gradient(95deg,#FFD25E,#FF8F3C 55%,#F0467F); -webkit-background-clip:text; background-clip:text; color:transparent}
+.prom span{color:var(--mute); font-size:.9rem; line-height:1.4}
+@media (max-width:860px){.promises{grid-template-columns:1fr 1fr}.prom b{font-size:1.2rem}}
+
+/* ---------- sentence that lights up while you scroll ---------- */
+.lit-wrap{padding-block:84px 24px}
+.lit{font-family:var(--display); font-weight:800; font-size:clamp(1.65rem,4.4vw,3rem); line-height:1.14; letter-spacing:-.025em; max-width:21em; margin:0}
+.lw{color:rgba(255,244,236,.27); transition:color .45s ease, text-shadow .45s ease}
+.lw.on{color:var(--ink); text-shadow:0 0 30px rgba(255,122,61,.25)}
+
+/* ---------- "How it works" timeline ---------- */
+.steps li::before{transition:background .45s, color .45s, box-shadow .45s, transform .45s cubic-bezier(.3,1.6,.5,1);
+  background:linear-gradient(135deg,#FFD25E,#FF7A3D 60%,#F0467F); box-shadow:0 6px 20px rgba(255,122,61,.4)}
+html.fx .steps li:not(.on)::before{background:rgba(255,255,255,.12); color:var(--mute); box-shadow:none; transform:scale(.88)}
+.steps li{transition:border-color .45s}
+@media (min-width:1000px){
+  .steps{position:relative}
+  .steps li{z-index:1}
+  .steps::before,.steps::after{content:""; position:absolute; left:40px; right:40px; top:40px; height:3px; border-radius:3px}
+  .steps::before{background:rgba(255,255,255,.1)}
+  .steps::after{background:linear-gradient(90deg,#FFB72B,#FF7A3D,#F0467F); box-shadow:0 0 14px rgba(255,122,61,.6); transform-origin:left; transform:scaleX(var(--tp,0))}
+  html:not(.fx) .steps::after{transform:scaleX(1)}
+}
+
+/* ---------- featured card + final card: glowing rotating border ---------- */
+.svc.feat::before,.final::before{content:""; position:absolute; inset:-1.5px; border-radius:inherit; padding:1.5px; pointer-events:none;
+  background:conic-gradient(from var(--ang),#FFB72B,#F0467F,#8B5CF6,#FFB72B);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); mask-composite:exclude;
+  animation:angspin 7s linear infinite}
+@keyframes angspin{to{--ang:360deg}}
+.final{position:relative}
+.svc.feat{box-shadow:var(--glass-shadow),0 0 60px rgba(255,150,60,.16)}
+
+/* ---------- the "scanner" in the case study ---------- */
+.scan{position:relative; overflow:hidden; border-radius:16px; padding:12px; background:rgba(14,5,10,.5); border:1px solid var(--glass-line)}
+.scan-head{display:flex; justify-content:space-between; font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:8px}
+.scan-head em{font-style:normal; color:var(--mute)}
+.scan ul{list-style:none; margin:0; padding:0; display:grid; gap:6px}
+.scan li{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,.055); font-size:.84rem}
+.scan li b{font-weight:700}
+.fl{font-family:var(--mono); font-size:.62rem; padding:3px 9px; border-radius:99px; white-space:nowrap}
+.fl.a{background:rgba(255,90,69,.26); color:#FFB3A8} .fl.b{background:rgba(255,183,43,.25); color:#FFD98A}
+.fl.c{background:rgba(139,92,246,.3); color:#D9CCFF} .fl.d{background:rgba(240,70,127,.28); color:#FFB4CF}
+.scan-line{position:absolute; inset:0; pointer-events:none; opacity:0; background:linear-gradient(180deg,transparent 70%,rgba(255,183,43,.3) 95%,#FFB72B 100%); transform:translateY(-100%)}
+.scan.vis .scan-line{animation:scanline 6s ease-in-out infinite}
+.scan.vis .fl{animation-duration:6s; animation-iteration-count:infinite; animation-timing-function:ease}
+.scan.vis .f0{animation-name:fl0} .scan.vis .f1{animation-name:fl1} .scan.vis .f2{animation-name:fl2} .scan.vis .f3{animation-name:fl3}
+@keyframes scanline{0%{transform:translateY(-100%); opacity:0}6%{opacity:1}80%{transform:translateY(0); opacity:1}88%,100%{transform:translateY(0); opacity:0}}
+@keyframes fl0{0%,26%{opacity:0; scale:.6}32%,90%{opacity:1; scale:1}97%,100%{opacity:0; scale:.6}}
+@keyframes fl1{0%,40%{opacity:0; scale:.6}46%,90%{opacity:1; scale:1}97%,100%{opacity:0; scale:.6}}
+@keyframes fl2{0%,54%{opacity:0; scale:.6}60%,90%{opacity:1; scale:1}97%,100%{opacity:0; scale:.6}}
+@keyframes fl3{0%,68%{opacity:0; scale:.6}74%,90%{opacity:1; scale:1}97%,100%{opacity:0; scale:.6}}
+
+/* ---------- clinic graphic: appears/turns green when "booked" ---------- */
+.cl-chip{transition:opacity .5s, scale .55s cubic-bezier(.3,1.6,.5,1)}
+.cl-chip.pre{opacity:0; scale:.6}
+.cl-btn{transition:background .4s, color .4s, box-shadow .4s}
+.cl-btn.done{background:linear-gradient(135deg,#7FF0CB,#2FBF8F) !important; color:#04281D !important; box-shadow:0 4px 0 #1D8F69 !important}
+.cl-sel{transition:background .3s}
+
+/* ---------- calm version ---------- */
+@media (prefers-reduced-motion:reduce){
+  .orb,.ring,.gem,.marq-track,.svc.feat::before,.final::before,.cue i::after{animation:none !important}
+  .marq-track{flex-wrap:wrap; width:auto}
+  .marq-set[aria-hidden]{display:none}
+  .marq{-webkit-mask-image:none; mask-image:none}
+  .scan-line{display:none}
+  .scan .fl{animation:none !important; opacity:1 !important; scale:1 !important}
+  .rot b::after{animation:none}
+}
+@media print{.marq,.cue{display:none}}
+
+
+/* per-day price line */
+.svc .bill{color:var(--mute); font-size:.92rem; line-height:1.45; margin:-4px 0 4px}
+.svc .bill b{color:var(--ink)}
+.svc .price small{font-size:1rem}
+
+/* wide add-on card */
+.svc.wide{grid-column:1/-1}
+.svc.wide .wide-body{display:flex; flex-direction:column; gap:10px; max-width:46rem}
+.svc.wide .price{font-size:1.5rem}
+.svc.wide .btn{align-self:flex-start; margin-top:6px; min-width:200px}
+@media (max-width:720px){.svc.wide{grid-column:auto}}
