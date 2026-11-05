@@ -1,0 +1,149 @@
+/* ==========================================================================
+   SUNSET GLASS THEME  (public pages only)
+   One file controls the whole look: colours, liquid-glass panels, glowing
+   background, buttons, menu and scroll effects. Admin, dashboard and login
+   do not load this file.
+   To change the colours later, edit the variables in the first block.
+   ========================================================================== */
+@property --ang{syntax:'<angle>'; inherits:false; initial-value:0deg}
+
+html:root{
+  --bg:#13080E; --bg2:#1D0F17; --panel:#2A1722; --line:rgba(255,214,190,.16);
+  --ink:#FFF4EC; --mute:#CDB2A6; --gold:#FFB72B; --gold-ink:#2B1200;
+  --coral:#FF5A45; --orange:#FF7A3D; --magenta:#F0467F; --violet:#8B5CF6;
+  --mint:#6FE7BE; --err:#FF9A8A; --card:#2A1722;
+  --glass:linear-gradient(145deg,rgba(255,255,255,.115),rgba(255,255,255,.035));
+  --glass-line:rgba(255,255,255,.18);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(255,255,255,.05), 0 18px 48px rgba(0,0,0,.34);
+  --blur:blur(16px) saturate(165%);
+  color-scheme:dark;
+}
+html{scrollbar-color:#6b3a2e #13080E; scrollbar-width:thin}
+::selection{background:rgba(255,122,61,.55); color:#fff}
+html body{background:var(--bg); color:var(--ink)}
+html body > .wrap > header.top{z-index:60}
+
+/* ---------- glowing, liquid background ---------- */
+html body::before{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(1100px 700px at 8% -8%, rgba(255,122,61,.22), transparent 60%),
+    radial-gradient(900px 700px at 100% 12%, rgba(240,70,127,.18), transparent 58%),
+    radial-gradient(1000px 800px at 55% 112%, rgba(139,92,246,.20), transparent 62%)}
+html .aura{position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden; filter:hue-rotate(calc(var(--hue,0)*48deg))}
+html .aura i{position:absolute; border-radius:46% 54% 62% 38% / 44% 38% 62% 56%; filter:blur(60px); opacity:.55; will-change:transform; animation:liquid 16s ease-in-out infinite alternate}
+html .aura i:nth-child(1){width:480px; height:480px; background:radial-gradient(circle at 30% 30%,#FFB06A,#FF7A3D 55%,#FF5A45); top:-140px; left:-140px; opacity:.55}
+html .aura i:nth-child(2){width:440px; height:440px; background:radial-gradient(circle at 40% 35%,#FF7AA8,#F0467F 60%,#B5238C); top:28%; right:-170px; opacity:.42; animation-duration:21s; animation-delay:-4s}
+html .aura i:nth-child(3){width:420px; height:420px; background:radial-gradient(circle at 35% 35%,#A98BFF,#8B5CF6 60%,#5B2BD0); bottom:-160px; left:14%; opacity:.40; animation-duration:25s; animation-delay:-9s}
+html .aura i:nth-child(4){width:300px; height:300px; background:radial-gradient(circle,#FFD067,#FFB72B 65%,transparent); top:58%; left:-110px; opacity:.28; animation-duration:19s; animation-delay:-2s}
+html .aura i:nth-child(5){width:260px; height:260px; background:radial-gradient(circle,#FF9D6B,#FF5A45 70%,transparent); top:8%; right:22%; opacity:.22; animation-duration:23s; animation-delay:-7s}
+@keyframes liquid{
+  0%{border-radius:46% 54% 62% 38% / 44% 38% 62% 56%; transform:translate3d(0,0,0) rotate(0) scale(1)}
+  33%{border-radius:62% 38% 44% 56% / 52% 62% 38% 48%; transform:translate3d(46px,30px,0) rotate(40deg) scale(1.1)}
+  66%{border-radius:38% 62% 56% 44% / 60% 40% 60% 40%; transform:translate3d(-30px,56px,0) rotate(95deg) scale(.94)}
+  100%{border-radius:54% 46% 38% 62% / 38% 56% 44% 62%; transform:translate3d(28px,-26px,0) rotate(150deg) scale(1.08)}}
+html .grain{position:fixed; inset:0; z-index:3; pointer-events:none; opacity:.07; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* ---------- liquid-glass panels ---------- */
+html :is(.card,.svc,.steps li,.faq details,.dash,.cl-form,.cl-chip,.stage .chip,.enq,.samplestrip,.plan2,.get article,.sample,.band,.rev,.cta2,.postlist a,.types a,.udyam,.prom,.glass){
+  background:
+    radial-gradient(380px circle at var(--mx,30%) var(--my,0%), rgba(255,255,255,var(--sa,.07)), transparent 45%),
+    var(--glass);
+  border:1px solid var(--glass-line);
+  -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur);
+  box-shadow:var(--glass-shadow);
+}
+html :is(.dash,.cl-form){background-color:rgba(20,8,14,.5); border-width:1.5px}
+html .form-shell .card{-webkit-backdrop-filter:none; backdrop-filter:none; background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025))}
+html .svc.feat, html .plan2.main{border-color:rgba(255,183,43,.7)}
+html .svc.feat{background:radial-gradient(380px circle at var(--mx,30%) var(--my,0%), rgba(255,255,255,var(--sa,.07)), transparent 45%), linear-gradient(160deg,rgba(255,183,43,.16),rgba(240,70,127,.07) 60%,rgba(255,255,255,.03))}
+html .udyam{border-color:rgba(255,183,43,.55); background-color:rgba(255,183,43,.07)}
+html .final{border:1px solid var(--glass-line); background:
+    radial-gradient(520px circle at var(--mx,50%) var(--my,0%), rgba(255,255,255,.1), transparent 50%),
+    linear-gradient(145deg,rgba(255,122,61,.22),rgba(240,70,127,.13) 55%,rgba(139,92,246,.14));
+  -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); box-shadow:var(--glass-shadow)}
+html .sticky{background:rgba(20,8,14,.78); border-top:1px solid var(--glass-line); -webkit-backdrop-filter:blur(18px) saturate(160%); backdrop-filter:blur(18px) saturate(160%)}
+html .toast{box-shadow:0 14px 40px rgba(0,0,0,.5)}
+
+/* ---------- buttons ---------- */
+html .btn:not(.alt):not(.wab):not(.wa):not(.upi):not(.sm){background:linear-gradient(135deg,#FFD25E 0%,#FFA52E 48%,#FF6E3C 100%); color:var(--gold-ink); box-shadow:0 6px 0 #B5560B, 0 16px 36px rgba(255,122,61,.38)}
+html .btn.sm:not(.alt):not(.wa){background:linear-gradient(135deg,#FFD25E,#FFA52E 55%,#FF6E3C); color:var(--gold-ink)}
+html .btn:not(.alt):not(.wab):not(.wa):not(.upi):hover{box-shadow:0 4px 0 #B5560B, 0 10px 26px rgba(255,122,61,.35)}
+html .btn.alt{background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03)); border:1px solid var(--glass-line); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+html .btn.alt:hover{border-color:rgba(255,183,43,.8); background:linear-gradient(145deg,rgba(255,183,43,.16),rgba(255,255,255,.04))}
+html .btn.wab{background:linear-gradient(145deg,rgba(37,211,102,.14),rgba(37,211,102,.04)); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px)}
+html .btn.wa{box-shadow:0 6px 0 #1F9D6C}
+html .ig, html .back{background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03)); border:1px solid var(--glass-line); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px)}
+html .pill{color:#FFDCC2; border-color:var(--glass-line); background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03)); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px)}
+html .pill::before{background:var(--gold); box-shadow:0 0 10px var(--gold)}
+html .eyebrow{background:linear-gradient(90deg,#FFC94A,#FF8A4A 55%,#F0467F); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:500}
+
+/* ---------- headings ---------- */
+html h1 em{background:linear-gradient(95deg,#FFD25E 0%,#FF8F3C 45%,#F0467F 100%); -webkit-background-clip:text; background-clip:text; color:transparent}
+html h1 em path{stroke:url(#ulg); stroke:#FF5A7E}
+html h1{text-shadow:0 2px 40px rgba(255,122,61,.18)}
+
+/* ---------- form fields on glass ---------- */
+html :is(input,select,textarea){background-color:rgba(14,5,10,.55); border-color:rgba(255,255,255,.17)}
+html :is(input,select,textarea):focus{border-color:var(--gold); box-shadow:0 0 0 4px rgba(255,183,43,.18)}
+html :is(input,select,textarea)::placeholder{color:#8E7068}
+html input[type=checkbox],html input[type=radio]{accent-color:var(--gold)}
+
+/* ---------- header (floating glass bar) + menu ---------- */
+html header.top{position:sticky; top:10px; margin-top:10px; padding:10px 14px; border-radius:22px; border:1px solid transparent; transition:background .3s,border-color .3s,box-shadow .3s,backdrop-filter .3s}
+html header.top.stuck{background:linear-gradient(145deg,rgba(40,16,26,.72),rgba(24,9,16,.62)); border-color:var(--glass-line); -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%); box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 40px rgba(0,0,0,.4)}
+html .logo img{box-shadow:0 0 0 2px rgba(255,255,255,.2),0 0 22px rgba(255,122,61,.4)}
+@media (min-width:901px){
+  html .mainnav{position:relative; padding:4px; gap:2px; border-radius:99px; background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.03)); border:1px solid var(--glass-line); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+  html .mainnav a{position:relative; z-index:1}
+  html .mainnav.has-blob a[aria-current="page"]{background:none}
+  html .mainnav a:hover{background:none}
+  html .nav-blob{position:absolute; top:4px; bottom:4px; left:0; width:0; border-radius:99px; z-index:0; pointer-events:none; opacity:0;
+    background:linear-gradient(135deg,rgba(255,183,43,.34),rgba(240,70,127,.26)); border:1px solid rgba(255,255,255,.3); box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 6px 20px rgba(255,122,61,.25);
+    transition:transform .45s cubic-bezier(.2,.9,.25,1.15),width .45s cubic-bezier(.2,.9,.25,1.15),opacity .25s}
+  html .mainnav.has-blob .nav-blob{opacity:1}
+  html .mainnav a[aria-current]{color:#FFE2B4}
+}
+@media (max-width:900px){
+  html .mainnav{background:rgba(26,10,18,.9); border-color:var(--glass-line); -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%)}
+  html .nav-toggle{background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03)); border-color:var(--glass-line)}
+}
+
+/* ---------- scroll progress bar, cursor glow ---------- */
+html .scroll-progress{position:fixed; top:0; left:0; right:0; height:3px; z-index:120; transform-origin:0 50%; transform:scaleX(var(--sp,0)); background:linear-gradient(90deg,#FFB72B,#FF7A3D,#F0467F,#8B5CF6); box-shadow:0 0 14px rgba(255,122,61,.7); pointer-events:none}
+html .cursor-glow{position:fixed; left:0; top:0; width:560px; height:560px; margin:-280px 0 0 -280px; border-radius:50%; z-index:2; pointer-events:none; opacity:0; transition:opacity .5s;
+  background:radial-gradient(circle,rgba(255,150,90,.17),rgba(240,70,127,.07) 45%,transparent 68%); mix-blend-mode:screen; will-change:transform}
+html .cursor-glow.on{opacity:1}
+
+/* ---------- reveal on scroll (only when the script is running) ---------- */
+html.fx [data-rv]{opacity:0; transform:translate3d(0,38px,0) scale(.97); transition:opacity .85s cubic-bezier(.2,.7,.2,1) var(--d,0s), transform .85s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+html.fx [data-rv="left"]{transform:translate3d(-56px,0,0)}
+html.fx [data-rv="right"]{transform:translate3d(56px,0,0)}
+html.fx [data-rv="zoom"]{transform:scale(.86)}
+html.fx [data-rv="flip"]{transform:perspective(900px) rotateX(18deg) translate3d(0,40px,0); transform-origin:50% 100%}
+html.fx [data-rv].in{opacity:1; transform:none}
+html.fx-show [data-rv]{opacity:1 !important; transform:none !important}
+/* headline words rise one by one */
+html.fx .hw{display:inline-block; opacity:0; transform:translate3d(0,.55em,0) rotate(3deg); transition:opacity .7s cubic-bezier(.2,.7,.2,1) calc(var(--i)*70ms + 120ms), transform .8s cubic-bezier(.2,.7,.2,1) calc(var(--i)*70ms + 120ms)}
+html.fx .hw.in{opacity:1; transform:none}
+html.fx-show .hw{opacity:1 !important; transform:none !important}
+
+/* ---------- misc polish ---------- */
+html footer{border-top:1px solid var(--glass-line)}
+html a:focus-visible,html button:focus-visible,html summary:focus-visible{outline:3px solid #FFC94A; outline-offset:3px}
+html hr{border:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)}
+@media (max-width:700px){
+  html{--blur:blur(11px) saturate(150%)}
+  html .aura i{filter:blur(46px)}
+  html .cursor-glow{display:none}
+}
+@media (hover:none){html .cursor-glow{display:none}}
+@media (prefers-reduced-motion:reduce){
+  html .aura i{animation:none}
+  html [data-rv],html .hw{opacity:1 !important; transform:none !important; transition:none !important}
+  html .cursor-glow{display:none}
+}
+@media print{html .aura,html .grain,html .scroll-progress,html .cursor-glow{display:none}}
+
+/* pop-up offers */
+html #vsp .vc{background:linear-gradient(145deg,rgba(66,28,44,.97),rgba(30,12,21,.98)); border-color:rgba(255,183,43,.75); box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 24px 70px rgba(0,0,0,.6),0 0 60px rgba(255,122,61,.2)}
